@@ -1,0 +1,40 @@
+# version: '3'
+
+services:
+  # サービス名
+  django:
+    build:
+      context: ./containers    # Dockerfileがあるディレクトリまでの相対パス
+      dockerfile: Dockerfile   # Dockerfileのファイル名
+    
+    # 作成するコンテナ名の指定
+    container_name: django
+
+    # 使用するポートの設定
+    ports:
+      - "8000:8000"
+    
+    # 対話的なセッションやコマンドラインの操作を許可する
+    tty: true
+
+    volumes:
+      # ローカルの作業ディレクトリと仮想環境の作業ディレクトリの対応づけ
+      - ${SRC_PATH}:/root/workspace   
+
+  db:
+      image: mysql:8.0
+      container_name: mysql
+      restart: always
+      ports:
+        - "3306:3306"
+
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpass
+        MYSQL_DATABASE: app_db
+        MYSQL_USER: app_user
+        MYSQL_PASSWORD: app_pass
+        TZ: Asia/Tokyo
+      volumes:
+          - db_data:/var/lib/mysql
+volumes:
+  db_data:
