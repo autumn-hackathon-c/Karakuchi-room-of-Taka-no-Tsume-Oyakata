@@ -26,7 +26,7 @@ docker-compose build
 
 #### 3.2 起動
 ```
-docker-compose up
+docker-compose up -d
 ```
 
 ### 3.3 サーバー起動
@@ -35,6 +35,12 @@ python manage.py runserver 0.0.0.0:8000
 ```
 
 ## コマンド集 （汎用的に使うコマンドがあれば、都度記載予定)
+
+### 1 MySQLコンテナに接続
+```
+docker exec -it mysql mysql -u root -p
+```
+パスワードを聞かれたら.env に書いた rootpass を入力
 
 
 
