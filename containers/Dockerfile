@@ -9,3 +9,6 @@ WORKDIR /root/workspace
 RUN pip install --upgrade pip\
     && pip install --upgrade setuptools\
     && pip install -r requirements.txt
+
+# ruffの設定
+RUN pip install --no-cache-dir "ruff[format]"

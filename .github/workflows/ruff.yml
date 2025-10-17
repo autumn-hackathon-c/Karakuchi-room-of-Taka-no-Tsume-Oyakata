@@ -1,0 +1,33 @@
+# ワークフローの名前（GitHub Actions の一覧に表示されます）
+name: Ruff Lint and Format
+
+# このワークフローが起動するトリガー（push または PR のたびに実行）
+on: [push, pull_request]
+
+jobs:
+  ruff:
+    # GitHub が用意する Ubuntu 環境で実行（標準的）
+    runs-on: ubuntu-latest
+
+    steps:
+      # ソースコードをチェックアウト（GitHub リポジトリの内容を取得）
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Python のセットアップ（Ruff を動かすために必要）
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"  # 必要に応じて 3.10 などに変更可
+
+      # Ruff のインストール（format 機能も使えるように `[format]` オプション付き）
+      - name: Install Ruff
+        run: pip install "ruff[format]"
+
+      # Ruff による Lint チェック（GitHub 表示に対応する format）
+      - name: Run Ruff (lint)
+        run: ruff check --output-format=github .
+
+      # Ruff によるフォーマットチェック（差分があると失敗）
+      - name: Run Ruff (format check)
+        run: ruff format . --check --diff

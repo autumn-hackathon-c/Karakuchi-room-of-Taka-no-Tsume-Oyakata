@@ -1,0 +1,54 @@
+[tool.ruff]
+# ⛔ Ruff に無視させるディレクトリを指定（Git 管理・仮想環境・ビルド系を含む）
+exclude = [
+    ".git",           # Git 管理ディレクトリ
+    ".venv",          # Python 仮想環境
+    "node_modules",   # フロントエンド依存
+    "build", "dist",  # ビルド成果物
+    ".ruff_cache"     # Ruff のキャッシュ
+]
+
+# ✅ Black と合わせる：最大行長（PEP8 に基づく）
+line-length = 88
+
+# ✅ インデント幅（4スペース：Python 標準）
+indent-width = 4
+
+# ✅ 対象とする Python バージョン（構文解析に影響あり）
+target-version = "py39"
+
+[tool.ruff.lint]
+# ✅ 有効にするルールの範囲（E: pycodestyle, F: pyflakes）
+# E4: imports, E7: statements, E9: syntax errors, F: name errors etc.
+select = ["E4", "E7", "E9", "F"]
+
+# ✅ E501（行が長すぎる）などのルールを無効にしたいときはここに記載
+ignore = []
+
+# ✅ 自動修正を許可（`ruff --fix` が有効に）
+fixable = ["ALL"]
+
+# ⛔ 自動修正させたくないルール（必要に応じて記載）
+unfixable = []
+
+# ✅ アンダースコア始まりの未使用変数は許容（例えば `_unused`）
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# ✅ ダブルクオートに統一（Black と同様）
+quote-style = "double"
+
+# ✅ タブではなくスペースでインデント（Black と同様）
+indent-style = "space"
+
+# ✅ 行末カンマの自動判定（Black と同様）
+skip-magic-trailing-comma = false
+
+# ✅ 改行コードは OS に応じて自動で判定
+line-ending = "auto"
+
+# ⛔ docstring 内のコード整形は今は無効化（安定運用）
+docstring-code-format = false
+
+# ⛔ 上の docstring 整形が有効な場合の制御（現時点では未使用）
+docstring-code-line-length = "dynamic"
