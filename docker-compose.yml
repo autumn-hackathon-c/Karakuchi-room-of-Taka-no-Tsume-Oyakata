@@ -21,18 +21,20 @@ services:
       # ローカルの作業ディレクトリと仮想環境の作業ディレクトリの対応づけ
       - ${SRC_PATH}:/root/workspace   
 
+  # DB名
   db:
       image: mysql:8.0
       container_name: mysql
       restart: always
       ports:
         - "3306:3306"
-
+        
+  #環境変数の設定
       environment:
-        MYSQL_ROOT_PASSWORD: rootpass
-        MYSQL_DATABASE: app_db
-        MYSQL_USER: app_user
-        MYSQL_PASSWORD: app_pass
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         TZ: Asia/Tokyo
       volumes:
           - db_data:/var/lib/mysql
