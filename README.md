@@ -34,6 +34,9 @@ docker-compose up -d
 docker-compose　down
 ```
 
+### 3.4 アクセス確認方法
+Webアプリ： http://localhost:8000
+
 ## コマンド集 （汎用的に使うコマンドがあれば、都度記載予定)
 
 ### 1 MySQLコンテナに接続
