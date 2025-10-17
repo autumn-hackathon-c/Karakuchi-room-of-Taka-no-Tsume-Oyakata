@@ -1,0 +1,25 @@
+# プルリクエストが作成されたときに Mattermost に通知を送る GitHub Actions ワークフロー
+name: Notify Mattermost on PR to develop
+
+on:
+  pull_request:
+    types: [opened] # プルリクエストが「新しく作成された時」に限定
+    branches:  # 対象ブランチが developの場合のみ通知を送る
+      - develop
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest # GitHubが提供する最新のUbuntuランナーで実行
+
+    steps:
+      - name: Send message to Mattermost
+        run: |
+          # ✅ JSON 形式で Mattermost に通知を送信する
+          # ✅ 各種 GitHub コンテキストをメッセージに埋め込む
+                    curl -X POST -H "Content-Type: application/json" \
+          -d '{
+            "text": "✅ プルリクエストが作成されました。\nリポジトリ: ${{ github.repository }}\nPRタイトル: ${{ github.event.pull_request.title }}\n作成者: ${{ github.event.pull_request.user.login }}\nURL: ${{ github.event.pull_request.html_url }}"
+          }' \
+          ${{ secrets.MATTERMOST_WEBHOOK }} 
+        # ✅ Webhook URL は GitHub Secrets に登録済み
+

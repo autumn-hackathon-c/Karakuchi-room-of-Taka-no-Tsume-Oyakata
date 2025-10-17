@@ -43,5 +43,22 @@ docker exec -it mysql mysql -u root -p
 パスワードを聞かれたら.env に書いた rootpass を入力
 
 
+### 2.Ruffコマンド
+Lint(コードチェックのみ)
+
+```bash
+make lint-check
+```
+
+Format（コード整形）
+
+```bash
+make format
+```
+上記がOKでないとマージできないので
+プルリク投げる際は都度上記を実行するようにしてください。
+ただし、フロントエンド(HTML,CSS,JavaScript)の内容は修正不可
+
+
 
 
