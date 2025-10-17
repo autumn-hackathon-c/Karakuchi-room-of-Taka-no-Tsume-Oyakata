@@ -29,9 +29,9 @@ docker-compose build
 docker-compose up -d
 ```
 
-### 3.3 サーバー起動
+### 3.3 削除
 ```
-python manage.py runserver 0.0.0.0:8000
+docker-compose　down
 ```
 
 ## コマンド集 （汎用的に使うコマンドがあれば、都度記載予定)

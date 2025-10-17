@@ -4,8 +4,8 @@ services:
   # サービス名
   django:
     build:
-      context: ./containers    # Dockerfileがあるディレクトリまでの相対パス
-      dockerfile: Dockerfile   # Dockerfileのファイル名
+      context: .    #  ← プロジェクトルートをビルドコンテキストに！
+      dockerfile: containers/Dockerfile   # Dockerfileのファイル名
     
     # 作成するコンテナ名の指定
     container_name: django
@@ -17,9 +17,12 @@ services:
     # 対話的なセッションやコマンドラインの操作を許可する
     tty: true
 
+    working_dir: /app/sample
     volumes:
-      # ローカルの作業ディレクトリと仮想環境の作業ディレクトリの対応づけ
-      - ${SRC_PATH}:/root/workspace   
+      - ${SRC_PATH}:/app/sample
+
+    #起動コマンド
+    command: python manage.py runserver 0.0.0.0:8000
 
   # DB名
   db:
