@@ -29,7 +29,7 @@ docker-compose build
 docker-compose up -d
 ```
 
-### 3.3 削除
+#### 3.3 削除
 ```
 docker-compose　down
 ```
