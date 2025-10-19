@@ -2,13 +2,16 @@
 name: Notify Mattermost on PR to develop
 
 on:
+  # 作成直後(opened)と、Draft解除(ready_for_review)でフック
   pull_request:
-    types: [opened] # プルリクエストが「新しく作成された時」に限定
+    types: [opened, ready_for_review] # プルリクエストが「新しく作成された時」に限定
     branches:  # 対象ブランチが developの場合のみ通知を送る
       - develop
 
 jobs:
   notify:
+    # ✅ Draft PR の間はスキップ。Ready for review になれば実行される
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest # GitHubが提供する最新のUbuntuランナーで実行
 
     steps:
