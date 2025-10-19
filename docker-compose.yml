@@ -16,10 +16,9 @@ services:
     
     # 対話的なセッションやコマンドラインの操作を許可する
     tty: true
-
-    working_dir: /app/sample
     volumes:
-      - ${SRC_PATH}:/app/sample
+      - ${SRC_PATH:-./src}:/app     # ← src を /app にマウント
+    working_dir: /app               # ← manage.py がここにある
 
     #起動コマンド
     command: python manage.py runserver 0.0.0.0:8000
