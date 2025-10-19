@@ -12,6 +12,3 @@ RUN pip install --upgrade pip \
     && pip install --upgrade setuptools \
     && pip install -r requirements.txt \
     && pip install --no-cache-dir "ruff[format]"
-
-# Django プロジェクトをコピー
-COPY src/sample /app/sample
