@@ -132,6 +132,7 @@ class Survey(models.Model):
     
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,     # ← 親ユーザー削除を禁止（論理削除に合わせる）
         related_name="surveys",  # user.posts で辿れる
         db_column="user_id" ,    # 物理列名を user_id に固定
         null = False
@@ -180,7 +181,7 @@ class Survey(models.Model):
     )
     updated_at = models.DateTimeField(
         auto_now=True, 
-        erbose_name="更新日時"
+        verbose_name="更新日時"
     )
     is_deleted = models.BooleanField(
         default=False, 
