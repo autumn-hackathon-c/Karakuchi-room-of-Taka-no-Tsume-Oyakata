@@ -103,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-#日本語設定を実施
+# 日本語設定を実施
 LANGUAGE_CODE = "ja"
 
 TIME_ZONE = "Asia/Tokyo"
