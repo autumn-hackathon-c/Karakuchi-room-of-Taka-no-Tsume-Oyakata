@@ -5,51 +5,103 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('karakuchi_room', '0002_alter_user_options_survey_and_more'),
+        ("karakuchi_room", "0002_alter_user_options_survey_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID')),
-                ('tag_name', models.CharField(max_length=50, verbose_name='タグ名')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='削除フラグ')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("tag_name", models.CharField(max_length=50, verbose_name="タグ名")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="削除フラグ"),
+                ),
             ],
             options={
-                'verbose_name': 'タグ',
-                'verbose_name_plural': 'タグ一覧',
-                'db_table': 'tags',
+                "verbose_name": "タグ",
+                "verbose_name_plural": "タグ一覧",
+                "db_table": "tags",
             },
         ),
         migrations.CreateModel(
-            name='TagSurvey',
+            name="TagSurvey",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='削除フラグ')),
-                ('survey', models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.PROTECT, related_name='tag_surveys', to='karakuchi_room.survey', verbose_name='アンケートID')),
-                ('tag', models.ForeignKey(db_column='tag_id', on_delete=django.db.models.deletion.PROTECT, related_name='tag_surveys', to='karakuchi_room.tag', verbose_name='タグID')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="削除フラグ"),
+                ),
+                (
+                    "survey",
+                    models.ForeignKey(
+                        db_column="survey_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="tag_surveys",
+                        to="karakuchi_room.survey",
+                        verbose_name="アンケートID",
+                    ),
+                ),
+                (
+                    "tag",
+                    models.ForeignKey(
+                        db_column="tag_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="tag_surveys",
+                        to="karakuchi_room.tag",
+                        verbose_name="タグID",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'tag_surveys',
+                "db_table": "tag_surveys",
             },
         ),
         migrations.AddIndex(
-            model_name='tag',
-            index=models.Index(fields=['tag_name', 'is_deleted'], name='tags_tag_nam_c3b10a_idx'),
+            model_name="tag",
+            index=models.Index(
+                fields=["tag_name", "is_deleted"], name="tags_tag_nam_c3b10a_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='tagsurvey',
-            index=models.Index(fields=['tag'], name='tag_surveys_tag_id_76e5ec_idx'),
+            model_name="tagsurvey",
+            index=models.Index(fields=["tag"], name="tag_surveys_tag_id_76e5ec_idx"),
         ),
         migrations.AddIndex(
-            model_name='tagsurvey',
-            index=models.Index(fields=['survey'], name='tag_surveys_survey__7612c9_idx'),
+            model_name="tagsurvey",
+            index=models.Index(
+                fields=["survey"], name="tag_surveys_survey__7612c9_idx"
+            ),
         ),
     ]

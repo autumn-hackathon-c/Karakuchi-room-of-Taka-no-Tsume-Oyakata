@@ -7,46 +7,46 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
 class UserManager(BaseUserManager):
     # 一般ユーザの作成
-    def create_user(self, user_name, email_address, password, **extra_fields  ):
+    def create_user(self, user_name, email_address, password, **extra_fields):
         if not user_name:
             raise ValueError("名前は必須です")
         if not email_address:
             raise ValueError("メールアドレスは必須です")
         if not password:
             raise ValueError("パスワードは必須です。")
-        
+
         # Emailを正規化
-        email_address=self.normalize_email(email_address)
+        email_address = self.normalize_email(email_address)
 
         # ユーザインスタンスの作成
         user = self.model(
             user_name=user_name,
             email_address=email_address,
-            #追加の属性を柔軟に設定
-             **extra_fields  
+            # 追加の属性を柔軟に設定
+            **extra_fields,
         )
-        
+
         # パスワードのハッシュ化
         user.set_password(password)
-        
+
         # ユーザーを保存
         user.save(using=self._db)
-        
+
         return user
 
     # スーパーユーザ（管理者）の作成
-    def create_superuser(self, user_name, email_address, password,**extra_fields):
-        
+    def create_superuser(self, user_name, email_address, password, **extra_fields):
         # ユーザインスタンスの作成
         user = self.create_superuser(
             user_name=user_name,
             email_address=self.normalize_email(email_address),
             password=password,
-            #追加の属性を柔軟に設定
-             **extra_fields  
+            # 追加の属性を柔軟に設定
+            **extra_fields,
         )
 
         user.is_staff = True
@@ -54,115 +54,69 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-#Users テーブル
+
+# Users テーブル
 class User(AbstractBaseUser, PermissionsMixin):
-
-
     id = models.UUIDField(
-        primary_key=True, 
-        default=uuid4, 
-        null=False,
-        editable=False, 
-        verbose_name="ID"
+        primary_key=True, default=uuid4, null=False, editable=False, verbose_name="ID"
     )
 
-    user_name = models.CharField(
-        max_length=50,
-        null=False,
-        verbose_name="名前"
-    )
+    user_name = models.CharField(max_length=50, null=False, verbose_name="名前")
 
     email_address = models.EmailField(
-        max_length=255,
-        unique=True,
-        null=False,
-        verbose_name="メールアドレス"
+        max_length=255, unique=True, null=False, verbose_name="メールアドレス"
     )
 
-    is_admin = models.BooleanField(
-        default=False,
-        verbose_name="管理者フラグ"
-    )
+    is_admin = models.BooleanField(default=False, verbose_name="管理者フラグ")
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="作成日時"
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name="更新日時"
-    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(
-        default=False,
-        verbose_name="削除フラグ"
-    )
-    
-    #passwordカラムはAbstractBaseUser に含まれているので作成不要
-    
+    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+
+    # passwordカラムはAbstractBaseUser に含まれているので作成不要
+
     # ログイン時一意の識別子として使用される
     USERNAME_FIELD = "email_address"
     # superuser作成時追加で求められるフィールド
     REQUIRED_FIELDS = ["user_name"]
-    
-    #UserManagerを紐付ける。
+
+    # UserManagerを紐付ける。
     objects = UserManager()
 
     class Meta:
-        db_table = "users" # MySQLのテーブル名の指定
+        db_table = "users"  # MySQLのテーブル名の指定
         verbose_name = "ユーザー"
         verbose_name_plural = "ユーザー一覧"
         ordering = ["id"]  # 左記を基準にしてデータを並び替える
 
-    #インスタンスを文字列として表すためのメソッド
+    # インスタンスを文字列として表すためのメソッド
     def __str__(self):
         return f"名前: {self.user_name}"
-    
-    
 
-#Surveysテーブル
+
+# Surveysテーブル
 class Survey(models.Model):
-    id = models.AutoField(
-        primary_key=True,
-        verbose_name="ID"
-    )
-    
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
         on_delete=models.PROTECT,  # 親ユーザー削除を禁止（論理削除に合わせる）
-        related_name="surveys",  
-        db_column="user_id" ,   
-        null = False,
-        blank=False
+        related_name="surveys",
+        db_column="user_id",
+        null=False,
+        blank=False,
     )
 
-    title = models.CharField(
-        max_length=50,
-        verbose_name="タイトル",
-        null = False
-    )
-    
-    description = models.TextField(
-        blank=True, 
-        verbose_name="詳細"
-    )
+    title = models.CharField(max_length=50, verbose_name="タイトル", null=False)
 
-    start_at = models.DateTimeField(
-        null=True,
-        blank=True, 
-        verbose_name="投票開始日時"
-    )
-    end_at = models.DateTimeField(
-        null=True, 
-        blank=True, 
-        verbose_name="投票終了日時"
-    )
+    description = models.TextField(blank=True, verbose_name="詳細")
 
-    is_public = models.BooleanField(
-        default=False, 
-        verbose_name="公開フラグ"
-    )
+    start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
+    end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
+
+    is_public = models.BooleanField(default=False, verbose_name="公開フラグ")
 
     OPEN_STATUS = (
         (0, "受付中"),
@@ -174,18 +128,9 @@ class Survey(models.Model):
         verbose_name="投票フラグ",
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name="作成日時"
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True, 
-        verbose_name="更新日時"
-    )
-    is_deleted = models.BooleanField(
-        default=False, 
-        verbose_name="削除フラグ"
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
+    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
 
     class Meta:
         db_table = "surveys"
@@ -198,35 +143,19 @@ class Survey(models.Model):
 
     def __str__(self):
         return f"タイトル: {self.title} (アンケートID={self.id})"
-    
 
-#Tagsテーブル
+
+# Tagsテーブル
 class Tag(models.Model):
-    id = models.AutoField(
-        primary_key=True, 
-        verbose_name="ID"
-        ) 
-    
-    tag_name = models.CharField(
-        max_length=50, 
-        verbose_name="タグ名",
-        null = False
-        )  
+    id = models.AutoField(primary_key=True, verbose_name="ID")
 
-    created_at = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name="作成日時"
-    )
-    
-    updated_at = models.DateTimeField(
-        auto_now=True, 
-        verbose_name="更新日時"
-    )
-    
-    is_deleted = models.BooleanField(
-        default=False, 
-        verbose_name="削除フラグ"
-    )
+    tag_name = models.CharField(max_length=50, verbose_name="タグ名", null=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
+
+    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
 
     class Meta:
         db_table = "tags"
@@ -234,74 +163,58 @@ class Tag(models.Model):
         verbose_name_plural = "タグ一覧"
         indexes = [
             # 検索を速くするためにインデックス(目次)を設定
-            models.Index(fields=["tag_name","is_deleted"]),
+            models.Index(fields=["tag_name", "is_deleted"]),
         ]
 
     def __str__(self):
         return f"タグ名: {self.tag.tag_name}"
-        
 
-#Tag_Surveysテーブル
+
+# Tag_Surveysテーブル
 class TagSurvey(models.Model):
     tag = models.ForeignKey(
-        Tag, # Tagモデル（親）
+        Tag,  # Tagモデル（親）
         on_delete=models.PROTECT,
         db_column="tag_id",
         related_name="tag_surveys",
         verbose_name="タグID",
-        null=False, 
+        null=False,
         blank=False,
     )
 
     survey = models.ForeignKey(
-        Survey, # Surveyモデル（親）
+        Survey,  # Surveyモデル（親）
         on_delete=models.PROTECT,
         db_column="survey_id",
         related_name="tag_surveys",
         verbose_name="アンケートID",
-        null=False, 
-        blank=False
+        null=False,
+        blank=False,
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="作成日時"
-    )
-    
-    updated_at = models.DateTimeField(
-        auto_now=True, 
-        verbose_name="更新日時"
-    )
-    
-    is_deleted = models.BooleanField(
-        default=False, 
-        verbose_name="削除フラグ"
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
+
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
+
+    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
 
     class Meta:
         db_table = "tag_surveys"
-        indexes = [
-            models.Index(fields=["tag"]), 
-            models.Index(fields=["survey"])
-        ]
-        
+        indexes = [models.Index(fields=["tag"]), models.Index(fields=["survey"])]
+
     def __str__(self):
         return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
-    
-    
-#Optionsテーブル
-class Option(models.Model):
 
-    id = models.AutoField(
-        primary_key=True, 
-        verbose_name="ID"
-    )
+
+# Optionsテーブル
+class Option(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
 
     survey = models.ForeignKey(
-        Survey,                     # Surveyモデル（親）
-        on_delete=models.PROTECT,   
-        db_column="survey_id",      
-        related_name="options",        
+        Survey,  # Surveyモデル（親）
+        on_delete=models.PROTECT,
+        db_column="survey_id",
+        related_name="options",
         verbose_name="アンケートID",
         null=False,
         blank=False,
@@ -341,37 +254,34 @@ class Option(models.Model):
     def __str__(self):
         return f"選択項目: {self.label} (アンケートID={self.survey_id})"
 
-#Votesテーブル
-class Vote(models.Model):
 
-    id = models.AutoField(
-        primary_key=True, 
-        verbose_name="ID"
-    )
+# Votesテーブル
+class Vote(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.PROTECT,       
+        on_delete=models.PROTECT,
         db_column="user_id",
-        related_name="votes", 
+        related_name="votes",
         verbose_name="ユーザーID",
         null=False,
         blank=False,
     )
 
     option = models.ForeignKey(
-        Option,                    # Userモデル（親）
+        Option,  # Userモデル（親）
         on_delete=models.PROTECT,
         db_column="option_id",
-        related_name="votes",           # option.votes.all()
+        related_name="votes",  # option.votes.all()
         verbose_name="選択ID",
         null=False,
         blank=False,
     )
-    
+
     comment = models.TextField(
         verbose_name="コメント",
-        null=True, 
+        null=True,
         blank=True,
     )
 
@@ -399,14 +309,13 @@ class Vote(models.Model):
             models.Index(fields=["option"]),
             models.Index(fields=["is_deleted"]),
         ]
-        
+
         # 同じユーザーが同じ選択肢に複数票を入れられないようにしたい場合は↓を有効化
         # constraints = [
         #     models.UniqueConstraint(fields=["user", "option"], name="uq_vote_user_option"),
         # ]
 
-
     def __str__(self):
-        return f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
-
-
+        return (
+            f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
+        )
