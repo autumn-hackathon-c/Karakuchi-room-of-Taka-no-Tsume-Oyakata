@@ -115,8 +115,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "ユーザー一覧"
         ordering = ["id"]  # 左記を基準にしてデータを並び替える
 
+    #インスタンスを文字列として表すためのメソッド
     def __str__(self):
-        return self.user_name
+        return f"名前: {self.user_name}"
+    
     
 
 #Surveysテーブル
@@ -135,7 +137,8 @@ class Survey(models.Model):
         on_delete=models.PROTECT,     # ← 親ユーザー削除を禁止（論理削除に合わせる）
         related_name="surveys",  # user.posts で辿れる
         db_column="user_id" ,    # 物理列名を user_id に固定
-        null = False
+        null = False,
+        blank=False
     )
 
     title = models.CharField(
@@ -198,8 +201,95 @@ class Survey(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.title} (id={self.id})"
-
+        return f"タイトル: {self.title} (アンケートID={self.id})"
     
+
+#Tagsテーブル
+class Tag(models.Model):
+    id = models.AutoField(
+        primary_key=True, 
+        verbose_name="ID"
+        ) 
+    
+    tag_name = models.CharField(
+        max_length=50, 
+        verbose_name="タグ名",
+        null = False
+        )  
+
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="作成日時"
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True, 
+        verbose_name="更新日時"
+    )
+    
+    is_deleted = models.BooleanField(
+        default=False, 
+        verbose_name="削除フラグ"
+    )
+
+    class Meta:
+        db_table = "tags"
+        verbose_name = "タグ"
+        verbose_name_plural = "タグ一覧"
+        indexes = [
+            # 検索を速くするためにインデックス(目次)を設定
+            models.Index(fields=["tag_name","is_deleted"]),
+        ]
+
+    def __str__(self):
+        return f"タグ名: {self.tag.tag_name}"
+        
+
+#Tag_Surveysテーブル
+class TagSurvey(models.Model):
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.PROTECT,
+        db_column="tag_id",
+        related_name="tag_surveys",
+        verbose_name="タグID",
+        null=False, 
+        blank=False,
+    )
+
+    survey = models.ForeignKey(
+        Survey, 
+        on_delete=models.PROTECT,
+        db_column="survey_id",
+        related_name="tag_surveys",
+        verbose_name="アンケートID",
+        null=False, 
+        blank=False
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="作成日時"
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True, 
+        verbose_name="更新日時"
+    )
+    
+    is_deleted = models.BooleanField(
+        default=False, 
+        verbose_name="削除フラグ"
+    )
+
+    class Meta:
+        db_table = "tag_surveys"
+        indexes = [
+            models.Index(fields=["tag"]), 
+            models.Index(fields=["survey"])
+        ]
+        
+    def __str__(self):
+        return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
 
 
