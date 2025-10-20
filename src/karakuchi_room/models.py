@@ -1,5 +1,6 @@
 from django.db import models
 from uuid import uuid4
+from django.conf import settings
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
@@ -111,7 +112,93 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = "users" # MySQLのテーブル名の指定
         verbose_name = "ユーザー"
+        verbose_name_plural = "ユーザー一覧"
         ordering = ["id"]  # 左記を基準にしてデータを並び替える
 
     def __str__(self):
         return self.user_name
+    
+
+#Surveysテーブル
+class Survey(models.Model):
+    """
+    Users(親) : Post(子) = 1 : N
+    親は settings.AUTH_USER_MODEL（= users テーブル）を参照
+    """
+    id = models.AutoField(
+        primary_key=True,
+        verbose_name="ID"
+    )
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="surveys",  # user.posts で辿れる
+        db_column="user_id" ,    # 物理列名を user_id に固定
+        null = False
+    )
+
+    title = models.CharField(
+        max_length=50,
+        verbose_name="タイトル",
+        null = False
+    )
+    
+    description = models.TextField(
+        blank=True, 
+        verbose_name="詳細"
+    )
+
+    start_at = models.DateTimeField(
+        null=True,
+        blank=True, 
+        verbose_name="投票開始日時"
+    )
+    end_at = models.DateTimeField(
+        null=True, 
+        blank=True, 
+        verbose_name="投票終了日時"
+    )
+
+    is_public = models.BooleanField(
+        default=False, 
+        verbose_name="公開フラグ"
+    )
+
+    OPEN_STATUS = (
+        (0, "受付中"),
+        (1, "受付終了"),
+    )
+    is_open = models.PositiveSmallIntegerField(
+        choices=OPEN_STATUS,
+        default=0,
+        verbose_name="投票フラグ",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="作成日時"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, 
+        erbose_name="更新日時"
+    )
+    is_deleted = models.BooleanField(
+        default=False, 
+        verbose_name="削除フラグ"
+    )
+
+    class Meta:
+        db_table = "surveys"
+        verbose_name = "アンケート"
+        verbose_name_plural = "アンケート一覧"
+        # 検索を速くするためにインデックス(目次)を設定
+        indexes = [
+            models.Index(fields=["user", "-created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} (id={self.id})"
+
+    
+
+
