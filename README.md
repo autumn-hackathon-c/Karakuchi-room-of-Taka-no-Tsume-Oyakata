@@ -37,6 +37,20 @@ docker-compose　down
 ### 3.4 アクセス確認方法
 Webアプリ： http://localhost:8000
 
+### 4.マイグレーション関連コマンド一覧
+
+#### 4.1. マイグレーションファイルを作成
+```
+docker-compose exec django python manage.py makemigrations
+```
+
+#### 4.2 マイグレーションを実行（テーブル作成など）
+```
+docker-compose exec django python manage.py migrate
+```
+
+
+
 ## コマンド集 （汎用的に使うコマンドがあれば、都度記載予定)
 
 ### 1 MySQLコンテナに接続
