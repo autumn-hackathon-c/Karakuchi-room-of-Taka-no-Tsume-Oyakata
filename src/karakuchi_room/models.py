@@ -341,4 +341,72 @@ class Option(models.Model):
     def __str__(self):
         return f"選択項目: {self.label} (アンケートID={self.survey_id})"
 
+#Votesテーブル
+class Vote(models.Model):
+
+    id = models.AutoField(
+        primary_key=True, 
+        verbose_name="ID"
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Userモデル（親）
+        on_delete=models.PROTECT,       
+        db_column="user_id",
+        related_name="votes", 
+        verbose_name="ユーザーID",
+        null=False,
+        blank=False,
+    )
+
+    option = models.ForeignKey(
+        Option,                    # Userモデル（親）
+        on_delete=models.PROTECT,
+        db_column="option_id",
+        related_name="votes",           # option.votes.all()
+        verbose_name="選択ID",
+        null=False,
+        blank=False,
+    )
+    
+    comment = models.TextField(
+        verbose_name="コメント",
+        null=True, 
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="作成日時",
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="更新日時",
+    )
+
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name="削除フラグ",
+    )
+
+    class Meta:
+        db_table = "votes"
+        verbose_name = "投票"
+        verbose_name_plural = "投票一覧"
+        indexes = [
+            models.Index(fields=["user"]),
+            models.Index(fields=["option"]),
+            models.Index(fields=["is_deleted"]),
+        ]
+        
+        # 同じユーザーが同じ選択肢に複数票を入れられないようにしたい場合は↓を有効化
+        # constraints = [
+        #     models.UniqueConstraint(fields=["user", "option"], name="uq_vote_user_option"),
+        # ]
+
+
+    def __str__(self):
+        return f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
+
 
