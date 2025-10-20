@@ -123,20 +123,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 #Surveysテーブル
 class Survey(models.Model):
-    """
-    Users(親) : Post(子) = 1 : N
-    親は settings.AUTH_USER_MODEL（= users テーブル）を参照
-    """
     id = models.AutoField(
         primary_key=True,
         verbose_name="ID"
     )
     
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,     # ← 親ユーザー削除を禁止（論理削除に合わせる）
-        related_name="surveys",  # user.posts で辿れる
-        db_column="user_id" ,    # 物理列名を user_id に固定
+        settings.AUTH_USER_MODEL,  # Userモデル（親）
+        on_delete=models.PROTECT,  # 親ユーザー削除を禁止（論理削除に合わせる）
+        related_name="surveys",  
+        db_column="user_id" ,   
         null = False,
         blank=False
     )
@@ -248,7 +244,7 @@ class Tag(models.Model):
 #Tag_Surveysテーブル
 class TagSurvey(models.Model):
     tag = models.ForeignKey(
-        Tag,
+        Tag, # Tagモデル（親）
         on_delete=models.PROTECT,
         db_column="tag_id",
         related_name="tag_surveys",
@@ -258,7 +254,7 @@ class TagSurvey(models.Model):
     )
 
     survey = models.ForeignKey(
-        Survey, 
+        Survey, # Surveyモデル（親）
         on_delete=models.PROTECT,
         db_column="survey_id",
         related_name="tag_surveys",
@@ -291,5 +287,58 @@ class TagSurvey(models.Model):
         
     def __str__(self):
         return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
+    
+    
+#Optionsテーブル
+class Option(models.Model):
+
+    id = models.AutoField(
+        primary_key=True, 
+        verbose_name="ID"
+    )
+
+    survey = models.ForeignKey(
+        Survey,                     # Surveyモデル（親）
+        on_delete=models.PROTECT,   
+        db_column="survey_id",      
+        related_name="options",        
+        verbose_name="アンケートID",
+        null=False,
+        blank=False,
+    )
+
+    label = models.CharField(
+        max_length=255,
+        verbose_name="選択項目",
+        null=False,
+        blank=False,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="作成日時",
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="更新日時",
+    )
+
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name="削除フラグ",
+    )
+
+    class Meta:
+        db_table = "options"
+        verbose_name = "選択肢"
+        verbose_name_plural = "選択肢一覧"
+        indexes = [
+            models.Index(fields=["survey"]),
+            models.Index(fields=["is_deleted"]),
+        ]
+
+    def __str__(self):
+        return f"選択項目: {self.label} (アンケートID={self.survey_id})"
 
 
