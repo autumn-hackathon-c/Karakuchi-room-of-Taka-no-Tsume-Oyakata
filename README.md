@@ -49,8 +49,6 @@ docker-compose exec django python manage.py makemigrations
 docker-compose exec django python manage.py migrate
 ```
 
-
-
 ## コマンド集 （汎用的に使うコマンドがあれば、都度記載予定)
 
 ### 1 MySQLコンテナに接続
@@ -58,6 +56,14 @@ docker-compose exec django python manage.py migrate
 docker exec -it mysql mysql -u root -p
 ```
 パスワードを聞かれたら.env に書いた rootpass を入力
+
+DB選択
+```
+use app_db
+```
+
+他は以下の記事やSQL文を各自で確認するようにしてください🙇‍♂️
+https://qiita.com/yuzooho/items/5d608f3b84a2037cada0
 
 
 ### 2.Ruffコマンド
