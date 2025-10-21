@@ -22,7 +22,7 @@ class UserManager(BaseUserManager):
         # Emailを正規化
         email_address = self.normalize_email(email_address)
 
-        # ユーザインスタンスの作成
+        # ユーザーインスタンスの作成
         user = self.model(
             user_name=user_name,
             email_address=email_address,
@@ -40,7 +40,7 @@ class UserManager(BaseUserManager):
 
     # スーパーユーザ（管理者）の作成
     def create_superuser(self, user_name, email_address, password, **extra_fields):
-        # ユーザインスタンスの作成
+        # ユーザーインスタンスの作成
         user = self.create_superuser(
             user_name=user_name,
             email_address=self.normalize_email(email_address),
@@ -268,9 +268,19 @@ class Vote(models.Model):
         null=False,
         blank=False,
     )
+    
+    survey = models.ForeignKey(
+        Survey,  # Surveyモデル（親）
+        on_delete=models.PROTECT,
+        db_column="survey_id",
+        related_name="votes",  # option.votes.all()
+        verbose_name="アンケートID",
+        null=False,
+        blank=False,
+    )
 
     option = models.ForeignKey(
-        Option,  # Userモデル（親）
+        Option,  # Optionモデル（親）
         on_delete=models.PROTECT,
         db_column="option_id",
         related_name="votes",  # option.votes.all()
@@ -304,16 +314,15 @@ class Vote(models.Model):
         db_table = "votes"
         verbose_name = "投票"
         verbose_name_plural = "投票一覧"
-        indexes = [
-            models.Index(fields=["user"]),
-            models.Index(fields=["option"]),
-            models.Index(fields=["is_deleted"]),
-        ]
 
-        # 同じユーザーが同じ選択肢に複数票を入れられないようにしたい場合は↓を有効化
-        # constraints = [
-        #     models.UniqueConstraint(fields=["user", "option"], name="uq_vote_user_option"),
-        # ]
+        # 同じユーザーが同じアンケートに複数票を入れられないように実装。
+        constraints = [
+            # アクティブ票（is_deleted=False）は user×survey で1件だけ
+            models.UniqueConstraint(
+                fields=["user", "survey", "is_deleted"],
+                name="uq_vote_user_survey_active",
+            ),
+        ]
 
     def __str__(self):
         return (
