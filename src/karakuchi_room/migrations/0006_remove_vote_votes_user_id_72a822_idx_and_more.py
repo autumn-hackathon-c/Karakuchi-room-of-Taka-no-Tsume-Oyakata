@@ -5,20 +5,29 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('karakuchi_room', '0005_vote_vote_votes_user_id_72a822_idx_and_more'),
+        ("karakuchi_room", "0005_vote_vote_votes_user_id_72a822_idx_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='vote',
-            name='survey',
-            field=models.ForeignKey(db_column='survey_id', default=1, on_delete=django.db.models.deletion.PROTECT, related_name='votes', to='karakuchi_room.survey', verbose_name='アンケートID'),
+            model_name="vote",
+            name="survey",
+            field=models.ForeignKey(
+                db_column="survey_id",
+                default=1,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="votes",
+                to="karakuchi_room.survey",
+                verbose_name="アンケートID",
+            ),
             preserve_default=False,
         ),
         migrations.AddConstraint(
-            model_name='vote',
-            constraint=models.UniqueConstraint(fields=('user', 'survey', 'is_deleted'), name='uq_vote_user_survey_active'),
+            model_name="vote",
+            constraint=models.UniqueConstraint(
+                fields=("user", "survey", "is_deleted"),
+                name="uq_vote_user_survey_active",
+            ),
         ),
     ]

@@ -268,7 +268,7 @@ class Vote(models.Model):
         null=False,
         blank=False,
     )
-    
+
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
         on_delete=models.PROTECT,
