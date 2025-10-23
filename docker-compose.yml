@@ -27,6 +27,10 @@ services:
     #起動コマンド
     command: python manage.py runserver 0.0.0.0:8000
 
+    #DBと紐付け
+    depends_on:
+      - db
+
   # DB名
   db:
       image: mysql:8.0
