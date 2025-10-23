@@ -7,144 +7,392 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_name', models.CharField(max_length=50, verbose_name='名前')),
-                ('email_address', models.EmailField(max_length=255, unique=True, verbose_name='メールアドレス')),
-                ('is_admin', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='管理者フラグ')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_name", models.CharField(max_length=50, verbose_name="名前")),
+                (
+                    "email_address",
+                    models.EmailField(
+                        max_length=255, unique=True, verbose_name="メールアドレス"
+                    ),
+                ),
+                (
+                    "is_admin",
+                    models.BooleanField(
+                        db_default=models.Value(0),
+                        default=0,
+                        verbose_name="管理者フラグ",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'ユーザー',
-                'verbose_name_plural': 'ユーザー一覧',
-                'db_table': 'users',
-                'ordering': ['id'],
+                "verbose_name": "ユーザー",
+                "verbose_name_plural": "ユーザー一覧",
+                "db_table": "users",
+                "ordering": ["id"],
             },
         ),
         migrations.CreateModel(
-            name='Survey',
+            name="Survey",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=50, verbose_name='タイトル')),
-                ('description', models.TextField(blank=True, verbose_name='詳細')),
-                ('start_at', models.DateTimeField(blank=True, null=True, verbose_name='投票開始日時')),
-                ('end_at', models.DateTimeField(blank=True, null=True, verbose_name='投票終了日時')),
-                ('is_public', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='公開フラグ')),
-                ('is_open', models.PositiveSmallIntegerField(choices=[(0, '受付中'), (1, '受付終了')], db_default=models.Value(0), default=0, verbose_name='投票フラグ')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
-                ('user', models.ForeignKey(db_column='user_id', on_delete=django.db.models.deletion.PROTECT, related_name='surveys', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=50, verbose_name="タイトル")),
+                ("description", models.TextField(blank=True, verbose_name="詳細")),
+                (
+                    "start_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="投票開始日時"
+                    ),
+                ),
+                (
+                    "end_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="投票終了日時"
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="公開フラグ"
+                    ),
+                ),
+                (
+                    "is_open",
+                    models.PositiveSmallIntegerField(
+                        choices=[(0, "受付中"), (1, "受付終了")],
+                        db_default=models.Value(0),
+                        default=0,
+                        verbose_name="投票フラグ",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        db_column="user_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="surveys",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'アンケート',
-                'verbose_name_plural': 'アンケート一覧',
-                'db_table': 'surveys',
+                "verbose_name": "アンケート",
+                "verbose_name_plural": "アンケート一覧",
+                "db_table": "surveys",
             },
         ),
         migrations.CreateModel(
-            name='Option',
+            name="Option",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(max_length=255, verbose_name='選択項目')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
-                ('survey', models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.PROTECT, related_name='options', to='karakuchi_room.survey', verbose_name='アンケートID')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("label", models.CharField(max_length=255, verbose_name="選択項目")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
+                (
+                    "survey",
+                    models.ForeignKey(
+                        db_column="survey_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="options",
+                        to="karakuchi_room.survey",
+                        verbose_name="アンケートID",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '選択肢',
-                'verbose_name_plural': '選択肢一覧',
-                'db_table': 'options',
+                "verbose_name": "選択肢",
+                "verbose_name_plural": "選択肢一覧",
+                "db_table": "options",
             },
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID')),
-                ('tag_name', models.CharField(max_length=50, verbose_name='タグ名')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("tag_name", models.CharField(max_length=50, verbose_name="タグ名")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'タグ',
-                'verbose_name_plural': 'タグ一覧',
-                'db_table': 'tags',
-                'indexes': [models.Index(fields=['tag_name', 'is_deleted'], name='tags_tag_nam_c3b10a_idx')],
+                "verbose_name": "タグ",
+                "verbose_name_plural": "タグ一覧",
+                "db_table": "tags",
+                "indexes": [
+                    models.Index(
+                        fields=["tag_name", "is_deleted"],
+                        name="tags_tag_nam_c3b10a_idx",
+                    )
+                ],
             },
         ),
         migrations.CreateModel(
-            name='TagSurvey',
+            name="TagSurvey",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
-                ('survey', models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.PROTECT, related_name='tag_surveys', to='karakuchi_room.survey', verbose_name='アンケートID')),
-                ('tag', models.ForeignKey(db_column='tag_id', on_delete=django.db.models.deletion.PROTECT, related_name='tag_surveys', to='karakuchi_room.tag', verbose_name='タグID')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
+                (
+                    "survey",
+                    models.ForeignKey(
+                        db_column="survey_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="tag_surveys",
+                        to="karakuchi_room.survey",
+                        verbose_name="アンケートID",
+                    ),
+                ),
+                (
+                    "tag",
+                    models.ForeignKey(
+                        db_column="tag_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="tag_surveys",
+                        to="karakuchi_room.tag",
+                        verbose_name="タグID",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'tag_surveys',
+                "db_table": "tag_surveys",
             },
         ),
         migrations.CreateModel(
-            name='Vote',
+            name="Vote",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID')),
-                ('comment', models.TextField(blank=True, null=True, verbose_name='コメント')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='作成日時')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新日時')),
-                ('is_deleted', models.BooleanField(db_default=models.Value(0), default=0, verbose_name='削除フラグ')),
-                ('option', models.ForeignKey(db_column='option_id', on_delete=django.db.models.deletion.PROTECT, related_name='votes', to='karakuchi_room.option', verbose_name='選択ID')),
-                ('survey', models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.PROTECT, related_name='votes', to='karakuchi_room.survey', verbose_name='アンケートID')),
-                ('user', models.ForeignKey(db_column='user_id', on_delete=django.db.models.deletion.PROTECT, related_name='votes', to=settings.AUTH_USER_MODEL, verbose_name='ユーザーID')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "comment",
+                    models.TextField(blank=True, null=True, verbose_name="コメント"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="作成日時"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新日時"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        db_default=models.Value(0), default=0, verbose_name="削除フラグ"
+                    ),
+                ),
+                (
+                    "option",
+                    models.ForeignKey(
+                        db_column="option_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="votes",
+                        to="karakuchi_room.option",
+                        verbose_name="選択ID",
+                    ),
+                ),
+                (
+                    "survey",
+                    models.ForeignKey(
+                        db_column="survey_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="votes",
+                        to="karakuchi_room.survey",
+                        verbose_name="アンケートID",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        db_column="user_id",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="votes",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="ユーザーID",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '投票',
-                'verbose_name_plural': '投票一覧',
-                'db_table': 'votes',
+                "verbose_name": "投票",
+                "verbose_name_plural": "投票一覧",
+                "db_table": "votes",
             },
         ),
         migrations.AddIndex(
-            model_name='survey',
-            index=models.Index(fields=['user', '-created_at'], name='surveys_user_id_e3e1d4_idx'),
+            model_name="survey",
+            index=models.Index(
+                fields=["user", "-created_at"], name="surveys_user_id_e3e1d4_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='option',
-            index=models.Index(fields=['survey'], name='options_survey__37ad10_idx'),
+            model_name="option",
+            index=models.Index(fields=["survey"], name="options_survey__37ad10_idx"),
         ),
         migrations.AddIndex(
-            model_name='option',
-            index=models.Index(fields=['is_deleted'], name='options_is_dele_d114cf_idx'),
+            model_name="option",
+            index=models.Index(
+                fields=["is_deleted"], name="options_is_dele_d114cf_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='tagsurvey',
-            index=models.Index(fields=['tag'], name='tag_surveys_tag_id_76e5ec_idx'),
+            model_name="tagsurvey",
+            index=models.Index(fields=["tag"], name="tag_surveys_tag_id_76e5ec_idx"),
         ),
         migrations.AddIndex(
-            model_name='tagsurvey',
-            index=models.Index(fields=['survey'], name='tag_surveys_survey__7612c9_idx'),
+            model_name="tagsurvey",
+            index=models.Index(
+                fields=["survey"], name="tag_surveys_survey__7612c9_idx"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='vote',
-            constraint=models.UniqueConstraint(fields=('user', 'survey', 'is_deleted'), name='uq_vote_user_survey_active'),
+            model_name="vote",
+            constraint=models.UniqueConstraint(
+                fields=("user", "survey", "is_deleted"),
+                name="uq_vote_user_survey_active",
+            ),
         ),
     ]
