@@ -66,14 +66,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     email_address = models.EmailField(
         max_length=255, unique=True, null=False, verbose_name="メールアドレス"
     )
+    # default アプリ（Python側）
 
-    is_admin = models.BooleanField(default=False, verbose_name="管理者フラグ")
+    # db_default データベース（SQL側）DBの DEFAULT 制約を付与するためにこちらが必要
+
+    is_admin = models.BooleanField(
+        default=False, db_default=False, verbose_name="管理者フラグ"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     # passwordカラムはAbstractBaseUser に含まれているので作成不要
 
@@ -116,7 +123,9 @@ class Survey(models.Model):
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
 
-    is_public = models.BooleanField(default=False, verbose_name="公開フラグ")
+    is_public = models.BooleanField(
+        default=False, db_default=False, verbose_name="公開フラグ"
+    )
 
     OPEN_STATUS = (
         (0, "受付中"),
@@ -125,12 +134,15 @@ class Survey(models.Model):
     is_open = models.PositiveSmallIntegerField(
         choices=OPEN_STATUS,
         default=0,
+        db_default=0,
         verbose_name="投票フラグ",
     )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "surveys"
@@ -155,7 +167,9 @@ class Tag(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tags"
@@ -196,7 +210,9 @@ class TagSurvey(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tag_surveys"
@@ -239,6 +255,7 @@ class Option(models.Model):
 
     is_deleted = models.BooleanField(
         default=False,
+        db_default=False,
         verbose_name="削除フラグ",
     )
 
@@ -307,6 +324,7 @@ class Vote(models.Model):
 
     is_deleted = models.BooleanField(
         default=False,
+        db_default=False,
         verbose_name="削除フラグ",
     )
 
