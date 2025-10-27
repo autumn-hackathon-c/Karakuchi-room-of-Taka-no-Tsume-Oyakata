@@ -70,13 +70,17 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # db_default データベース（SQL側）DBの DEFAULT 制約を付与するためにこちらが必要
 
-    is_admin = models.BooleanField(default=False, db_default=False, verbose_name="管理者フラグ")
+    is_admin = models.BooleanField(
+        default=False, db_default=False, verbose_name="管理者フラグ"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, db_default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     # passwordカラムはAbstractBaseUser に含まれているので作成不要
 
@@ -119,7 +123,9 @@ class Survey(models.Model):
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
 
-    is_public = models.BooleanField(default=False, db_default=False, verbose_name="公開フラグ")
+    is_public = models.BooleanField(
+        default=False, db_default=False, verbose_name="公開フラグ"
+    )
 
     OPEN_STATUS = (
         (0, "受付中"),
@@ -134,7 +140,9 @@ class Survey(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
-    is_deleted = models.BooleanField(default=False, db_default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "surveys"
@@ -159,7 +167,9 @@ class Tag(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, db_default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tags"
@@ -200,7 +210,9 @@ class TagSurvey(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, db_default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tag_surveys"
