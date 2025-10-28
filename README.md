@@ -31,7 +31,7 @@ docker-compose up -d
 
 #### 3.3 削除
 ```
-docker-compose　down
+docker-compose down
 ```
 
 ### 3.4 アクセス確認方法

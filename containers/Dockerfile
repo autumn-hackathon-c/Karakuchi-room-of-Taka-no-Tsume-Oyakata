@@ -12,3 +12,9 @@ RUN pip install --upgrade pip \
     && pip install --upgrade setuptools \
     && pip install -r requirements.txt \
     && pip install --no-cache-dir "ruff[format]"
+
+# MySQLクライアントツールをインストール（Debian系は default-mysql-client を使う）
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends default-mysql-client \
+ && rm -rf /var/lib/apt/lists/*
+
