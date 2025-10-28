@@ -48,5 +48,25 @@ services:
         TZ: Asia/Tokyo
       volumes:
           - db_data:/var/lib/mysql
+      
+      # envファイルの反映
+      env_file:
+        - .env 
+
+      # DBのコンテナのヘルスチェックを行う
+      # mysqladmin(MySQLサーバーの管理を行うクライアントを使ってDBコンテナ自身(127.0.0.1)にpingを送ってヘルスチェックを行う
+      healthcheck:
+        test: mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD
+        # ヘルスチェックのインターバルは10秒
+        interval: 10s
+        # タイムアウト時間は10秒
+        timeout: 10s
+        # リトライ回数は3回
+        retries: 3
+        # ヘルスチェックが失敗しても無視する時間は30秒
+        start_period: 30s
+      
+            
+
 volumes:
   db_data:
