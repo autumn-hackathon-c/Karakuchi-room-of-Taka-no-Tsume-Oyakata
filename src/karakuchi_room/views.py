@@ -1,5 +1,5 @@
 # from django.shortcuts import render
-# from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView 
+# from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 # from django.urls import reverse_lazy
 
 # from karakuchi_room.models import Survey
@@ -8,40 +8,40 @@
 
 # アンケート一覧画面
 # class TaskListView(ListView):
-    # model = Survey
-    # template_name = "karakuchi_room/surveys.html"
+# model = Survey
+# template_name = "karakuchi_room/surveys.html"
 
 # アンケート詳細画面
 # class TaskDetailView(DetailView):
-    # model = Survey
-    # template_name = "karakuchi_room/surveys_detail.html"
+# model = Survey
+# template_name = "karakuchi_room/surveys_detail.html"
 
 # アンケート作成画面
 # class TaskCreateView(CreateView):
-    # model = Survey
-    # フォームに title, description, due_date の 3 つすべてが自動で生成される
-    # fields = "__all__"
-    # template_name = "karakuchi_room/surveys_create.html"
-    # 成功後、詳細画面にリダイレクト
-    # success_url = reverse_lazy("surveys-detail")
+# model = Survey
+# フォームに title, description, due_date の 3 つすべてが自動で生成される
+# fields = "__all__"
+# template_name = "karakuchi_room/surveys_create.html"
+# 成功後、詳細画面にリダイレクト
+# success_url = reverse_lazy("surveys-detail")
 
 # アンケート削除
 # class TaskDeleteView(DeleteView):
-    # model = Survey
-    # 成功後、一覧画面リダイレクト
-    # success_url = reverse_lazy("surveys")
-    # モーダルなのでtemplate_nameは不要
+# model = Survey
+# 成功後、一覧画面リダイレクト
+# success_url = reverse_lazy("surveys")
+# モーダルなのでtemplate_nameは不要
 
 # アンケート編集画面(一時保存)
 # class TaskUpdateView(UpdateView):
-    # model = Survey
-    # fields ="__all__"
-    # template_name = "karakuchi_room/surveys_edit_save_temporary.html"
-    # success_url = reverse_lazy("surveys-detail")
+# model = Survey
+# fields ="__all__"
+# template_name = "karakuchi_room/surveys_edit_save_temporary.html"
+# success_url = reverse_lazy("surveys-detail")
 
 # アンケート編集画面(公開済)
 # class TaskUpdateView(UpdateView):
-    # model = Survey
-    # fields ="__all__"
-    # template_name = "karakuchi_room/surveys_edit_published.html"
-    # success_url = reverse_lazy("surveys-detail")
+# model = Survey
+# fields ="__all__"
+# template_name = "karakuchi_room/surveys_edit_published.html"
+# success_url = reverse_lazy("surveys-detail")
