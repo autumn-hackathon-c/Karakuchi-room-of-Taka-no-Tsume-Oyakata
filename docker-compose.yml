@@ -29,7 +29,9 @@ services:
 
     #DBと紐付け
     depends_on:
-      - db
+    #リクエストを受け入れられる状態になっていることを確認（ヘルスチェック）後にdjangoコンテナが起動するように設定
+      db:
+        condition: service_healthy
 
   # DB名
   db:
