@@ -1,3 +1,10 @@
+from django.contrib.auth.views import LoginView
+
+class MyLoginView(LoginView):
+    template_name = "karakuchi_room/login.html"
+    redirect_authenticated_user = True
+
+
 # from django.shortcuts import render
 # from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 # from django.urls import reverse_lazy
