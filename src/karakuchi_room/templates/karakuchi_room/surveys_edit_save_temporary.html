@@ -39,21 +39,24 @@
             <form action="" method="post">
                 <div class="mb-3">
                     <label class="form-label" for="survey_title">タイトル（必須）</label>
-                    <input class="form-control" type="text" id="survey_title" name="survey_title" disabled>
+                    <input class="form-control" type="text" id="survey_title" name="survey_title">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="detail">詳細（任意）</label>
-                    <textarea class="form-control" id="detail" name="detail" disabled></textarea>
+                    <textarea class="form-control" id="detail" name="detail"></textarea>
                 </div>
                 <!-- 選択肢　別途JSでの実装が必要 -->
                 <div class="mb-3 options">
                     <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
                     <div class="input-group mb-2">
-                        <input class="form-control" type="text" id="options" name="options[]" disabled>
+                        <input class="form-control" type="text" id="options" name="options[]">
+                        <button class="btn btn-none" type="button">✕</button>
                     </div>
                     <div class="input-group mb-2">
-                        <input class="form-control" type="text" id="options" name="options[]" disabled>
+                        <input class="form-control" type="text" id="options" name="options[]">
+                        <button class="btn btn-none" type="button">✕</button>
                     </div>
+                    <button type="button" class="btn btn-secondary">選択肢を追加</button>
                 </div>
                 <!-- 選択肢　別途JSでの実装が必要 ここまで-->
                 <div class="mb-3">
@@ -61,13 +64,22 @@
                     <input class="form-control" type="datetime-local" id="deadline" name="deadline">
                 </div>
                 <!-- 投票受付の停止をチェックボックスで選択 -->
-                <div class="my-3">
+                <!-- 公開、一時保存をラジオボタンで選択 -->
+                <div class="select-radio d-flex justify-content-around mb-5">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="is_public" id="is_public1" value="1">
-                        <label class="form-check-label" for="is_public1">投票受付を停止する</label>
+                        <input class="form-check-input" type="radio" name="is_public" id="is_public1" value="1">
+                        <label class="form-check-label" for="is_public1">
+                            公開する
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="is_public" id="is_public2" value="0" checked>
+                        <label class="form-check-label" for="is_public2">
+                            一時保存にする
+                        </label>
                     </div>
                 </div>
-                <!-- 投票受付の停止をチェックボックスで選択 ここまで-->
+                <!-- 公開、一時保存をラジオボタンで選択　ここまで -->
                 <div class="text-center">
                     <button type="submit" class="btn btn-success px-5">変更！</button>
                 </div>
