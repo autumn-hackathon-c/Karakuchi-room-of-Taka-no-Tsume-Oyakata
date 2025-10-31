@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
 
         # Emailを正規化
         email = self.normalize_email(email)
-        
+
         # 管理者権限なし(django管理画面の公式設定)
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
@@ -47,7 +47,7 @@ class UserManager(BaseUserManager):
         # ✅ 管理者権限あり
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        
+
         # ユーザーインスタンスの作成
         user = self.create_user(
             user_name=user_name,
