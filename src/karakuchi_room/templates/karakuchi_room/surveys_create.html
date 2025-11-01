@@ -19,8 +19,8 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex align-items-center">
-                        <a class="me-3" href="">アンケート作成</a>
-                        <a class="me-3" href="">アンケート一覧
+                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
+                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
                             <a class=" me-3" href="">ユーザー情報</a>
                             <a class="btn btn-outline-primary" href="">ログアウト</a>
                     </div>
@@ -30,13 +30,16 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
+        {% comment %}
         <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        <!-- {% block content %} -->
+        {% block content %}
+        {% endcomment %} 
         <div class="header">
             <h2>アンケート作成</h2>
         </div>
         <div class="login-form card p-3 mx-auto">
             <form action="" method="post">
+                {% csrf_token %}
                 <div class="mb-3">
                     <label class="form-label" for="survey_title">タイトル（必須）</label>
                     <input class="form-control" type="text" id="survey_title" name="survey_title">
@@ -89,7 +92,9 @@
         </div>
     </div>
     </div>
-    <!-- {% endblock content %} -->
+    {% comment %}
+        {% endblock content %}
+    {% endcomment %} 
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
