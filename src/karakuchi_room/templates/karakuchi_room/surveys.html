@@ -21,8 +21,8 @@
                     <div class="d-flex align-items-center">
                         <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
                         <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                            <a class=" me-3" href="">ユーザー情報</a>
-                            <a class="btn btn-outline-primary" href="">ログアウト</a>
+                        <a class=" me-3" href="">ユーザー情報</a>
+                        <a class="btn btn-outline-primary" href="">ログアウト</a>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
         </div>
         <div class="surveys-list">
             <ul class="list-unstyled">       
-                {% for survey in object_list %}           
+                {% for survey in survey_list %}           
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
@@ -90,9 +90,10 @@
                             {% endcomment %}
                         </div>
                         <div class="title">
-                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="">{{survey.title}}</a></h2>
-                        </div>
+                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="{% url 'survey-detail' survey.pk %}">{{survey.title}}</a></h2>
+                        </div>         
                         <div>
+                        <!-- <span>23 votes</span> --> 
                             <span>{{survey.end_at}}</span>
                         </div>
                     </div>
