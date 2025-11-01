@@ -83,5 +83,11 @@ make format
 ただし、フロントエンド(HTML,CSS,JavaScript)の内容は修正不可
 
 
+### 3.管理ユーザー作成コマンド
+```
+docker compose exec django python manage.py createsuperuser
+```
+
+
 
 
