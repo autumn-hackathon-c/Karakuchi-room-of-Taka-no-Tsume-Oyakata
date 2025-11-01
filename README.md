@@ -88,6 +88,18 @@ make format
 docker compose exec django python manage.py createsuperuser
 ```
 
+### 4.ログ確認コマンド（エラーが出た時に試してください。）
+
+Django コンテナのログを確認
+```
+docker compose -f docker-compose.yml logs -f django -f django
+
+```
+MySQL コンテナのログを確認
+```
+docker compose -f docker-compose.yml logs -f django -f db
+```
+
 
 
 
