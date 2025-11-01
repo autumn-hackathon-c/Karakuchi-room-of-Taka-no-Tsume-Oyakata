@@ -76,10 +76,12 @@
                 <label class="form-label h4" for="comment">選択肢を選んだ理由（任意）</label>
                 <textarea class="form-control" id="detail" name="detail"></textarea>
             </div>
-            <div class="edit-button row mb-5">
+            {% comment %} 追加機能 文章加工機能{% endcomment %}
+            {% comment %} <div class="edit-button row mb-5">
                 <button class="btn btn-secondary col-md m-3">甘口文章に変換</button>
                 <button class="btn btn-secondary col-md m-3">文章の癖を減らす</button>
-            </div>
+            </div> {% endcomment %}
+            {% comment %} 追加機能 文章加工機能ここまで{% endcomment %}
             <div class="submit-btn text-center">
                 <button type="submit" class="btn btn-success px-5">投票！</button>
             </div>
