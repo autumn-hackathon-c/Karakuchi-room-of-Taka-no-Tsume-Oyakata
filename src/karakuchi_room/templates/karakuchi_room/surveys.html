@@ -32,8 +32,8 @@
     <div class="container">
         {% comment %}
         実装時、{% block content}{% endblock content %}外はbase.htmlから参照する
-        {% block content %}
         {% endcomment %}
+        {% block content %}       
         <form action="" method="POST">{% csrf_token %}
             <div class="text-center p-3">
                 <a href="{% url 'survey-create'%}" class="btn btn-success btn-lg">アンケートを作成する！</a>
@@ -74,10 +74,8 @@
             {% endcomment %}
         </div>
         <div class="surveys-list">
-            <ul class="list-unstyled">
-                {% comment %}
-                {{ for リスト表示 }}
-                {% endcomment %}
+            <ul class="list-unstyled">       
+                {% for survey in object_list %}           
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
@@ -92,23 +90,20 @@
                             {% endcomment %}
                         </div>
                         <div class="title">
-                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="">私のポートフォリオ、ぶっちゃけどうですか？</a></h2>
+                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="">{{survey.title}}</a></h2>
                         </div>
                         <div>
-                            <span>23 votes</span>
-                            <span>2026/1/20 まで</span>
+                            <span>{{survey.end_at}}</span>
                         </div>
                     </div>
                     </a>
                 </li>
-                {% comment %}
-                {{ endfor リスト表示}}
-                {% endcomment %}
+                {%endfor%}
             </ul>
         </div>
-        {% comment %}
+        
         {% endblock content %}
-        {% endcomment %}
+       
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
