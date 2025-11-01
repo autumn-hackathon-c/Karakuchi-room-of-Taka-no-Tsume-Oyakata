@@ -11,21 +11,25 @@ from django.contrib.auth.models import (
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
 class UserManager(BaseUserManager):
     # 一般ユーザの作成
-    def create_user(self, user_name, email_address, password, **extra_fields):
+    def create_user(self, user_name, email, password, **extra_fields):
         if not user_name:
             raise ValueError("名前は必須です")
-        if not email_address:
+        if not email:
             raise ValueError("メールアドレスは必須です")
         if not password:
             raise ValueError("パスワードは必須です。")
 
         # Emailを正規化
-        email_address = self.normalize_email(email_address)
+        email = self.normalize_email(email)
+
+        # 管理者権限なし(django管理画面の公式設定)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
 
         # ユーザーインスタンスの作成
         user = self.model(
             user_name=user_name,
-            email_address=email_address,
+            email=email,
             # 追加の属性を柔軟に設定
             **extra_fields,
         )
@@ -39,19 +43,20 @@ class UserManager(BaseUserManager):
         return user
 
     # スーパーユーザ（管理者）の作成
-    def create_superuser(self, user_name, email_address, password, **extra_fields):
+    def create_superuser(self, user_name, email, password, **extra_fields):
+        # ✅ 管理者権限あり
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
         # ユーザーインスタンスの作成
-        user = self.create_superuser(
+        user = self.create_user(
             user_name=user_name,
-            email_address=self.normalize_email(email_address),
+            email=self.normalize_email(email),
             password=password,
             # 追加の属性を柔軟に設定
             **extra_fields,
         )
 
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
         return user
 
 
@@ -63,14 +68,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     user_name = models.CharField(max_length=50, null=False, verbose_name="名前")
 
-    email_address = models.EmailField(
+    email = models.EmailField(
         max_length=255, unique=True, null=False, verbose_name="メールアドレス"
     )
     # default アプリ（Python側）
 
     # db_default データベース（SQL側）DBの DEFAULT 制約を付与するためにこちらが必要
 
-    is_admin = models.BooleanField(
+    is_staff = models.BooleanField(
         default=False, db_default=False, verbose_name="管理者フラグ"
     )
 
@@ -85,7 +90,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # passwordカラムはAbstractBaseUser に含まれているので作成不要
 
     # ログイン時一意の識別子として使用される
-    USERNAME_FIELD = "email_address"
+    USERNAME_FIELD = "email"
     # superuser作成時追加で求められるフィールド
     REQUIRED_FIELDS = ["user_name"]
 
