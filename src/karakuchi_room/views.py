@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
-# from .forms import SurveyForm
 
 from karakuchi_room.models import Survey
 
@@ -22,7 +21,6 @@ class SurveyCreateView(CreateView):
     model = Survey
     fields = "__all__"
     template_name = "karakuchi_room/surveys_create.html"
-    # form_class = SurveyForm
     #成功後、詳細画面にリダイレクト
     success_url = reverse_lazy("surveys-detail")
 
