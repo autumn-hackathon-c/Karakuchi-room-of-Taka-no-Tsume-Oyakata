@@ -32,21 +32,23 @@
     <div class="container">
         {% comment %}
         <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        {% block content %}
         {% endcomment %} 
+        {% block content %}
+        
         <div class="header">
             <h2>アンケート作成</h2>
         </div>
         <div class="login-form card p-3 mx-auto">
             <form action="" method="post">
                 {% csrf_token %}
+                
                 <div class="mb-3">
-                    <label class="form-label" for="survey_title">タイトル（必須）</label>
-                    <input class="form-control" type="text" id="survey_title" name="survey_title">
+                    <label class="form-label" for="{{ form.title.id_for_label }}">タイトル（必須）</label>
+                    {{ form.title}}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="detail">詳細（任意）</label>
-                    <textarea class="form-control" id="detail" name="detail"></textarea>
+                    <label class="form-label" for="{{ form.description.id_for_label }}">詳細（任意）</label>
+                    {{ form.description }}
                 </div>
                 <!-- 選択肢　別途JSでの実装が必要 -->
                 <div class="mb-3 options">
@@ -63,8 +65,8 @@
                 </div>
                 <!-- 選択肢　別途JSでの実装が必要 ここまで-->
                 <div class="mb-3">
-                    <label class="form-label" for="deadline">投票期限日（任意）</label>
-                    <input class="form-control" type="datetime-local" id="deadline" name="deadline">
+                    <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
+                    {{ form.end_at}}
                 </div>
                 <!-- 公開、一時保存をラジオボタンで選択 -->
                 <div class="select-radio d-flex justify-content-around mb-5">
@@ -92,9 +94,7 @@
         </div>
     </div>
     </div>
-    {% comment %}
-        {% endblock content %}
-    {% endcomment %} 
+            {% endblock content %}
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
