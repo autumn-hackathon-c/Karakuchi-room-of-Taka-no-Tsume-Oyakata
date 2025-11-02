@@ -1,8 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404,redirect
 from .forms import SurveyForm
-from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
-
 from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -51,12 +50,6 @@ class SurveyCreateView(CreateView):
         logger.warning("SurveyCreate errors: %s", form.errors)  # ← サーバーログに出す
         return super().form_invalid(form) 
     
-#アンケート削除
-class SurveyDeleteView(DeleteView):
-    model = Survey
-    #成功後、一覧画面リダイレクト
-    success_url = reverse_lazy("surveys")
-    #モーダルなのでtemplate_nameは不要
 
 #アンケート編集画面(一時保存)
 class SurveyUpdateView(UpdateView):
@@ -71,3 +64,11 @@ class SurveyTemporaryUpdateView(UpdateView):
     fields ="__all__"
     template_name = "karakuchi_room/surveys_edit_published.html"
     success_url = reverse_lazy("surveys-detail")
+    
+
+#アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
+def survey_delete(request, pk):
+    obj = get_object_or_404(Survey, pk=pk)
+    obj.delete()
+    messages.success(request, "削除しました。")
+    return redirect("survey-list")

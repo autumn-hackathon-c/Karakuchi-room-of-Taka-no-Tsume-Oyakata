@@ -52,14 +52,14 @@
         </div>
         <!-- アンケート作成者本人の場合 -->
         <div class="d-flex justify-content-between">
-             <!--
+            <!--
             <div>
                 <span class="col-auto">23 votes</span>
             </div>
             -->
             <div>
                 <a class="me-4">編集</a>
-                <a href="">削除</a>
+                <a href="{% url 'survey-delete' pk=survey.pk %}">削除</a>
             </div>
         </div>
         <!-- アンケート作成者で本人ではない場合 -->

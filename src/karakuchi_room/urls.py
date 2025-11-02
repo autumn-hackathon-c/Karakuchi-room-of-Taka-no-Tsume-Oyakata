@@ -1,6 +1,8 @@
 from django.urls import path
 
-from karakuchi_room.views import SurveyListView, SurveyDetailView, SurveyCreateView, SurveyDeleteView, SurveyUpdateView
+from karakuchi_room.views import SurveyListView, SurveyDetailView, SurveyCreateView, SurveyUpdateView
+
+from .views import survey_delete
 
 urlpatterns = [
     # アンケート一覧
@@ -11,5 +13,8 @@ urlpatterns = [
     
     # アンケート詳細
     path("surveys/detail/<int:pk>", SurveyDetailView.as_view(), name="survey-detail"),
+    
+    # アンケート削除
+    path("surveys/delete/<int:pk>", survey_delete, name="survey-delete")
 
 ]
