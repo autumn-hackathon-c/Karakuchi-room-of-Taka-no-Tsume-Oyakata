@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .forms import SurveyForm
+from .forms import SurveyForm ,SurveyFormDraft , SurveyFormPublished
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from karakuchi_room.models import Survey
@@ -54,18 +54,41 @@ class SurveyCreateView(CreateView):
 #アンケート編集画面(一時保存)
 class SurveyTemporaryUpdateView(UpdateView):
     model = Survey
-    fields ="__all__"
+    form_class = SurveyFormDraft
     template_name = "karakuchi_room/surveys_edit_save_temporary.html"
-    success_url = reverse_lazy("survey-detail")
+    # 下書きだけを対象にする（公開済みは404）
+    def get_queryset(self):
+        return Survey.objects.filter(is_public=False)
+
+    def get_success_url(self):
+        return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
+
+    # ラジオで公開に切り替え可能にするならここで反映
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.is_public = bool(form.cleaned_data.get("is_public", False))
+        obj.save()
+        return super().form_valid(form)
 
 #アンケート編集画面(公開済)
 class SurveyUpdateView(UpdateView):
     model = Survey
-    form_class = SurveyForm                     
+    form_class =  SurveyFormPublished                   
     template_name = "karakuchi_room/surveys_edit_published.html"
     
+    # 公開済みだけを対象にする（下書きは404）
+    def get_queryset(self):
+        return Survey.objects.filter(is_public=True)
+
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
+
+    # 公開済みは常に公開のままに固定するなら明示しておく
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.is_public = True  # 常に公開維持（解除を許さない）
+        obj.save()
+        return super().form_valid(form)
 
 #アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
 def survey_delete(request, pk):

@@ -20,7 +20,7 @@ class SurveyForm(forms.ModelForm):
             # 「title」はテキスト入力欄にする
             # attrs={} で HTML の属性を追加
             # class="form-control" → Bootstrap用のCSS
-            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),                
 
             # 「description」はテキストエリア（複数行入力）
             # Bootstrap の form-control を適用してスタイルを整える
@@ -44,3 +44,56 @@ class SurveyForm(forms.ModelForm):
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
         }
+            
+# 下書き用：全部編集OK
+class SurveyFormDraft(forms.ModelForm):
+    # ラジオ → True/False 変換を安全に（0/1を布教）
+    is_public = forms.TypedChoiceField(
+        choices=[(1, "公開する"), (0, "一時保存にする")],
+        coerce=lambda v: v in ("1", 1, True, "true", "True"),
+        widget=forms.RadioSelect,
+    )
+    
+    # ウィジェットのフォーマットと入力フォーマットを明示
+    end_at = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(
+            attrs={
+                "type": "datetime-local",
+                "class": "form-control",
+            },
+            format="%Y-%m-%dT%H:%M",
+        ),
+        input_formats=["%Y-%m-%dT%H:%M"],
+    )
+
+    class Meta:
+        model = Survey
+        fields = ["title", "description", "end_at", "is_public"]
+
+# 公開済み用：編集させたくないフィールドを無効化
+class SurveyFormPublished(forms.ModelForm):
+    # ウィジェットのフォーマットと入力フォーマットを明示
+    end_at = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(
+            attrs={
+                "type": "datetime-local",
+                "class": "form-control",
+            },
+            format="%Y-%m-%dT%H:%M",
+        ),
+        input_formats=["%Y-%m-%dT%H:%M"],
+    )
+    
+    class Meta:
+        model = Survey
+        fields = ["title", "description", "end_at"]  # is_public はフォームに出さない等
+    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # フィールド自体を disabled(無効) にする。
+        self.fields["title"].disabled = True
+        self.fields["description"].disabled = True
