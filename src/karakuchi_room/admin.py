@@ -1,3 +1,7 @@
-# from django.contrib import admin
+from django.contrib import admin
+from karakuchi_room.models import Survey
 
-# Register your models here.
+# 管理画面でSurveysテーブルのテストデータを入れるために実装
+admin.site.register(Survey)
+
+
