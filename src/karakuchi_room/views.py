@@ -1,8 +1,30 @@
-from django.contrib.auth.views import LoginView
 
+from django.views.generic import CreateView
+# 会員登録する」ためにCreateViewが必要
+# CREATEVIEWは汎用的なビューだからdjango.views.genericの中のCreateViewになる
+# ここはトイトイさんとコンフリクト起こすかも
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
+# 裏側のロジック(view)でコントロールする
+# ログインしているユーザーだけにアクセスを許可する
+from django.contrib.auth.forms import UserCreationForm
+# ユーザー周りのフォームをインポート
+from django.urls import reverse_lazy
+# reverse_lazyをインポートすることでリダイレクトが使用できる
+
+
+# ログイン
 class MyLoginView(LoginView):
     template_name = "karakuchi_room/login.html"
     redirect_authenticated_user = True
+
+# 新規登録
+class SignUpView(CreateView):
+    template_name = "signup.html"
+    from_class = UserCreationForm
+    success_url = reverse_lazy("login")
+
+
 
 
 # from django.shortcuts import render
@@ -52,3 +74,5 @@ class MyLoginView(LoginView):
 # fields ="__all__"
 # template_name = "karakuchi_room/surveys_edit_published.html"
 # success_url = reverse_lazy("surveys-detail")
+
+

@@ -15,8 +15,18 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+# karakuchi_roomののurlsをincludeする必要があるのでincludeをインポート
+# Djangoにおけるincludeは、主に二つの使い方があり、URL設定で他のURLファイルを結合することと、
+# テンプレート内で他のテンプレートを読み込むことを指す。
+
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("karakuchi_room.urls")),
+    # これがないとkarakuchi_roomのurlsが読み込まれない
+
+    
+
 ]
