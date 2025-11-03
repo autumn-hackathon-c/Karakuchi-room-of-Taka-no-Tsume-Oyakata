@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .forms import SurveyForm ,SurveyFormDraft , SurveyFormPublished
+from .forms import SurveyCreateForm ,SurveyFormDraft , SurveyFormPublished
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from karakuchi_room.models import Survey
@@ -34,7 +34,8 @@ def get_guest_user():
 #アンケート新規作成
 class SurveyCreateView(CreateView):
     model = Survey
-    form_class = SurveyForm                          # ← ModelForm を使う
+    # ModelForm を使う
+    form_class = SurveyCreateForm                          
     template_name = "karakuchi_room/surveys_create.html" 
     success_url = None                               
 
@@ -44,7 +45,7 @@ class SurveyCreateView(CreateView):
         survey.user = user
         survey.save()
         messages.success(self.request, "アンケートを作成しました。")
-        return redirect("survey-list")  # ← 成功時は必ず 302
+        return redirect("survey-list") 
 
     def form_invalid(self, form):
         logger.warning("SurveyCreate errors: %s", form.errors)  # ← サーバーログに出す

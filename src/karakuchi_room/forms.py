@@ -3,7 +3,9 @@ from .models import Survey
 
 
 # Django のフォームクラスを使用するために ModelForm を継承
-class SurveyForm(forms.ModelForm):
+
+# アンケート新規作成
+class SurveyCreateForm(forms.ModelForm):
 
     # Metaクラスの中で、「どのモデルを使うか」「どのフィールドを操作するか」を定義
     class Meta:
@@ -45,14 +47,25 @@ class SurveyForm(forms.ModelForm):
             ),
         }
             
-# 下書き用：全部編集OK
+# アンケート編集機能(一時保存)
 class SurveyFormDraft(forms.ModelForm):
+    
+    # フォームから来た値を True/False に変換する関数
+    # "1" / "true" → True、それ以外 → False
+    def to_bool(v):
+        return str(v) in ("1", "true", "True")
+
     # ラジオ → True/False 変換を安全に（0/1を布教）
     is_public = forms.TypedChoiceField(
         choices=[(1, "公開する"), (0, "一時保存にする")],
-        coerce=lambda v: v in ("1", 1, True, "true", "True"),
+        
+        #coerce：フォームの入力値を「どんな型に変換するか」決める関数
+        coerce=to_bool,
+        
+        # ラジオボタンUI
         widget=forms.RadioSelect,
     )
+    
     
     # ウィジェットのフォーマットと入力フォーマットを明示
     end_at = forms.DateTimeField(
@@ -71,7 +84,7 @@ class SurveyFormDraft(forms.ModelForm):
         model = Survey
         fields = ["title", "description", "end_at", "is_public"]
 
-# 公開済み用：編集させたくないフィールドを無効化
+# アンケート編集機能(公開)
 class SurveyFormPublished(forms.ModelForm):
     # ウィジェットのフォーマットと入力フォーマットを明示
     end_at = forms.DateTimeField(
