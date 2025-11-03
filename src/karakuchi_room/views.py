@@ -52,19 +52,20 @@ class SurveyCreateView(CreateView):
     
 
 #アンケート編集画面(一時保存)
-class SurveyUpdateView(UpdateView):
-    model = Survey
-    fields ="__all__"
-    template_name = "karakuchi_room/surveys_edit_save_temporary.html"
-    success_url = reverse_lazy("surveys-detail")
-
-#アンケート編集画面(公開済)
 class SurveyTemporaryUpdateView(UpdateView):
     model = Survey
     fields ="__all__"
+    template_name = "karakuchi_room/surveys_edit_save_temporary.html"
+    success_url = reverse_lazy("survey-detail")
+
+#アンケート編集画面(公開済)
+class SurveyUpdateView(UpdateView):
+    model = Survey
+    form_class = SurveyForm                     
     template_name = "karakuchi_room/surveys_edit_published.html"
-    success_url = reverse_lazy("surveys-detail")
     
+    def get_success_url(self):
+        return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
 
 #アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
 def survey_delete(request, pk):
