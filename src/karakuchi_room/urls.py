@@ -21,7 +21,7 @@ urlpatterns = [
     path("surveys/delete/<int:pk>", survey_delete, name="survey-delete"),
     # アンケート編集(一時保存)
     path(
-        "/surveys/edit/save_temporary/<int:pk>",
+        "surveys/edit/save_temporary/<int:pk>",
         SurveyTemporaryUpdateView.as_view(),
         name="survey-temporary-edit",
     ),
