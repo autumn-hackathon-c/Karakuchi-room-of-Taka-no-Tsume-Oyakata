@@ -19,10 +19,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex align-items-center">
-                        <a class="me-3" href="">アンケート作成</a>
-                        <a class="me-3" href="">アンケート一覧
-                            <a class=" me-3" href="">ユーザー情報</a>
-                            <a class="btn btn-outline-primary" href="">ログアウト</a>
+                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
+                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
+                        <a class=" me-3" href="">ユーザー情報</a>
+                        <a class="btn btn-outline-primary" href="">ログアウト</a>
                     </div>
                 </div>
             </div>
@@ -30,28 +30,40 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
+        {% comment %}
         <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        <!-- {% block content %} -->
+        {% endcomment %}
+        {% block content %}
         <div class="header">
-            <h2>私のポートフォリオ、ぶっちゃけどうですか？</h2>
+            <h2>{{ survey.title }}</h2>
         </div>
         <div class="selcted-tags w-100 mx-auto py-2 row">
+            {% comment %}
             <!-- {{ for タグ表示 }} -->
+            {% endcomment %}
             <div class="col-auto me-2 mb-2 bg-secondary-subtle rounded-5">{{ タグ }}</div>
+            {% comment %}
             <!-- {{ endfor タグ表示 }} -->
+            {% endcomment %}
         </div>
         <div class="row mb-2">
-            <span class="col-auto">投票受付開始：2025/10/30</span>
-            <span class="col-auto">投票受付終了：2025/11/15</span>
+        <!--   <span class="col-auto">{{ survey.start_at }}</span> -->
+            <span class="col-auto">期限: {{ survey.end_at }}まで</span>
         </div>
         <!-- アンケート作成者本人の場合 -->
         <div class="d-flex justify-content-between">
+            {% comment %}
             <div>
                 <span class="col-auto">23 votes</span>
             </div>
+            {% endcomment %}
             <div>
-                <a class="me-4">編集</a>
-                <a href="">削除</a>
+                {% if survey.is_public %}
+                    <a href="{% url 'survey-edit' survey.pk %}">編集</a>
+                {% else %}
+                    <a href="{% url 'survey-temporary-edit' survey.pk %}">編集</a>
+                {% endif %}
+                <a href="{% url 'survey-delete' survey.pk %}">削除</a>
             </div>
         </div>
         <!-- アンケート作成者で本人ではない場合 -->
@@ -59,7 +71,7 @@
             <span class="col-auto">2026/1/20</span>
         </div> -->
         <div class="discription border border-secondary p-2 mt-3">
-            <p>ポートフォリオのurlです。*******************製作期間は1か月であることが自慢です。</p>
+            <p>{{ survey.description }}</p>
         </div>
         <!-- 円グラフ chart.jsで実装する-->
         <div class="m-3 p-3">
@@ -71,7 +83,9 @@
                 <h4>みんなのコメント</h4>
             </div>
             <ul class="list-unstyled">
+                {% comment %}
                 <!-- {{ for コメント表示 }} -->
+                {% endcomment %}
                 <li>
                     <div class="card p-3">
                         <div class="d-flex">
@@ -90,7 +104,7 @@
                                 <a href="">削除</a>
                             </div>
                             <div>
-                                <span class="col-auto">2026/1/20</span>
+                                <span class="col-auto">{{ survey.end_at }}</span>
                             </div>
                         </div>
                         <!-- 投票者で本人ではない場合 -->
@@ -99,10 +113,12 @@
                         </div> -->
                     </div>
                 </li>
+                {% comment %}
                 <!-- {{ endfor リスト表示}} -->
+                {% endcomment %}  
             </ul>
         </div>
-        <!-- {% endblock content %} -->
+        {% endblock content %}
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>

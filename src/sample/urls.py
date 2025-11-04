@@ -27,6 +27,4 @@ urlpatterns = [
     path("", include("karakuchi_room.urls")),
     # これがないとkarakuchi_roomのurlsが読み込まれない
 
-    
-
 ]

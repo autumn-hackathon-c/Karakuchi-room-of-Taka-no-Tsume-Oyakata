@@ -19,10 +19,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex align-items-center">
-                        <a class="me-3" href="">アンケート作成</a>
-                        <a class="me-3" href="">アンケート一覧
-                            <a class=" me-3" href="">ユーザー情報</a>
-                            <a class="btn btn-outline-primary" href="">ログアウト</a>
+                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
+                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
+                        <a class=" me-3" href="">ユーザー情報</a>
+                        <a class="btn btn-outline-primary" href="">ログアウト</a>
                     </div>
                 </div>
             </div>
@@ -30,10 +30,12 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
-        <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        <!-- {% block content %} -->
+        {% comment %}
+        実装時、{% block content}{% endblock content %}外はbase.htmlから参照する
+        {% endcomment %}
+        {% block content %}       
         <div class="text-center p-3">
-            <a href="" class="btn btn-success btn-lg">アンケートを作成する！</a>
+            <a href="{% url 'survey-create'%}" class="btn btn-success btn-lg">アンケートを作成する！</a>
         </div>
         <div class="header">
             <h2>アンケート一覧</h2>
@@ -61,36 +63,46 @@
         </div>
         <!-- チェックボックス ここまで-->
         <div class="tags w-100 mx-auto p-3">
-            <!-- {{ for タグ表示 }} -->
+            {% comment %}
+            {{ for タグ表示 }}
+            {% endcomment %}
             <button class="btn btn-light rounded-5">{{ タグ }}</button>
-            <!-- {{ endfor タグ表示 }} -->
+            {% comment %}
+            {{ endfor タグ表示 }}
+            {% endcomment %}
         </div>
         <div class="surveys-list">
-            <ul class="list-unstyled">
-                <!-- {{ for リスト表示 }} -->
+            <ul class="list-unstyled">       
+                {% for survey in survey_list %}           
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
-                            <!-- {{ for　タグ表示 }} -->
+                            {% comment %}
+                            {{ for　タグ表示 }}
+                            {% endcomment %}
                             <div class="badge bg-secondary">
                                 <span>雑談</span>
                             </div>
-                            <!-- {{ endfor　タグ表示 }} -->
+                            {% comment %}
+                            {{ endfor　タグ表示 }}
+                            {% endcomment %}
                         </div>
                         <div class="title">
-                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="">私のポートフォリオ、ぶっちゃけどうですか？</a></h2>
-                        </div>
+                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="{% url 'survey-detail' survey.pk %}">{{survey.title}}</a></h2>
+                        </div>         
                         <div>
-                            <span>23 votes</span>
-                            <span>2026/1/20 まで</span>
+                        <!-- <span>23 votes</span> --> 
+                            <span>{{survey.end_at}}</span>
                         </div>
                     </div>
                     </a>
                 </li>
-                <!-- {{ endfor リスト表示}} -->
+                {%endfor%}
             </ul>
         </div>
-        <!-- {% endblock content %} -->
+        
+        {% endblock content %}
+       
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
