@@ -28,36 +28,42 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
-        <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        <!-- {% block content %} -->
+        {% comment %} <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する --> {% endcomment %}
+        {% comment %} <!-- {% block content %} --> {% endcomment %}
         <div class="header">
             <h2>新規登録</h2>
         </div>
         <div class="login-form card p-3 mx-auto">
             <form action="" method="post">
+                {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label" for="user_name">ユーザー名</label>
-                    <input class="form-control" type="text" id="user_name" name="user_name">
+                    <label class="form-label" for="{{ form.user_name.id_for_label }}">ユーザー名</label>
+                    {{ form.user_name }}
+                    {% comment %} <label class="form-label" for="user_name">ユーザー名</label> {% endcomment %}
+                    {% comment %} <input class="form-control" type="text" id="user_name" name="user_name"> {% endcomment %}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="email">Emailアドレス</label>
-                    <input class="form-control" type="text" id="email" name="email">
+                    <label class="form-label" for="{{ form.email.id_for_label }}">Emailアドレス</label>
+                    {{ form.email }}
+                    {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="pwd">パスワード</label>
-                    <input class="form-control" type="password" id="pwd" name="pwd">
+                    <label class="form-label" for="{{ form.password1.id_for_label }}">パスワード</label>
+                    {{ form.password1 }}
+                    {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="pwd_confirm">パスワード（確認用）</label>
-                    <input class="form-control" type="password" id="pwd_confirm" name="pwd_confirm">
+                    <label class="form-label" for="{{ form.password2.id_for_label }}">パスワード（確認用）</label>
+                    {{ form.password2 }}
+                    {% comment %} <input class="form-control" type="password" id="pwd_confirm" name="pwd_confirm"> {% endcomment %}
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
-                    <a href="">ログインへ</a>
+                    <a href="nav-link" href="{% url 'login' %}">ログインへ</a>
                     <button type="submit" class="btn btn-primary">登録</button>
                 </div>
             </form>
         </div>
-        <!-- {% endblock content %} -->
+        {% comment %} <!-- {% endblock content %} --> {% endcomment %}
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>

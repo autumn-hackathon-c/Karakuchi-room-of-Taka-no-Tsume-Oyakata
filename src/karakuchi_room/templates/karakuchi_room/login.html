@@ -35,13 +35,14 @@
         </div>
         <div class="login-form card p-3 mx-auto">
             <form action="" method="post">
+                {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label" for="email">Emailアドレス</label>
-                    <input class="form-control" type="text" id="email" name="email">
+                    <label class="form-label" for="{{ form.user_name.id_for_label }}">Emailアドレス</label>
+                    {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="pwd">パスワード</label>
-                    <input class="form-control" type="password" id="pwd" name="pwd">
+                    {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
                     <a href="">新規登録へ</a>
