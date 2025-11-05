@@ -31,11 +31,11 @@ class SoftDeleteManager(models.Manager):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
 
 
-#  個別オブジェクトの delete() も論理削除に差し替え 
+#  個別オブジェクトの delete() も論理削除に差し替え
 class SoftDeleteModel(models.Model):
     objects = SoftDeleteManager()
     all_objects = SoftDeleteQuerySet.as_manager()
-    
+
     #   この部分は命名を変えると物理削除なるので変更しない。
     def delete(self, using=None, keep_parents=False):
         self.is_deleted = True
@@ -158,7 +158,7 @@ class Survey(SoftDeleteModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.CASCADE,  
+        on_delete=models.CASCADE,
         related_name="surveys",
         db_column="user_id",
         null=False,

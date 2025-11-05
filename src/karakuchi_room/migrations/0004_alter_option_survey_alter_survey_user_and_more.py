@@ -6,45 +6,85 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('karakuchi_room', '0003_rename_is_admin_user_is_staff'),
+        ("karakuchi_room", "0003_rename_is_admin_user_is_staff"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='option',
-            name='survey',
-            field=models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.CASCADE, related_name='options', to='karakuchi_room.survey', verbose_name='アンケートID'),
+            model_name="option",
+            name="survey",
+            field=models.ForeignKey(
+                db_column="survey_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="options",
+                to="karakuchi_room.survey",
+                verbose_name="アンケートID",
+            ),
         ),
         migrations.AlterField(
-            model_name='survey',
-            name='user',
-            field=models.ForeignKey(db_column='user_id', on_delete=django.db.models.deletion.CASCADE, related_name='surveys', to=settings.AUTH_USER_MODEL),
+            model_name="survey",
+            name="user",
+            field=models.ForeignKey(
+                db_column="user_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="surveys",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='tagsurvey',
-            name='survey',
-            field=models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.CASCADE, related_name='tag_surveys', to='karakuchi_room.survey', verbose_name='アンケートID'),
+            model_name="tagsurvey",
+            name="survey",
+            field=models.ForeignKey(
+                db_column="survey_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tag_surveys",
+                to="karakuchi_room.survey",
+                verbose_name="アンケートID",
+            ),
         ),
         migrations.AlterField(
-            model_name='tagsurvey',
-            name='tag',
-            field=models.ForeignKey(db_column='tag_id', on_delete=django.db.models.deletion.CASCADE, related_name='tag_surveys', to='karakuchi_room.tag', verbose_name='タグID'),
+            model_name="tagsurvey",
+            name="tag",
+            field=models.ForeignKey(
+                db_column="tag_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tag_surveys",
+                to="karakuchi_room.tag",
+                verbose_name="タグID",
+            ),
         ),
         migrations.AlterField(
-            model_name='vote',
-            name='option',
-            field=models.ForeignKey(db_column='option_id', on_delete=django.db.models.deletion.CASCADE, related_name='votes', to='karakuchi_room.option', verbose_name='選択ID'),
+            model_name="vote",
+            name="option",
+            field=models.ForeignKey(
+                db_column="option_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="votes",
+                to="karakuchi_room.option",
+                verbose_name="選択ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='vote',
-            name='survey',
-            field=models.ForeignKey(db_column='survey_id', on_delete=django.db.models.deletion.CASCADE, related_name='votes', to='karakuchi_room.survey', verbose_name='アンケートID'),
+            model_name="vote",
+            name="survey",
+            field=models.ForeignKey(
+                db_column="survey_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="votes",
+                to="karakuchi_room.survey",
+                verbose_name="アンケートID",
+            ),
         ),
         migrations.AlterField(
-            model_name='vote',
-            name='user',
-            field=models.ForeignKey(db_column='user_id', on_delete=django.db.models.deletion.CASCADE, related_name='votes', to=settings.AUTH_USER_MODEL, verbose_name='ユーザーID'),
+            model_name="vote",
+            name="user",
+            field=models.ForeignKey(
+                db_column="user_id",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="votes",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="ユーザーID",
+            ),
         ),
     ]
