@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+
 # QuerySetベースの論理削除用クラス。
 class SoftDeleteQuerySet(models.QuerySet):
     # bulk操作(複数レコードに対して一括で処理する操作のこと)でも物理削除せず、削除フラグを立てる
@@ -22,23 +23,27 @@ class SoftDeleteQuerySet(models.QuerySet):
     def dead(self):
         return self.filter(is_deleted=True)
 
+
 # 「未削除データのみ」を扱うManager。
 class SoftDeleteManager(models.Manager):
-    
     # objectsを経由する通常のQueryは未削除データだけを返す
     def get_queryset(self):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
+
 
 #  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
 class SoftDeleteMixin:
     """
     models.Model は継承しない（MRO 衝突回避）
     """
+
     def delete(self, using=None, keep_parents=False):
         self.is_deleted = True
         from django.utils.timezone import now
+
         self.updated_at = now()
         self.save(update_fields=["is_deleted", "updated_at"])
+
 
 #  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
 class SoftDeleteModel(models.Model):
@@ -52,7 +57,6 @@ class SoftDeleteModel(models.Model):
 
     class Meta:
         abstract = True
-
 
 
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
@@ -207,7 +211,6 @@ class Survey(SoftDeleteModel):
 
     def __str__(self):
         return f"タイトル: {self.title} (アンケートID={self.id})"
-    
 
 
 # Tagsテーブル
@@ -235,7 +238,6 @@ class Tag(SoftDeleteModel):
 
     def __str__(self):
         return f"タグ名: {self.tag.tag_name}"
-    
 
 
 # Tag_Surveysテーブル
@@ -274,7 +276,6 @@ class TagSurvey(SoftDeleteModel):
 
     def __str__(self):
         return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
-    
 
 
 # Optionsテーブル
@@ -325,7 +326,6 @@ class Option(SoftDeleteModel):
 
     def __str__(self):
         return f"選択項目: {self.label} (アンケートID={self.survey_id})"
-    
 
 
 # Votesテーブル
@@ -402,4 +402,3 @@ class Vote(SoftDeleteModel):
         return (
             f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
         )
-
