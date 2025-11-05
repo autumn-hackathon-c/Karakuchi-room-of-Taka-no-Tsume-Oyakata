@@ -158,7 +158,7 @@ class Survey(SoftDeleteModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.CASCADE,  # 親ユーザー削除を禁止（論理削除に合わせる）
+        on_delete=models.CASCADE,  
         related_name="surveys",
         db_column="user_id",
         null=False,
