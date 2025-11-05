@@ -31,21 +31,7 @@ class SoftDeleteManager(models.Manager):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
 
 
-#  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
-class SoftDeleteMixin:
-    """
-    models.Model は継承しない（MRO 衝突回避）
-    """
-
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        from django.utils.timezone import now
-
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
-
-
-#  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
+#  個別オブジェクトの delete() も論理削除に差し替え 
 class SoftDeleteModel(models.Model):
     objects = SoftDeleteManager()
     all_objects = SoftDeleteQuerySet.as_manager()
@@ -54,6 +40,12 @@ class SoftDeleteModel(models.Model):
         self.is_deleted = True
         self.updated_at = now()
         self.save(update_fields=["is_deleted", "updated_at"])
+        # 子も論理削除へ
+        for rel in self._meta.related_objects:
+            if rel.one_to_many or rel.one_to_one:
+                accessor = rel.get_accessor_name()
+                for obj in getattr(self, accessor).all():
+                    obj.delete()  # 子の SoftDelete.delete() が呼ばれる
 
     class Meta:
         abstract = True
@@ -112,7 +104,7 @@ class UserManager(BaseUserManager):
 
 
 # Users テーブル
-class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin):
+class User(AbstractBaseUser, PermissionsMixin, SoftDeleteModel):
     id = models.UUIDField(
         primary_key=True, default=uuid4, null=False, editable=False, verbose_name="ID"
     )
@@ -165,7 +157,7 @@ class Survey(SoftDeleteModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.PROTECT,  # 親ユーザー削除を禁止（論理削除に合わせる）
+        on_delete=models.CASCADE,  # 親ユーザー削除を禁止（論理削除に合わせる）
         related_name="surveys",
         db_column="user_id",
         null=False,
@@ -244,7 +236,7 @@ class Tag(SoftDeleteModel):
 class TagSurvey(SoftDeleteModel):
     tag = models.ForeignKey(
         Tag,  # Tagモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="tag_id",
         related_name="tag_surveys",
         verbose_name="タグID",
@@ -254,7 +246,7 @@ class TagSurvey(SoftDeleteModel):
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="tag_surveys",
         verbose_name="アンケートID",
@@ -284,7 +276,7 @@ class Option(SoftDeleteModel):
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="options",
         verbose_name="アンケートID",
@@ -334,7 +326,7 @@ class Vote(SoftDeleteModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="user_id",
         related_name="votes",
         verbose_name="ユーザーID",
@@ -344,7 +336,7 @@ class Vote(SoftDeleteModel):
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="votes",  # option.votes.all()
         verbose_name="アンケートID",
@@ -354,7 +346,7 @@ class Vote(SoftDeleteModel):
 
     option = models.ForeignKey(
         Option,  # Optionモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="option_id",
         related_name="votes",  # option.votes.all()
         verbose_name="選択ID",
