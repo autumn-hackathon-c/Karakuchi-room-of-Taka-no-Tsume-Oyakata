@@ -1,11 +1,33 @@
 from django.db import models
 from uuid import uuid4
 from django.conf import settings
+from django.utils.timezone import now
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
     PermissionsMixin,
 )
+
+# QuerySetベースの論理削除用クラス。
+class SoftDeleteQuerySet(models.QuerySet):
+    # bulk操作(複数レコードに対して一括で処理する操作のこと)でも物理削除せず、削除フラグを立てる
+    def delete(self):
+        return super().update(is_deleted=True, updated_at=now())
+
+    # 通常表示用（未削除データのみ）
+    def alive(self):
+        return self.filter(is_deleted=False)
+
+    # 削除済データのみ
+    def dead(self):
+        return self.filter(is_deleted=True)
+
+# 「未削除データのみ」を扱うManager。
+class SoftDeleteManager(models.Manager):
+    
+    # objectsを経由する通常のQueryは未削除データだけを返す
+    def get_queryset(self):
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
 
 
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
@@ -106,6 +128,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     # インスタンスを文字列として表すためのメソッド
     def __str__(self):
         return f"名前: {self.user_name}"
+    
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Surveysテーブル
@@ -160,6 +191,15 @@ class Survey(models.Model):
 
     def __str__(self):
         return f"タイトル: {self.title} (アンケートID={self.id})"
+    
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Tagsテーブル
@@ -187,6 +227,15 @@ class Tag(models.Model):
 
     def __str__(self):
         return f"タグ名: {self.tag.tag_name}"
+    
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Tag_Surveysテーブル
@@ -225,6 +274,15 @@ class TagSurvey(models.Model):
 
     def __str__(self):
         return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
+    
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Optionsテーブル
@@ -275,6 +333,15 @@ class Option(models.Model):
 
     def __str__(self):
         return f"選択項目: {self.label} (アンケートID={self.survey_id})"
+    
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Votesテーブル
@@ -351,3 +418,12 @@ class Vote(models.Model):
         return (
             f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
         )
+
+    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
+    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
+
+    #  個別オブジェクトの delete() も論理削除に差し替え
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
