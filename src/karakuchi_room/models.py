@@ -12,15 +12,15 @@ from django.contrib.auth.models import (
 # QuerySetベースの論理削除用クラス。
 class SoftDeleteQuerySet(models.QuerySet):
     # bulk操作(複数レコードに対して一括で処理する操作のこと)でも物理削除せず、削除フラグを立てる
-    def delete(self):
+    def get_delete(self):
         return super().update(is_deleted=True, updated_at=now())
 
     # 通常表示用（未削除データのみ）
-    def alive(self):
+    def get_alive(self):
         return self.filter(is_deleted=False)
 
     # 削除済データのみ
-    def dead(self):
+    def get_dead(self):
         return self.filter(is_deleted=True)
 
 
@@ -36,7 +36,7 @@ class SoftDeleteModel(models.Model):
     objects = SoftDeleteManager()
     all_objects = SoftDeleteQuerySet.as_manager()
 
-    def delete(self, using=None, keep_parents=False):
+    def individual_delete(self, using=None, keep_parents=False):
         self.is_deleted = True
         self.updated_at = now()
         self.save(update_fields=["is_deleted", "updated_at"])
@@ -157,7 +157,7 @@ class Survey(SoftDeleteModel):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.CASCADE,  # 親ユーザー削除を禁止（論理削除に合わせる）
+        on_delete=models.CASCADE,  
         related_name="surveys",
         db_column="user_id",
         null=False,
