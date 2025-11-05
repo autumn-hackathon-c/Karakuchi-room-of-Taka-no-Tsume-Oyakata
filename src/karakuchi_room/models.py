@@ -29,6 +29,31 @@ class SoftDeleteManager(models.Manager):
     def get_queryset(self):
         return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
 
+#  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
+class SoftDeleteMixin:
+    """
+    models.Model は継承しない（MRO 衝突回避）
+    """
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        from django.utils.timezone import now
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
+
+#  個別オブジェクトの delete() も論理削除に差し替え (Userテーブル以外)
+class SoftDeleteModel(models.Model):
+    objects = SoftDeleteManager()
+    all_objects = SoftDeleteQuerySet.as_manager()
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
+
+    class Meta:
+        abstract = True
+
+
 
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
 class UserManager(BaseUserManager):
@@ -83,7 +108,7 @@ class UserManager(BaseUserManager):
 
 
 # Users テーブル
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, SoftDeleteMixin):
     id = models.UUIDField(
         primary_key=True, default=uuid4, null=False, editable=False, verbose_name="ID"
     )
@@ -128,19 +153,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     # インスタンスを文字列として表すためのメソッド
     def __str__(self):
         return f"名前: {self.user_name}"
-    
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Surveysテーブル
-class Survey(models.Model):
+class Survey(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     user = models.ForeignKey(
@@ -192,18 +208,10 @@ class Survey(models.Model):
     def __str__(self):
         return f"タイトル: {self.title} (アンケートID={self.id})"
     
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Tagsテーブル
-class Tag(models.Model):
+class Tag(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     tag_name = models.CharField(max_length=50, verbose_name="タグ名", null=False)
@@ -228,18 +236,10 @@ class Tag(models.Model):
     def __str__(self):
         return f"タグ名: {self.tag.tag_name}"
     
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Tag_Surveysテーブル
-class TagSurvey(models.Model):
+class TagSurvey(SoftDeleteModel):
     tag = models.ForeignKey(
         Tag,  # Tagモデル（親）
         on_delete=models.PROTECT,
@@ -275,18 +275,10 @@ class TagSurvey(models.Model):
     def __str__(self):
         return f"タグ名: {self.tag.tag_name} / アンケートID: {self.survey.id}"
     
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Optionsテーブル
-class Option(models.Model):
+class Option(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     survey = models.ForeignKey(
@@ -334,18 +326,10 @@ class Option(models.Model):
     def __str__(self):
         return f"選択項目: {self.label} (アンケートID={self.survey_id})"
     
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
 
 
 # Votesテーブル
-class Vote(models.Model):
+class Vote(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     user = models.ForeignKey(
@@ -419,11 +403,3 @@ class Vote(models.Model):
             f"Vote(ID={self.id}, ユーザーID={self.user_id}, 選択項目={self.option_id})"
         )
 
-    objects = SoftDeleteManager()                        # 既定の Manager は未削除のみ
-    all_objects = SoftDeleteQuerySet.as_manager()        # 削除済も含めて見たい時だけ使う（管理用途など）
-
-    #  個別オブジェクトの delete() も論理削除に差し替え
-    def delete(self, using=None, keep_parents=False):
-        self.is_deleted = True
-        self.updated_at = now()
-        self.save(update_fields=["is_deleted", "updated_at"])
