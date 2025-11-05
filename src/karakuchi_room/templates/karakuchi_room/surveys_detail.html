@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <!-- ナビゲーションバー仮 -->
+    {% comment %} ナビゲーションバー仮 {% endcomment %}
     <nav>
         <div class="container">
             <div class="d-flex justify-content-between align-items-center py-3">
@@ -30,9 +30,7 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
-        {% comment %}
-        <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        {% endcomment %}
+        {% comment %}実装時、{% block content}{% endblock content %}外はbase.htmlから参照する{% endcomment %}
         {% block content %}
         <div class="header">
             <h2>{{ survey.title }}</h2>
@@ -47,10 +45,10 @@
             {% endcomment %}
         </div>
         <div class="row mb-2">
-        <!--   <span class="col-auto">{{ survey.start_at }}</span> -->
+            {% comment %} <span class="col-auto">{{ survey.start_at }}</span> {% endcomment %}
             <span class="col-auto">期限: {{ survey.end_at }}まで</span>
         </div>
-        <!-- アンケート作成者本人の場合 -->
+        {% comment %} アンケート作成者本人の場合 {% endcomment %}
         <div class="d-flex justify-content-between">
             {% comment %}
             <div>
@@ -66,30 +64,33 @@
                 <a href="{% url 'survey-delete' survey.pk %}">削除</a>
             </div>
         </div>
-        <!-- アンケート作成者で本人ではない場合 -->
-        <!-- <div class="d-flex justify-content-end">
+        {% comment %} アンケート作成者で本人ではない場合 {% endcomment %}
+        {% comment %} <div class="d-flex justify-content-end">
             <span class="col-auto">2026/1/20</span>
-        </div> -->
+        </div> {% endcomment %}
         <div class="discription border border-secondary p-2 mt-3">
             <p>{{ survey.description }}</p>
         </div>
-        <!-- 円グラフ chart.jsで実装する-->
+        {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
         <div class="m-3 p-3">
             <p>（仮）ここにchart.jsで円グラフを表示</p>
             <canvas id="myChart"></canvas>
         </div>
+        {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
+        <div>
+            <p>あなたは投票済みです！<a href="">投票詳細へ</a></p>
+        </div>
+        {% comment %} ユーザーが投票している場合、表示 ここまで{% endcomment %}
         <div class="comment-list">
             <div>
                 <h4>みんなのコメント</h4>
             </div>
             <ul class="list-unstyled">
-                {% comment %}
-                <!-- {{ for コメント表示 }} -->
-                {% endcomment %}
+                {% comment %}{{ for コメント表示 }}{% endcomment %}
                 <li>
                     <div class="card p-3">
                         <div class="d-flex">
-                            <!-- 円グラフの凡例に色をあわせる -->
+                            {% comment %} 円グラフの凡例に色をあわせる {% endcomment %}
                             <div class="text-primary me-2">
                                 <span>■</span>
                             </div>
@@ -97,25 +98,15 @@
                                 <p>操作中にエラーで落ちてしまいましたニャン♪😿公開前にチェックしておくべき事項だと思いますニャン♪</p>
                             </div>
                         </div>
-                        <!-- 投票者本人の場合 -->
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <a class="me-4">編集</a>
-                                <a href="">削除</a>
-                            </div>
+                        {% comment %} 投票者本人の場合  {% endcomment %}
+                        <div class="d-flex justify-content-end">
                             <div>
                                 <span class="col-auto">{{ survey.end_at }}</span>
                             </div>
                         </div>
-                        <!-- 投票者で本人ではない場合 -->
-                        <!-- <div class="d-flex justify-content-end">
-                            <span class="col-auto">2026/1/20</span>
-                        </div> -->
                     </div>
                 </li>
-                {% comment %}
-                <!-- {{ endfor リスト表示}} -->
-                {% endcomment %}  
+                {% comment %}{{ endfor リスト表示}}{% endcomment %}  
             </ul>
         </div>
         {% endblock content %}
