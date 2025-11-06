@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import inlineformset_factory,  BaseInlineFormSet
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import Survey, Option
 
 
@@ -41,7 +41,8 @@ class SurveyCreateForm(forms.ModelForm):
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
         }
-        
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSet = inlineformset_factory(
     parent_model=Survey,
@@ -50,8 +51,10 @@ OptionFormSet = inlineformset_factory(
     extra=4,  # 表示する空フォーム数
     can_delete=False,
     widgets={
-        "label": forms.TextInput(attrs={"class": "form-control", "placeholder": "選択肢を入力"})
-    }
+        "label": forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "選択肢を入力"}
+        )
+    },
 )
 
 

@@ -1,6 +1,6 @@
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from .forms import SurveyCreateForm, OptionFormSet ,SurveyFormDraft, SurveyFormPublished
+from .forms import SurveyCreateForm, OptionFormSet, SurveyFormDraft, SurveyFormPublished
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.db import transaction
 from django.urls import reverse_lazy
@@ -14,16 +14,18 @@ logger = logging.getLogger(__name__)
 
 # アンケート画面(Surveys)
 
+
 # アンケート一覧画面
 class SurveyListView(ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
 
+
 # アンケート詳細画面
 class SurveyDetailView(DetailView):
     model = Survey
     template_name = "karakuchi_room/surveys_detail.html"
-    
+
     # 以下、選択項目を表示させるための設定
     ## テンプレート変数名を指定
     context_object_name = "survey"
@@ -33,6 +35,7 @@ class SurveyDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["vote_list"] = self.object.options.filter(is_deleted=False)
         return ctx
+
 
 # ゲストユーザー（ログイン機能ができるまで暫定的に記載）
 def get_guest_user():
@@ -51,7 +54,7 @@ class SurveyCreateView(CreateView):
     form_class = SurveyCreateForm
     template_name = "karakuchi_room/surveys_create.html"
     success_url = None
-    
+
     # SurveyフォームとOptionフォームセットをテンプレートに渡す
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -65,10 +68,9 @@ class SurveyCreateView(CreateView):
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context["formset"]
-        
+
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():  # どちらか失敗すればロールバック
-        
                 survey = form.save(commit=False)
                 user = (
                     self.request.user
@@ -79,18 +81,16 @@ class SurveyCreateView(CreateView):
                 survey.save()
                 formset.instance = survey  # Option の親を設定
                 formset.save()
-            
+
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-list")
-    
+
         else:
             return self.form_invalid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, "入力内容にエラーがあります。")
         return super().form_invalid(form)
-    
-
 
 
 # アンケート編集画面(一時保存)
@@ -141,8 +141,3 @@ def survey_delete(request, pk):
     obj.delete()
     messages.success(request, "削除しました。")
     return redirect("survey-list")
-
-
-
-
-
