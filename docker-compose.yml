@@ -50,6 +50,8 @@ services:
         TZ: Asia/Tokyo
       volumes:
           - db_data:/var/lib/mysql
+          # 日本語表示
+          - './my.cnf:/etc/my.cnf'
       
       # envファイルの反映
       env_file:
