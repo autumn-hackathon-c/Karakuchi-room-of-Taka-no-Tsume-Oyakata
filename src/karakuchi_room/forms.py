@@ -1,5 +1,6 @@
 from django import forms
-from .models import Survey
+from django.forms import inlineformset_factory,  BaseInlineFormSet
+from .models import Survey, Option
 
 
 # Django のフォームクラスを使用するために ModelForm を継承
@@ -40,6 +41,18 @@ class SurveyCreateForm(forms.ModelForm):
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
         }
+        
+# ✅ Surveyに紐づくOptionのフォームセットを作成
+OptionFormSet = inlineformset_factory(
+    parent_model=Survey,
+    model=Option,
+    fields=["label"],
+    extra=4,  # 表示する空フォーム数
+    can_delete=False,
+    widgets={
+        "label": forms.TextInput(attrs={"class": "form-control", "placeholder": "選択肢を入力"})
+    }
+)
 
 
 # アンケート編集機能(一時保存)

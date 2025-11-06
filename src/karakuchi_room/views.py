@@ -1,9 +1,10 @@
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
-from .forms import SurveyCreateForm, SurveyFormDraft, SurveyFormPublished
+from .forms import SurveyCreateForm, OptionFormSet ,SurveyFormDraft, SurveyFormPublished
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.db import transaction
 from django.urls import reverse_lazy
-from karakuchi_room.models import Survey, Option
+from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -50,22 +51,46 @@ class SurveyCreateView(CreateView):
     form_class = SurveyCreateForm
     template_name = "karakuchi_room/surveys_create.html"
     success_url = None
+    
+    # SurveyフォームとOptionフォームセットをテンプレートに渡す
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if self.request.POST:
+            ctx["formset"] = OptionFormSet(self.request.POST)
+        else:
+            ctx["formset"] = OptionFormSet()
+        return ctx
 
+    # SurveyとOptionをまとめて保存
     def form_valid(self, form):
-        survey = form.save(commit=False)
-        user = (
-            self.request.user
-            if self.request.user.is_authenticated
-            else get_guest_user()
-        )
-        survey.user = user
-        survey.save()
-        messages.success(self.request, "アンケートを作成しました。")
-        return redirect("survey-list")
+        context = self.get_context_data()
+        formset = context["formset"]
+        
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():  # どちらか失敗すればロールバック
+        
+                survey = form.save(commit=False)
+                user = (
+                    self.request.user
+                    if self.request.user.is_authenticated
+                    else get_guest_user()
+                )
+                survey.user = user
+                survey.save()
+                formset.instance = survey  # Option の親を設定
+                formset.save()
+            
+            messages.success(self.request, "アンケートを作成しました。")
+            return redirect("survey-list")
+    
+        else:
+            return self.form_invalid(form)
 
     def form_invalid(self, form):
-        logger.warning("SurveyCreate errors: %s", form.errors)  # ← サーバーログに出す
+        messages.error(self.request, "入力内容にエラーがあります。")
         return super().form_invalid(form)
+    
+
 
 
 # アンケート編集画面(一時保存)
