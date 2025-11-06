@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from .forms import SurveyCreateForm, SurveyFormDraft, SurveyFormPublished
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
-from karakuchi_room.models import Survey
+from karakuchi_room.models import Survey, Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -11,19 +11,27 @@ import logging
 # ログ出力するために記載
 logger = logging.getLogger(__name__)
 
-# アンケート画面(surveys)
-
+# アンケート画面(Surveys)
 
 # アンケート一覧画面
 class SurveyListView(ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
 
-
 # アンケート詳細画面
 class SurveyDetailView(DetailView):
     model = Survey
     template_name = "karakuchi_room/surveys_detail.html"
+    
+    # 以下、選択項目を表示させるための設定
+    ## テンプレート変数名を指定
+    context_object_name = "survey"
+
+    ## アンケートに紐づく選択肢（Option）を取得する。
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["vote_list"] = self.object.options.filter(is_deleted=False)
+        return ctx
 
 
 # ゲストユーザー（ログイン機能ができるまで暫定的に記載）
@@ -109,3 +117,8 @@ def survey_delete(request, pk):
     obj.delete()
     messages.success(request, "削除しました。")
     return redirect("survey-list")
+
+
+
+
+
