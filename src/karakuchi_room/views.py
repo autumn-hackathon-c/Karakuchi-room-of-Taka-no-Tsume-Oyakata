@@ -24,6 +24,15 @@ from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm, LoginForm
 # 同じアプリケーション内のforms.pyからCustomUserFormとLoginFormをインポート
 
+# from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect
+from .forms import SurveyCreateForm, SurveyFormDraft, SurveyFormPublished
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.urls import reverse_lazy
+from karakuchi_room.models import Survey
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+import logging
 
 
 
@@ -41,20 +50,6 @@ class MyLoginView(LoginView):
     redirect_authenticated_user = True
     form_class = LoginForm
 
-
-
-
-
-
-# from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
-from .forms import SurveyCreateForm, SurveyFormDraft, SurveyFormPublished
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.urls import reverse_lazy
-from karakuchi_room.models import Survey
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-import logging
 
 # ログ出力するために記載
 logger = logging.getLogger(__name__)
@@ -82,7 +77,6 @@ def get_guest_user():
         defaults={"email": "guest@example.com", "is_active": True},
     )
     return guest
-
 
 # アンケート新規作成
 class SurveyCreateView(CreateView):
