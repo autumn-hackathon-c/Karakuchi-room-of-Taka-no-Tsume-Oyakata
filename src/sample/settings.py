@@ -131,8 +131,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # 未ログイン状態でログインが必要なページにアクセスしたときに
 # ログインページにリダイレクトされる
 LOGIN_URL = "login"
-# ログインしたらアンケート詳細画面にリダイレクト
-LOGIN_REDIRECT_URL = 'surveys'
+# ログインしたらアンケート一覧画面にリダイレクト
+LOGIN_REDIRECT_URL = 'survey-list'
 # ログアウトしたらログインページにリダイレクト
 LOGOUT_REDIRECT_URL = 'login'
 
