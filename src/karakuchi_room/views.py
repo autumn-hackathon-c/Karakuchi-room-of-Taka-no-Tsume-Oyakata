@@ -33,7 +33,6 @@ class SurveyDetailView(DetailView):
         ctx["vote_list"] = self.object.options.filter(is_deleted=False)
         return ctx
 
-
 # ゲストユーザー（ログイン機能ができるまで暫定的に記載）
 def get_guest_user():
     User = get_user_model()

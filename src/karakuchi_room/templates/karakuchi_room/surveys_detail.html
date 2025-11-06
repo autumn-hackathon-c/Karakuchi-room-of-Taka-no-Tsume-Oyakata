@@ -74,7 +74,7 @@
         {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
         <div class="m-3 p-3">
             {% for option in vote_list %}
-                <h2>{{ option.label }}</h2>
+                {{ option.label }}
             {% endfor %}
             <canvas id="myChart"></canvas>
         </div>
