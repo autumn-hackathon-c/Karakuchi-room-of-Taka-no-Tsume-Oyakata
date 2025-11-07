@@ -58,7 +58,8 @@
                     {% comment %} <input class="form-control" type="password" id="pwd_confirm" name="pwd_confirm"> {% endcomment %}
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
-                    <a href="nav-link" href="{% url 'login' %}">ログインへ</a>
+                    {% comment %} <a href="nav-link" href="">ログインへ</a> ←ここ、ひとむさんに確認する{% endcomment %}
+                    <a href="{% url 'login' %}">ログインへ</a>
                     <button type="submit" class="btn btn-primary">登録</button>
                 </div>
             </form>
