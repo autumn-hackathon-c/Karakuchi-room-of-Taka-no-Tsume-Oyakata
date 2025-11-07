@@ -21,10 +21,8 @@ from django.urls import path, include
 # テンプレート内で他のテンプレートを読み込むことを指す。
 
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("karakuchi_room.urls")),
     # これがないとkarakuchi_roomのurlsが読み込まれない
-
 ]

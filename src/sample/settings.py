@@ -56,7 +56,7 @@ ROOT_URLCONF = "sample.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ログインページにリダイレクトされる
 LOGIN_URL = "login"
 # ログインしたらアンケート一覧画面にリダイレクト
-LOGIN_REDIRECT_URL = 'survey-list'
+LOGIN_REDIRECT_URL = "survey-list"
 # ログアウトしたらログインページにリダイレクト
 LOGOUT_REDIRECT_URL = "login"
 

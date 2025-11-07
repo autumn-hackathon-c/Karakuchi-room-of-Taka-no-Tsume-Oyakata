@@ -1,21 +1,20 @@
-
-from django.views.generic import CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 # 会員登録する」ためにCreateViewが必要
 # CREATEVIEWは汎用的なビューだからdjango.views.genericの中のCreateViewになる
 # ここはトイトイさんとコンフリクト起こすかも
 
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 # LoginViewをインポートする事でテンプレート名や
 # リダイレクト先を指定するだけでログイン画面を作成できる
 # django.contrib.auth.viewは認証用ビュー群
 
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+# from django.contrib.auth.mixins import LoginRequiredMixin
 # 裏側のロジック(view)でコントロールする
 # ログインしているユーザーだけにアクセスを許可する
 
 
-from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.forms import UserCreationForm
 # ユーザー周りのフォームをインポート
 
 from django.urls import reverse_lazy
@@ -27,13 +26,10 @@ from .forms import CustomUserCreationForm, LoginForm
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from .forms import SurveyCreateForm, SurveyFormDraft, SurveyFormPublished
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.urls import reverse_lazy
 from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
-
 
 
 # 新規登録
@@ -41,7 +37,6 @@ class SignUpView(CreateView):
     template_name = "karakuchi_room/signup.html"
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("login")
-
 
 
 # ログイン
@@ -77,6 +72,7 @@ def get_guest_user():
         defaults={"email": "guest@example.com", "is_active": True},
     )
     return guest
+
 
 # アンケート新規作成
 class SurveyCreateView(CreateView):
