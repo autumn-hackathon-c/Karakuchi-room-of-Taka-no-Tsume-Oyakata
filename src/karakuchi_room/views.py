@@ -165,8 +165,8 @@ class SurveyTemporaryUpdateView(UpdateView):
         with transaction.atomic():  # どちらか失敗すればロールバック
             # UpdateView: 既存 self.object を更新
             self.object = form.save(commit=False)
-            # 下書き編集なので公開にはしない
-            self.object.is_public = False
+            # フォームから is_public の値を反映（ラジオで公開に切り替え可能にするため）
+            self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
             self.object.save()
             formset.instance = self.object
@@ -174,13 +174,6 @@ class SurveyTemporaryUpdateView(UpdateView):
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-list")
-
-    # ラジオで公開に切り替え可能にするならここで反映
-    # def form_valid(self, form):
-    #     obj = form.save(commit=False)
-    #     obj.is_public = bool(form.cleaned_data.get("is_public", False))
-    #     obj.save()
-    #     return super().form_valid(form)
 
 
 # アンケート編集画面(公開済)
@@ -204,7 +197,7 @@ class SurveyUpdateView(UpdateView):
         instance=self.object,
     )
         for f in formset.forms:
-            f.fields["label"].disabled = True  # ← 正しい位置/書き方
+            f.fields["label"].disabled = True  # ← 選択項目の編集：無効化
         ctx["formset"] = formset
         return ctx
 
