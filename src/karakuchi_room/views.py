@@ -32,7 +32,7 @@ from .forms import (
     SurveyFormDraft,
     OptionFormSetForDraft,
     SurveyFormPublished,
-    OptionFormSetForEdit,
+    OptionFormSetForPublished,
 )
 from django.db import transaction
 from karakuchi_room.models import Survey
@@ -179,7 +179,7 @@ class SurveyTemporaryUpdateView(UpdateView):
             formset.save()
 
             messages.success(self.request, "アンケートを作成しました。")
-            return redirect("survey-list")
+            return redirect("survey-detail", pk=self.object.pk)
 
 
 # アンケート編集画面(公開済)
@@ -198,7 +198,7 @@ class SurveyUpdateView(UpdateView):
     # SurveyフォームとOptionフォームセットをテンプレートに渡す
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        formset = OptionFormSetForEdit(
+        formset = OptionFormSetForPublished(
             self.request.POST or None,
             instance=self.object,
         )
@@ -229,7 +229,7 @@ class SurveyUpdateView(UpdateView):
             formset.save()
 
             messages.success(self.request, "アンケートを作成しました。")
-            return redirect("survey-list")
+            return redirect("survey-detail", pk=self.object.pk)
 
 
 # アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)

@@ -333,7 +333,7 @@ class SurveyFormDraft(forms.ModelForm):
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
-OptionFormSetForEdit = inlineformset_factory(
+OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
@@ -379,7 +379,7 @@ class SurveyFormPublished(forms.ModelForm):
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
-OptionFormSetForDraft = inlineformset_factory(
+OptionFormSetForPublished = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
