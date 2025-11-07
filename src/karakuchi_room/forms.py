@@ -5,20 +5,17 @@ settings.pyのAUTH_USER_MODELに設定された
 """
 
 from django.contrib.auth import get_user_model, authenticate
-
-
-from .models import Survey
 from django import forms
+from django.forms import inlineformset_factory
+from .models import Survey, Option
+
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 """
 djangoのフォームフレームワーク全体を使うためのインポート
 HTMLの<form>をpythonで扱えるようにする
-# UserCreationFormはユーザー登録用フォームをインポートしている
-"""
-
-"""
+UserCreationFormはユーザー登録用フォームをインポートしている
 Django標準の「ログイン用フォーム」クラスのAuthenticationFormをインポート
 ユーザー名とパスワード認証(ログイン)するためのフォーム
 """
@@ -28,14 +25,11 @@ User = get_user_model()
 """
 UserCreationFormをそのまま使うとエラーが出るからget_user_model()を使って
 現在のUserモデルを取得して変数Userに入れている
-"""
-
-"""
-# 新規登録フォーム
-# これはsetting.pyでカスタムユーザーを定義しているので必要
-# AUTH_USER_MODEL = "karakuchi_room.User"←これ
-# これを書かないとデフォルトのユーザーモデルが使われてエラーが出る
-# これを書く事で(karakuchi_room.User)に対して動作するようになる
+新規登録フォーム
+これはsetting.pyでカスタムユーザーを定義しているので必要
+AUTH_USER_MODEL = "karakuchi_room.User"←これ
+これを書かないとデフォルトのユーザーモデルが使われてエラーが出る
+これを書く事で(karakuchi_room.User)に対して動作するようになる
 """
 
 
@@ -287,6 +281,21 @@ class SurveyCreateForm(forms.ModelForm):
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
         }
+
+
+# ✅ Surveyに紐づくOptionのフォームセットを作成
+OptionFormSet = inlineformset_factory(
+    parent_model=Survey,
+    model=Option,
+    fields=["label"],
+    extra=4,  # 表示する空フォーム数
+    can_delete=False,
+    widgets={
+        "label": forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "選択肢を入力"}
+        )
+    },
+)
 
 
 # アンケート編集機能(一時保存)
