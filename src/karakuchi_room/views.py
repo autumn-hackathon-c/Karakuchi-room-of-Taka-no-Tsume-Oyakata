@@ -27,9 +27,7 @@ from .forms import CustomUserCreationForm, LoginForm
 from django.shortcuts import get_object_or_404, redirect
 
 from .forms import SurveyCreateForm, OptionFormSet, SurveyFormDraft, SurveyFormPublished
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.db import transaction
-from django.urls import reverse_lazy
 from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
 from django.contrib import messages
