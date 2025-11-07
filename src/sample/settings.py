@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "karakuchi_room",
+    "karakuchi_room.apps.KarakuchiRoomConfig",
 ]
 
 MIDDLEWARE = [
@@ -56,7 +56,7 @@ ROOT_URLCONF = "sample.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -127,6 +127,14 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# 未ログイン状態でログインが必要なページにアクセスしたときに
+# ログインページにリダイレクトされる
+LOGIN_URL = "login"
+# ログインしたらアンケート一覧画面にリダイレクト
+LOGIN_REDIRECT_URL = "survey-list"
+# ログアウトしたらログインページにリダイレクト
+LOGOUT_REDIRECT_URL = "login"
 
 # 認証ユーザーのモデルを指定
 AUTH_USER_MODEL = "karakuchi_room.User"

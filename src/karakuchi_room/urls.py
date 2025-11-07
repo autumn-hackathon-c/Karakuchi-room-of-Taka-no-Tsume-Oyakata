@@ -1,5 +1,10 @@
 from django.urls import path
 
+from django.contrib.auth.views import LogoutView
+from .views import survey_delete
+
+from karakuchi_room.views import MyLoginView, SignUpView
+
 from karakuchi_room.views import (
     SurveyListView,
     SurveyDetailView,
@@ -8,9 +13,12 @@ from karakuchi_room.views import (
     SurveyUpdateView,
 )
 
-from .views import survey_delete
 
 urlpatterns = [
+    path("signup/", SignUpView.as_view(), name="signup"),
+    path("login/", MyLoginView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    # path("", TaskListView.as_view(), name="surveys")
     # アンケート一覧
     path("surveys/", SurveyListView.as_view(), name="survey-list"),
     # アンケート新規作成
