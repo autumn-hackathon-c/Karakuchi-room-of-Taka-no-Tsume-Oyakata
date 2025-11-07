@@ -155,7 +155,7 @@ class SurveyTemporaryUpdateView(UpdateView):
     # SurveyフォームとOptionフォームセットをテンプレートに渡す
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        formset = OptionFormSetForEdit(self.request.POST or None, instance=self.object)
+        formset = OptionFormSetForDraft(self.request.POST or None, instance=self.object)
         ctx["formset"] = formset
         return ctx
 
