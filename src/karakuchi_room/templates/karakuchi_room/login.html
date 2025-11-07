@@ -19,8 +19,8 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex">
-                        <a class="btn btn-primary me-3" href="">ログイン</a>
-                        <a class="btn btn-outline-primary" href="">新規登録</a>
+                        <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
+                        <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
                     </div>
                 </div>
             </div>
@@ -37,8 +37,8 @@
             <form action="" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label" for="{{ form.email.id_for_label }}">Emailアドレス</label>
-                    {{ form.email }}
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Emailアドレス</label>
+                    {{ form.username }}
                     {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
                 </div>
                 <div class="mb-3">

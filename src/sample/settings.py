@@ -134,7 +134,7 @@ LOGIN_URL = "login"
 # ログインしたらアンケート一覧画面にリダイレクト
 LOGIN_REDIRECT_URL = 'survey-list'
 # ログアウトしたらログインページにリダイレクト
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = "login"
 
 # 認証ユーザーのモデルを指定
 AUTH_USER_MODEL = "karakuchi_room.User"

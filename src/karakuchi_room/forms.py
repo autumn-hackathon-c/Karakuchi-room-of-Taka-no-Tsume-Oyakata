@@ -160,7 +160,7 @@ class LoginForm(AuthenticationForm):
         
         """
         # 受け取ったrequestをインスタンス変数として保持している
-        # 　request を自分で保持しておく（後で authenticate に渡すため）。
+        # request を自分で保持しておく（後で authenticate に渡すため）。
         """
         super().__init__(request, *args, **kwargs)
         

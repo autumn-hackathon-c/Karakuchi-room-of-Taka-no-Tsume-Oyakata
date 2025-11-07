@@ -4,7 +4,7 @@ from django.views.generic import CreateView
 # CREATEVIEWは汎用的なビューだからdjango.views.genericの中のCreateViewになる
 # ここはトイトイさんとコンフリクト起こすかも
 
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 # LoginViewをインポートする事でテンプレート名や
 # リダイレクト先を指定するだけでログイン画面を作成できる
 # django.contrib.auth.viewは認証用ビュー群

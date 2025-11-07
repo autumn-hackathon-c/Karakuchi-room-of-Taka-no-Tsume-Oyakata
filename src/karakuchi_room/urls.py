@@ -17,7 +17,7 @@ from karakuchi_room.views import (
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
     path("login/", MyLoginView.as_view(), name="login"),
-    path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
+    path("logout/", LogoutView.as_view(), name="logout"),
     # path("", TaskListView.as_view(), name="surveys")
 
 
