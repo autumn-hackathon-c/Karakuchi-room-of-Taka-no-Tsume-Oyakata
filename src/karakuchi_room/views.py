@@ -26,7 +26,14 @@ from .forms import CustomUserCreationForm, LoginForm
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 
-from .forms import SurveyCreateForm, OptionFormSet, SurveyFormDraft, SurveyFormPublished
+from .forms import (
+    SurveyCreateForm,
+    OptionFormSet,
+    SurveyFormDraft,
+    OptionFormSetForDraft,
+    SurveyFormPublished,
+    OptionFormSetForPublished,
+)
 from django.db import transaction
 from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
@@ -145,12 +152,34 @@ class SurveyTemporaryUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
 
-    # ラジオで公開に切り替え可能にするならここで反映
+    # SurveyフォームとOptionフォームセットをテンプレートに渡す
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        formset = OptionFormSetForDraft(self.request.POST or None, instance=self.object)
+        ctx["formset"] = formset
+        return ctx
+
+    # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.is_public = bool(form.cleaned_data.get("is_public", False))
-        obj.save()
-        return super().form_valid(form)
+        ctx = self.get_context_data()
+        formset = ctx["formset"]
+
+        # form はすでに valid。formset だけ検証すればOK
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
+        with transaction.atomic():  # どちらか失敗すればロールバック
+            # UpdateView: 既存 self.object を更新
+            self.object = form.save(commit=False)
+            # フォームから is_public の値を反映（ラジオで公開に切り替え可能にするため）
+            self.object.is_public = bool(form.cleaned_data.get("is_public", False))
+            # user は上書きしない（作成者そのまま）
+            self.object.save()
+            formset.instance = self.object
+            formset.save()
+
+            messages.success(self.request, "アンケートを作成しました。")
+            return redirect("survey-detail", pk=self.object.pk)
 
 
 # アンケート編集画面(公開済)
@@ -166,12 +195,41 @@ class SurveyUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
 
+    # SurveyフォームとOptionフォームセットをテンプレートに渡す
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        formset = OptionFormSetForPublished(
+            self.request.POST or None,
+            instance=self.object,
+        )
+        for f in formset.forms:
+            f.fields["label"].disabled = True  # ← 選択項目の編集：無効化
+        ctx["formset"] = formset
+        return ctx
+
     # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.is_public = True  # 常に公開維持（解除を許さない）
-        obj.save()
-        return super().form_valid(form)
+        context = self.get_context_data()
+        formset = context["formset"]
+
+        # form はすでに valid。formset だけ検証すればOK
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
+        with transaction.atomic():  # どちらか失敗すればロールバック
+            survey = form.save(commit=False)
+            user = (
+                self.request.user
+                if self.request.user.is_authenticated
+                else get_guest_user()
+            )
+            survey.user = user
+            survey.save()
+            formset.instance = survey  # Option の親を設定
+            formset.save()
+
+            messages.success(self.request, "アンケートを作成しました。")
+            return redirect("survey-detail", pk=self.object.pk)
 
 
 # アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
