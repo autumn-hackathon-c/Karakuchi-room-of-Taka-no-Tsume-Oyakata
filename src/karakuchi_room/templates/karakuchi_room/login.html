@@ -19,8 +19,8 @@
                 </div>
                 <div class="col-auto">
                     <div class="d-flex">
-                        <a class="btn btn-primary me-3" href="">ログイン</a>
-                        <a class="btn btn-outline-primary" href="">新規登録</a>
+                        <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
+                        <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
                     </div>
                 </div>
             </div>
@@ -28,28 +28,31 @@
         <!-- ナビゲーションバー仮 -->
     </nav>
     <div class="container">
-        <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        <!-- {% block content %} -->
+        {% comment %} <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する --> {% endcomment %}
+        {% comment %} <!-- {% block content %} --> {% endcomment %}
         <div class="header">
             <h2>ログイン</h2>
         </div>
         <div class="login-form card p-3 mx-auto">
             <form action="" method="post">
+                {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label" for="email">Emailアドレス</label>
-                    <input class="form-control" type="text" id="email" name="email">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Emailアドレス</label>
+                    {{ form.username }}
+                    {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
                 </div>
                 <div class="mb-3">
-                    <label class="form-label" for="pwd">パスワード</label>
-                    <input class="form-control" type="password" id="pwd" name="pwd">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">パスワード</label>
+                    {{ form.password }}
+                    {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
                 </div>
                 <div class="mb-3 d-flex justify-content-between">
-                    <a href="">新規登録へ</a>
+                    <a href="{% url 'signup' %}">新規登録へ</a>
                     <button type="submit" class="btn btn-primary">ログイン</button>
                 </div>
             </form>
         </div>
-        <!-- {% endblock content %} -->
+        {% comment %} <!-- {% endblock content %} --> {% endcomment %}
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
