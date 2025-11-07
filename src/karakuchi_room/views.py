@@ -26,7 +26,14 @@ from .forms import CustomUserCreationForm, LoginForm
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 
-from .forms import SurveyCreateForm, OptionFormSet, SurveyFormDraft, OptionFormSetForDraft, SurveyFormPublished,OptionFormSetForEdit
+from .forms import (
+    SurveyCreateForm,
+    OptionFormSet,
+    SurveyFormDraft,
+    OptionFormSetForDraft,
+    SurveyFormPublished,
+    OptionFormSetForEdit,
+)
 from django.db import transaction
 from karakuchi_room.models import Survey
 from django.contrib.auth import get_user_model
@@ -138,14 +145,13 @@ class SurveyTemporaryUpdateView(UpdateView):
     form_class = SurveyFormDraft
     template_name = "karakuchi_room/surveys_edit_save_temporary.html"
 
-
     # 下書きだけを対象にする（公開済みは404）
     def get_queryset(self):
         return Survey.objects.filter(is_public=False)
 
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
-    
+
     # SurveyフォームとOptionフォームセットをテンプレートに渡す
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -157,7 +163,7 @@ class SurveyTemporaryUpdateView(UpdateView):
     def form_valid(self, form):
         ctx = self.get_context_data()
         formset = ctx["formset"]
-        
+
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
             return self.form_invalid(form)
@@ -188,14 +194,14 @@ class SurveyUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.pk})
-    
+
     # SurveyフォームとOptionフォームセットをテンプレートに渡す
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         formset = OptionFormSetForEdit(
-        self.request.POST or None,
-        instance=self.object,
-    )
+            self.request.POST or None,
+            instance=self.object,
+        )
         for f in formset.forms:
             f.fields["label"].disabled = True  # ← 選択項目の編集：無効化
         ctx["formset"] = formset
@@ -205,7 +211,7 @@ class SurveyUpdateView(UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context["formset"]
-        
+
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
             return self.form_invalid(form)
@@ -224,7 +230,6 @@ class SurveyUpdateView(UpdateView):
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-list")
-
 
 
 # アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)

@@ -331,12 +331,13 @@ class SurveyFormDraft(forms.ModelForm):
         model = Survey
         fields = ["title", "description", "end_at", "is_public"]
 
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForEdit = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
-    extra=0 ,# 表示する空フォーム数(編集画面のため空はなし)
+    extra=0,  # 表示する空フォーム数(編集画面のため空はなし)
     can_delete=False,
     widgets={
         "label": forms.TextInput(
@@ -344,7 +345,6 @@ OptionFormSetForEdit = inlineformset_factory(
         )
     },
 )
-
 
 
 # アンケート編集機能(公開)
@@ -364,7 +364,11 @@ class SurveyFormPublished(forms.ModelForm):
 
     class Meta:
         model = Survey
-        fields = ["title", "description", "end_at",]  # is_public はフォームに出さない等
+        fields = [
+            "title",
+            "description",
+            "end_at",
+        ]  # is_public はフォームに出さない等
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -372,7 +376,8 @@ class SurveyFormPublished(forms.ModelForm):
         # フィールド自体を disabled(無効) にする。
         self.fields["title"].disabled = True
         self.fields["description"].disabled = True
-        
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
@@ -385,6 +390,4 @@ OptionFormSetForDraft = inlineformset_factory(
             attrs={"class": "form-control", "placeholder": "選択肢を入力"}
         )
     },
-    
 )
-
