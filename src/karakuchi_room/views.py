@@ -85,7 +85,7 @@ class SurveyDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
 
         # 選択肢（Option）一覧はそのまま
-        ctx["vote_list"] = self.object.options.filter(is_deleted=False)
+        ctx["option_list"] = self.object.options.filter(is_deleted=False)
 
         # 投票（Vote）をテンプレに渡す（未ログインなら None）
         vote = None
