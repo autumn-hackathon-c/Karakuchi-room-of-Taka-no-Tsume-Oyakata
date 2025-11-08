@@ -22,7 +22,11 @@
                         <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
                         <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
                         <a class=" me-3" href="">ユーザー情報</a>
-                        <a class="btn btn-outline-primary" href="">ログアウト</a>
+                        {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
+                            <form action="{% url 'logout' %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-primary">ログアウト</button>
+                            </form>
                     </div>
                 </div>
             </div>
