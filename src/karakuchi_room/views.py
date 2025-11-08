@@ -75,12 +75,7 @@ class SurveyDetailView(DetailView):
     ## テンプレート変数名を指定
     context_object_name = "survey"
 
-    ## アンケートに紐づく選択肢（Option）を取得する。
-    # def get_context_data(self, **kwargs):
-    #     ctx = super().get_context_data(**kwargs)
-    #     ctx["vote_list"] = self.object.options.filter(is_deleted=False)
-    #     return ctx
-    
+    ## アンケートに紐づく選択肢（Option)や投票(Votes)を取得する。    
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
@@ -98,7 +93,7 @@ class SurveyDetailView(DetailView):
         if user.is_authenticated:
             Vote = self.model._meta.apps.get_model("karakuchi_room", "Vote")
             # ユーザーIDを「ハイフン付きUUID文字列」として検索
-            uid36 = str(user.pk)  # 例: '709f02cc-9d2f-4e96-9815-7336e338743e'
+            uid36 = str(user.pk) 
 
             vote = (
                 Vote.objects
@@ -106,12 +101,6 @@ class SurveyDetailView(DetailView):
                 .only("id")
                 .first()
             )
-
-            # デバッグ
-            print("[SurveyDetailView] survey_id=", self.object.pk,
-                        "user_pk=", uid36,
-                        "vote_id=", getattr(vote, "id", None))
-
 
         ctx["vote"] = vote
         return ctx
