@@ -94,7 +94,8 @@
                 <a href="" class="btn btn-danger px-5">投票内容を削除！</a>
             </div>
             <div class="text-center my-5">
-                <a href="{% url 'survey-detail' survey.pk %}">アンケート詳細に戻る</a>
+                {% comment %} idが違う場合でも前画面に遷移させる方法 {% endcomment %}
+                <a href="{% url 'survey-detail' vote.survey.pk %}">アンケート詳細に戻る</a>
             </div>
             {% comment %} {% endblock content %} {% endcomment %}
         </div>
