@@ -80,7 +80,13 @@
         </div>
         {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
         <div>
-            <p>あなたは投票済みです！<a href="">投票詳細へ</a></p>
+            {% if vote and vote.pk %}
+                <p>
+                    <a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
+                </p>
+            {% else %}
+                <p>まだ投票していません。</p>
+            {% endif %}
         </div>
         {% comment %} ユーザーが投票している場合、表示 ここまで{% endcomment %}
         <div class="comment-list">

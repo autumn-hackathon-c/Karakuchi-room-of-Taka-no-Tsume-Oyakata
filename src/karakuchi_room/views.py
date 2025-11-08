@@ -35,9 +35,10 @@ from .forms import (
     OptionFormSetForPublished,
 )
 from django.db import transaction
-from karakuchi_room.models import Survey
+from karakuchi_room.models import Survey, Vote
 from django.contrib.auth import get_user_model
 from django.contrib import messages
+from uuid import UUID
 import logging
 
 
@@ -58,8 +59,6 @@ class MyLoginView(LoginView):
 # ログ出力するために記載
 logger = logging.getLogger(__name__)
 
-# アンケート画面(Surveys)
-
 
 # アンケート一覧画面
 class SurveyListView(ListView):
@@ -77,11 +76,45 @@ class SurveyDetailView(DetailView):
     context_object_name = "survey"
 
     ## アンケートに紐づく選択肢（Option）を取得する。
+    # def get_context_data(self, **kwargs):
+    #     ctx = super().get_context_data(**kwargs)
+    #     ctx["vote_list"] = self.object.options.filter(is_deleted=False)
+    #     return ctx
+    
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["vote_list"] = self.object.options.filter(is_deleted=False)
-        return ctx
 
+        # 選択肢（Option）一覧はそのまま
+        ctx["vote_list"] = self.object.options.filter(is_deleted=False)
+
+        # 投票（Vote）をテンプレに渡す（未ログインなら None）
+        vote = None
+        user = self.request.user
+        if not user.is_authenticated:
+            # 未ログインなら None のまま
+            ctx["vote"] = None
+            return ctx
+
+        if user.is_authenticated:
+            Vote = self.model._meta.apps.get_model("karakuchi_room", "Vote")
+            # ユーザーIDを「ハイフン付きUUID文字列」として検索
+            uid36 = str(user.pk)  # 例: '709f02cc-9d2f-4e96-9815-7336e338743e'
+
+            vote = (
+                Vote.objects
+                .filter(survey_id=self.object.pk, user_id=uid36, is_deleted=False)
+                .only("id")
+                .first()
+            )
+
+            # デバッグ
+            print("[SurveyDetailView] survey_id=", self.object.pk,
+                        "user_pk=", uid36,
+                        "vote_id=", getattr(vote, "id", None))
+
+
+        ctx["vote"] = vote
+        return ctx
 
 # ゲストユーザー（ログイン機能ができるまで暫定的に記載）
 def get_guest_user():
@@ -238,3 +271,11 @@ def survey_delete(request, pk):
     obj.delete()
     messages.success(request, "削除しました。")
     return redirect("survey-list")
+
+
+# 投票画面(Votes)
+
+# アンケート詳細画面
+class VoteDetailView(DetailView):
+    model = Vote
+    template_name = "karakuchi_room/votes_detail.html"
