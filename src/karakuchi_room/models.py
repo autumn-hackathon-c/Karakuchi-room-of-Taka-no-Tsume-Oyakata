@@ -171,6 +171,14 @@ class Survey(SoftDeleteModel):
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
+    
+    # ✅ 状態を自動判定するプロパティ
+    @property
+    def is_expired(self):
+        # 現在時刻が end_at を過ぎていれば True
+        if self.end_at is None:
+            return False  # 終了日時が設定されていない場合は受付中扱い
+        return now() >= self.end_at
 
     is_public = models.BooleanField(
         default=False, db_default=False, verbose_name="公開フラグ"

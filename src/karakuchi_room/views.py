@@ -35,6 +35,7 @@ from .forms import (
     OptionFormSetForPublished,
     VoteForm
 )
+from django.utils import timezone
 from django.db import transaction
 from karakuchi_room.models import Survey, Vote
 from django.contrib.auth import get_user_model
@@ -286,4 +287,43 @@ class VoteDetailView(DetailView):
         ctx["selected_option"] = vote.option
 
         return ctx
+
+
+# 投票作成画面
+class VoteCreateView(CreateView):
+        model = Vote
+        template_name = "karakuchi_room/votes_create.html"
+        form_class = VoteForm
+        success_url = None
+        
+        def dispatch(self, request, *args, **kwargs):
+            survey = get_object_or_404(Survey, pk=self.kwargs["survey_id"])
+
+            # end_at を使って受付終了を判定
+            now = timezone.now()
+            if survey.end_at and survey.end_at <= now:
+                return redirect("survey-detail", pk=survey.pk)
+
+            self.survey = survey
+            return super().dispatch(request, *args, **kwargs)
+        
+        def get_context_data(self, **kwargs):
+            ctx = super().get_context_data(**kwargs)
+
+            # この投票が属しているアンケート
+            ctx["survey"] = self.survey
+
+            # そのアンケートに紐づく選択肢一覧
+            ctx["option_list"] = self.survey.options.filter(is_deleted=False)
+            
+            return ctx
+        
+        def form_valid(self, form):
+            # 作成するVoteにsurveyを紐づけ
+            form.instance.survey = self.survey
+            form.instance.user = self.request.user  # ログインユーザー使ってるなら
+            return super().form_valid(form)
+
+        def get_success_url(self):
+            return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
 

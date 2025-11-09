@@ -11,6 +11,7 @@ from karakuchi_room.views import (
     SurveyCreateView,
     SurveyTemporaryUpdateView,
     SurveyUpdateView,
+    VoteCreateView,
     VoteDetailView
 )
 
@@ -40,6 +41,10 @@ urlpatterns = [
         SurveyUpdateView.as_view(),
         name="survey-edit",
     ),
+    
+    # 投票作成
+    path("votes/create/<int:survey_id>/", VoteCreateView.as_view(), name="vote-create"),
+    
     # 投票詳細
     path("votes/detail/<int:pk>", VoteDetailView.as_view(), name="vote-detail"),
 ]
