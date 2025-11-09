@@ -1,3 +1,5 @@
+/* //ナビゲーションバーの表示切替// */
+
 body {
   margin: 0;
   padding: 0;
@@ -14,4 +16,25 @@ body {
     background-repeat: round;
     background-size: auto; 
   }
+}
+
+
+/* //ハンバーガーメニューのデザイン// */
+.mobile-menu-icon {
+  background-color: transparent;
+  border: none;
+  outline: none !important;
+  cursor: pointer;
+}
+
+.mobile-menu-icon > span {
+  background-color: black;
+  width: 35px;
+  height: 2px;
+  display: block;
+  margin-bottom: 9px;
+}
+
+.mobile-menu-icon > span:last-child {
+  margin-bottom: 0;
 }
