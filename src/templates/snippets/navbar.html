@@ -1,22 +1,15 @@
 <nav>
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center py-3">
-            <div class="col">
-                <a href=""><img width="100" src="{% static 'img/logo.png' %}" alt="鷹の爪親方の辛口部屋のロゴ"></a>
-            </div>
-            <div class="col-auto">
-                <div class="d-flex align-items-center">
-                    {% if user.is_authenticated %}
-                    <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                    <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                    <a class=" me-3" href="">ユーザー情報</a>
-                    <a class="btn btn-outline-primary" href="">ログアウト</a>
-                    {% elif  %}
-                    <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
-                    <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="col-auto">
+        <div class="d-flex align-items-center">
+            {% if user.is_authenticated %}
+            <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
+            <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
+            <a class=" me-3" href="">ユーザー情報</a>
+            <a class="btn btn-outline-primary" href="">ログアウト</a>
+            {% else  %}
+            <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
+            <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
+            {% endif %}
         </div>
     </div>
 </nav>
