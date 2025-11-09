@@ -5,7 +5,10 @@
             <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
             <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
             <a class=" me-3" href="">ユーザー情報</a>
-            <a class="btn btn-outline-primary" href="">ログアウト</a>
+            <form action="{% url 'logout' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary">ログアウト</button>
+            </form>
             {% else  %}
             <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
             <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
