@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -7,34 +8,14 @@
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
-    {% block navbar %}
-    {% comment %} ナビゲーションバー仮 {% endcomment %}
-    {% comment %} こちらは今後の実装でsnippets/navbar.htmlとして切り出す {% endcomment %}
-    <nav>
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center py-3">
-                <div class="col">
-                    <a href=""><img width="100" src="../static/img/logo.png" alt="鷹の爪親方の辛口部屋のロゴ"></a>
-                </div>
-                <div class="col-auto">
-                    <div class="d-flex align-items-center">
-                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                        <a class=" me-3" href="">ユーザー情報</a>
-                        <a class="btn btn-outline-primary" href="">ログアウト</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% comment %} ナビゲーションバー仮 ここまで{% endcomment %}
-    {% endblock navbar %}
-    
-    </nav>
+
+    {% include "snippets.navbar.html" %}
+
     <div class="container">
-        {% comment %}実装時、{% block content}{% endblock content %}外はbase.htmlから参照する{% endcomment %}
         {% block content %}
         {% endblock content %}
     </div>
