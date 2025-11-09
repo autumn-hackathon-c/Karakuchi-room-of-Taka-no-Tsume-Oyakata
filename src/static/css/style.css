@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-image: url("/static/img/background.png");
+  background-position: top left;
+  /* 横幅 < 768px用：横幅いっぱい、縦方向に繰り返し */
+  background-repeat: repeat-y;
+  background-size: 100% auto; 
+}
+
+@media (min-width: 768px) {
+  body {
+    /* 横幅が768px以上の時：縦横に繰り返し、画像が切れないように表示 */
+    background-repeat: round;
+    background-size: auto; 
+  }
+}
