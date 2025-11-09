@@ -33,12 +33,12 @@ from .forms import (
     OptionFormSetForDraft,
     SurveyFormPublished,
     OptionFormSetForPublished,
+    VoteForm
 )
 from django.db import transaction
 from karakuchi_room.models import Survey, Vote
 from django.contrib.auth import get_user_model
 from django.contrib import messages
-from uuid import UUID
 import logging
 
 
@@ -268,3 +268,22 @@ def survey_delete(request, pk):
 class VoteDetailView(DetailView):
     model = Vote
     template_name = "karakuchi_room/votes_detail.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        vote = self.object
+
+        # この投票が属しているアンケート
+        ctx["survey"] = vote.survey
+        
+        # 入力フォーム（DetailViewは「form_class = VoteForm」と書いても反映されない。）
+        ctx["form"] = VoteForm() 
+
+        # そのアンケートに紐づく選択肢一覧
+        ctx["option_list"] = vote.survey.options.filter(is_deleted=False)
+
+        # この投票で選ばれた選択肢
+        ctx["selected_option"] = vote.option
+
+        return ctx
+

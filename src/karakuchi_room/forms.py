@@ -7,7 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Survey, Option
+from .models import Survey, Option, Vote
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -391,3 +391,19 @@ OptionFormSetForPublished = inlineformset_factory(
         )
     },
 )
+
+
+# ✅ Voteの入力フォームを作成
+class VoteForm(forms.ModelForm):
+    class Meta:
+        model = Vote
+        fields = ["comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "（任意）理由やコメントがあれば入力してください",
+                }
+            ),
+        }

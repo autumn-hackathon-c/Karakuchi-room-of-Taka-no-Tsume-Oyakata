@@ -35,51 +35,44 @@
         </nav>
         <div class="container">
             {% comment %} 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する {% endcomment %}
-            {% comment %} {% block content %} {% endcomment %}
+            {% block content %} 
             <div class="header">
                 <h2>投票詳細</h2>
             </div>
             <div class="survey-title my-3">
-                <h2>私のポートフォリオ、ぶっちゃけどうですか？ </h2>
+                <h2>{{ survey.title }} </h2>
             </div>
             <div class="deadline my-2">
-                <span>投票期限：2025/1/29</span>
+                <span>投票期限：{{ survey.end_at }}</span>
             </div>
             <div class="discription border border-secondary p-2 my-3">
-                <p>ポートフォリオのurlです。********************製作期間は1か月であることが自慢です。</p>
+                <p>{{ survey.description }}</p>
             </div>
             <div class="h4 mt-5">
                 <p>あなたはどう思う？</p>
             </div>
-            {% comment %} 選択肢をradioボタンで選択 {% endcomment %}
+            {% comment %} 選択肢をradioボタンをfor文で繰り返し表示 {% endcomment %}
             <div class="select-radio p-3">
-                {% comment %} radioボタンをfor文で繰り返し表示 {% endcomment %}
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="option1" id="option1" value="1" disabled>
-                    <span>
-                        いいと思う！
-                    </span>
-                </div>
-                {% comment %} radioボタンをfor文で繰り返し表示 ここまで {% endcomment %}
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="option2" id="option2" value="2" disabled>
-                    <span>
-                        改善の余地あり
-                    </span>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="option3" id="option3" value="3" disabled>
-                    <span>
-                        その他
-                    </span>
+                <div class="m-3 p-3">
+                    {% for option in option_list %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input"
+                            type="radio"
+                            name="option"
+                            id="option_{{ option.id }}"
+                            value="{{ option.id }}">                 
+                            <label class="form-check-label" for="option_{{ option.id }}" >
+                                {{ option.label }}
+                            </label>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% comment %} 選択肢をradioボタンで選択 ここまで{% endcomment %}
             <div class="comment mt-5 mb-4">
-                <p class="h4">選択肢を選んだ理由（任意）</p>
-                <div class="discription border border-secondary p-2 mt-3">
-                    <p>理由を入力</p>
-                </div>
+                <label class="form-label" for="{{ form.comment.id_for_label }}">
+                    選択肢を選んだ理由（任意）
+                </label>
+                {{ form.comment }}
             </div>
             {% comment %} 追加機能 文章加工機能{% endcomment %}
             {% comment %} <div class="edit-button row mb-5">
@@ -97,7 +90,7 @@
                 {% comment %} idが違う場合でも前画面に遷移させる方法 {% endcomment %}
                 <a href="{% url 'survey-detail' vote.survey.pk %}">アンケート詳細に戻る</a>
             </div>
-            {% comment %} {% endblock content %} {% endcomment %}
+            {% endblock content %} 
         </div>
         <footer class="text-center p-3">
             <span class="text-muted"> &copy; Team C 2025 Autumn</span>
