@@ -442,7 +442,6 @@ class VoteDetailForm(forms.ModelForm):
             )
             
         # フィールド自体を disabled(無効) にする。
-        self.fields["option"].disabled = True
         self.fields["comment"].disabled = True
     
             
