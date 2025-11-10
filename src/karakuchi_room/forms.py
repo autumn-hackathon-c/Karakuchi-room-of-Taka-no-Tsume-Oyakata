@@ -49,11 +49,10 @@ class CustomUserCreationForm(UserCreationForm):
         
         """
 
-        
-
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
 # これ→ REQUIRED_FIELDS = ["user_name"](superuser作成時追加で求められるフィールド)
+
 
 class UserForm(forms.ModelForm):
     # forms.MOdelFormはDjangoのModelFormを継承している
@@ -76,8 +75,6 @@ class UserForm(forms.ModelForm):
         # htmlでユーザーを表示させる時などに使用する→{{ user.user_name }}
         """
 
-        
-
         widgets = {
             """    
         # widgets = {}はDjangoのフォームのウィジェット
@@ -96,12 +93,11 @@ class UserForm(forms.ModelForm):
 
 
 class LoginForm(AuthenticationForm):
+    # AuthenticationFormを継承してLoginFormという変数に格納する
+    # AuthenticationFormの標準認証はusernameとpassword
 
-# AuthenticationFormを継承してLoginFormという変数に格納する
-# AuthenticationFormの標準認証はusernameとpassword
-    
     def __init__(self, request=None, *args, **kwargs):
-    # フィールドを設定するために初期化
+        # フィールドを設定するために初期化
 
         self.request = request
 
@@ -185,7 +181,6 @@ class LoginForm(AuthenticationForm):
             """
 
         return self.cleaned_data
-
 
 
 # Django のフォームクラスを使用するために ModelForm を継承
