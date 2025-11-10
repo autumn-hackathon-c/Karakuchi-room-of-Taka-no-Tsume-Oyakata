@@ -18,6 +18,11 @@
         <div class="col">
             <a href=""><img width="100" src="{% static 'img/logo.png' %}" alt="鷹の爪親方の辛口部屋のロゴ"></a>
         </div>
+        {% if user.is_authenticated %}
+        <div class="col">
+            <p class="m-0">ようこそ、{{user.user_name}}さん</p>
+        </div>
+        {% endif %}
         {% include "snippets/navbar.html" %}
     </div>
 </div>
