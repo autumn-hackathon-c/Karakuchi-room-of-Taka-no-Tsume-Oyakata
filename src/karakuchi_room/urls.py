@@ -17,10 +17,12 @@ from karakuchi_room.views import (
 
 
 urlpatterns = [
+    # 新規作成
     path("signup/", SignUpView.as_view(), name="signup"),
+    # ログイン
     path("login/", MyLoginView.as_view(), name="login"),
+    # ログアウト
     path("logout/", LogoutView.as_view(), name="logout"),
-    # path("surveys/", SurveyListView.as_view(), name="survey-list"),
     # アンケート一覧
     path("", SurveyListView.as_view(), name="survey-list"),
     # アンケート新規作成
