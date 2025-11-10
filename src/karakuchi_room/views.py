@@ -370,14 +370,36 @@ class VoteCreateView(CreateView):
             return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
         
         
-# アンケート編集画面(公開済)
+# 投票編集画面
 class VoteUpdateView(LoginRequiredMixin, UpdateView):
     model = Vote
     template_name = "karakuchi_room/votes_edit.html"
     form_class = VoteFormPublished
+    context_object_name = "vote"
+    
+    def dispatch(self, request, *args, **kwargs):
+        # pk から Vote を取得
+        vote = self.get_object()
+        survey = vote.survey
 
+        # 受付終了なら編集させずにアンケート詳細画面へ
+        if survey.end_at and survey.end_at <= timezone.now():
+            return redirect("survey-detail", pk=survey.pk)
 
-        
+        # あとで使いたければ保持しておく
+        self.survey = survey
+        return super().dispatch(request, *args, **kwargs)
+    
+    
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["survey"] = self.survey
+        ctx["option_list"] = self.survey.options.filter(is_deleted=False)
+        return ctx
+
+    def get_success_url(self):
+        return reverse_lazy("vote-detail", kwargs={"pk": self.object.pk})
+
 
 # 投票削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
 def vote_delete(request, pk):
