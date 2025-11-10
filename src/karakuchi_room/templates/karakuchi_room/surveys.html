@@ -37,7 +37,10 @@
         {% comment %}
         実装時、{% block content}{% endblock content %}外はbase.htmlから参照する
         {% endcomment %}
-        {% block content %}       
+        {% block content %}
+        <div>
+            <h3>ようこそ{{ user.user_name }}さん</h3>
+        </div>       
         <div class="text-center p-3">
             <a href="{% url 'survey-create'%}" class="btn btn-success btn-lg">アンケートを作成する！</a>
         </div>
