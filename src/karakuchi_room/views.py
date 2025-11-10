@@ -34,7 +34,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote
+from karakuchi_room.models import Survey, Vote,Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -266,6 +266,7 @@ def survey_delete(request, pk):
 class VoteDetailView(DetailView):
     model = Vote
     template_name = "karakuchi_room/votes_detail.html"
+    context_object_name = "vote"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -291,7 +292,6 @@ class VoteCreateView(CreateView):
         model = Vote
         template_name = "karakuchi_room/votes_create.html"
         form_class = VoteForm
-        success_url = None
         
         def dispatch(self, request, *args, **kwargs):
             survey = get_object_or_404(Survey, pk=self.kwargs["survey_id"])
@@ -302,6 +302,7 @@ class VoteCreateView(CreateView):
                 return redirect("survey-detail", pk=survey.pk)
 
             self.survey = survey
+
             return super().dispatch(request, *args, **kwargs)
         
         def get_context_data(self, **kwargs):
@@ -316,10 +317,24 @@ class VoteCreateView(CreateView):
             return ctx
         
         def form_valid(self, form):
+            # ここで「すでに有効な投票があるか」をチェック
+            already_voted = Vote.objects.filter(
+                user=self.request.user,
+                survey=self.survey,
+                is_deleted=False,
+            ).exists()
+
+            #　すでに投票している場合
+            if already_voted:
+                messages.error(self.request, "このアンケートには既に投票済みです。")
+                return redirect("survey-detail", pk=self.survey.pk)
+
+            # まだ投票していない場合だけ保存
             # 作成するVoteにsurveyを紐づけ
+            form.instance.user = self.request.user
             form.instance.survey = self.survey
-            form.instance.user = self.request.user  # ログインユーザー使ってるなら
             return super().form_valid(form)
+
 
         def get_success_url(self):
             return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})

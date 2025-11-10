@@ -397,7 +397,7 @@ OptionFormSetForPublished = inlineformset_factory(
 class VoteForm(forms.ModelForm):
     class Meta:
         model = Vote
-        fields = ["comment"]
+        fields = ["option", "comment"]
         widgets = {
             "comment": forms.Textarea(
                 attrs={
@@ -407,3 +407,12 @@ class VoteForm(forms.ModelForm):
                 }
             ),
         }
+    def __init__(self, *args, **kwargs):
+        survey = kwargs.pop("survey", None)
+        super().__init__(*args, **kwargs)
+        if survey is not None:
+            # このアンケートの選択肢だけ選べるように絞り込み
+            self.fields["option"].queryset = Option.objects.filter(
+                survey=survey,
+                is_deleted=False,
+            )

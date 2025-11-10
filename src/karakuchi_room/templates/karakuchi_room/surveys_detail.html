@@ -107,7 +107,10 @@
                                 <span>■</span>
                             </div>
                             <div>
-                                <p>操作中にエラーで落ちてしまいましたニャン♪😿公開前にチェックしておくべき事項だと思いますニャン♪</p>
+                                {% comment %} 複数のテーブルが関係する場合のカラムの表示方法 {% endcomment %}
+                                <p>選んだ選択肢：{{ vote.option.label }}</p>
+                                
+                                <p>コメント：{{ vote.comment }}</p>
                             </div>
                         </div>
                         {% comment %} 投票者本人の場合  {% endcomment %}
