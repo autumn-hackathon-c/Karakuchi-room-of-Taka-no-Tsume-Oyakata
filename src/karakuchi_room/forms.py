@@ -36,18 +36,12 @@ class CustomUserCreationForm(UserCreationForm):
         # ここで「どのモデルに対応させるか」「どのフィールドを使うか」を定義する
 
         model = User
-
-        """"
         # get_user_model()の返り値に設定する
         # 使用するDBの表を指定している
-        """
 
         fields = ("user_name", "email")
-
-        """
         # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
         
-        """
 
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
@@ -62,26 +56,26 @@ class UserForm(forms.ModelForm):
         # ModelForm系で使う内部クラスMetaの開始
         # ここで「どのモデルに対応させるか」「どのフィールドを使うか」を定義する
         model = User
-
         """
         # Userはget_user_model()の返り値
         # modelのフィールド情報を参照して自動的にフォームフィールドを作る
         """
 
         fields = ["user_name"]
-
         """
         # models.pyに定義しているカスタムフィールドを記述
         # htmlでユーザーを表示させる時などに使用する→{{ user.user_name }}
         """
 
         widgets = {
-            """    
+            
+        """    
         # widgets = {}はDjangoのフォームのウィジェット
         # ウィジェット(widget)とはDjangoのフォームフィールドがHTML上でどのように
         # 表示、レンダリングされるかを制御するクラス 
         """
-            "user_name": forms.TextInput(attrs={"class": "form-control"}),
+        
+        "user_name": forms.TextInput(attrs={"class": "form-control"}),
         }
 
         # フォームの user_name 入力欄を、HTML の <input type="text"> にする
@@ -168,9 +162,9 @@ class LoginForm(AuthenticationForm):
                 raise forms.ValidationError("メールアドレスが正しくありません")
 
             """
-                # raiseとはエラーを意図的に発生させるキーワード
-                # forms.ValidationErrorとはフォームの入力に問題がある時にエラーの文字列を出すコード
-                # テンプレート側では{{ form.non_field_errors }}これを書く事でブラウザに表示される
+            # raiseとはエラーを意図的に発生させるキーワード
+            # forms.ValidationErrorとはフォームの入力に問題がある時にエラーの文字列を出すコード
+            # テンプレート側では{{ form.non_field_errors }}これを書く事でブラウザに表示される
             """
             self.confirm_login_allowed(self.user_cache)
 
