@@ -30,7 +30,8 @@ from .forms import (
     OptionFormSetForDraft,
     SurveyFormPublished,
     OptionFormSetForPublished,
-    VoteForm
+    VoteForm,
+    VoteFormPublished
 )
 from django.utils import timezone
 from django.db import transaction
@@ -360,6 +361,15 @@ class VoteCreateView(CreateView):
 
         def get_success_url(self):
             return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
+        
+        
+# アンケート編集画面(公開済)
+class VoteUpdateView(LoginRequiredMixin, UpdateView):
+    model = Vote
+    template_name = "karakuchi_room/votes_edit.html"
+    form_class = VoteFormPublished
+
+
         
 
 # 投票削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)

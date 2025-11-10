@@ -91,7 +91,7 @@
             </div>
         </form>
         <div class="text-center my-5">
-            <a href="">投票編集をキャンセルして戻る</a>
+            <a href="{% url 'vote-detail' vote.pk %}">投票編集をキャンセルして戻る</a>
         </div>
         {% comment %} {% endblock content %} {% endcomment %}
     </div>

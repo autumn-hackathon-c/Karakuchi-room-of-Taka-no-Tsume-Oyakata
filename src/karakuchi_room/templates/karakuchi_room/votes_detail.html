@@ -81,7 +81,7 @@
             </div> {% endcomment %}
             {% comment %} 追加機能 文章加工機能ここまで{% endcomment %}
             <div class="edit-btn text-center mb-5">
-                <a href="" class="btn btn-success px-5">投票内容を変更！</a>
+                <a href="{% url 'vote-edit' vote.pk %}" class="btn btn-success px-5">投票内容を変更！</a>
             </div>
             <div class="delete-btn text-center">
                 <a href="{% url 'vote-delete' pk=vote.pk %}" class="btn btn-danger px-5">投票内容を削除！</a>

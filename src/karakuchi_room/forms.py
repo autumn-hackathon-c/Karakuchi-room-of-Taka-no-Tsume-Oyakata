@@ -416,3 +416,28 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+            
+# 投票編集機能
+class VoteFormPublished(forms.ModelForm):
+    # end_at は Survey 用だけど、「このフォームで一緒に入力したい追加フィールド」として持つのはOK
+    end_at = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(
+            attrs={
+                "type": "datetime-local",
+                "class": "form-control",
+            },
+            format="%Y-%m-%dT%H:%M",
+        ),
+        input_formats=["%Y-%m-%dT%H:%M"],
+    )
+
+    class Meta:
+        model = Vote
+        # ★ Vote モデルに実際に存在するフィールドだけを書く！
+        fields = ["comment"]
+        # widgets / labels / help_texts などで title/description を触らない
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
