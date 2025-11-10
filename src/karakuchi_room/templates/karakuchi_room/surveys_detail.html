@@ -98,7 +98,6 @@
                 <h4>みんなのコメント</h4>
             </div>
             <ul class="list-unstyled">
-                {% comment %}{{ for コメント表示 }}{% endcomment %}
                 <li>
                     <div class="card p-3">
                         <div class="d-flex">
@@ -106,14 +105,51 @@
                             <div class="text-primary me-2">
                                 <span>■</span>
                             </div>
-                            <div>
+
+                            {% comment %} 全てのコメント一覧 {% endcomment %}
+                            {% if vote_list %}
+                                <ul>
+                                    {% for all_comment in vote_list %}
+                                        <li class="mb-2">
+                                            「{{ all_comment.comment|default:"（コメントなし）" }}」<br>
+                                            選択肢：{{ all_comment.option.label }}<br>
+                                            投稿日時：{{ all_comment.created_at|date:"Y-m-d H:i" }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>まだコメント付きの投票はありません。</p>
+                            {% endif %}
+                        </div>
+                        <hr>
+                            {% comment %} 選択肢の票数を集計 {% endcomment %}
+                            {% if option_vote_counts %}
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>選択肢</th>
+                                            <th>票数</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for count in option_vote_counts %}
+                                            <tr>
+                                                <td>{{ count.option__label }}</td>
+                                                <td>{{ count.vote_count }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                            <p>まだ有効な投票はありません。</p>
+                        {% endif %}
+                        {% comment %} 投票者本人の場合  {% endcomment %}
+                        <div>
                                 {% comment %} 複数のテーブルが関係する場合のカラムの表示方法 {% endcomment %}
                                 <p>選んだ選択肢：{{ vote.option.label }}</p>
                                 
                                 <p>コメント：{{ vote.comment }}</p>
-                            </div>
                         </div>
-                        {% comment %} 投票者本人の場合  {% endcomment %}
                         <div class="d-flex justify-content-end">
                             <div>
                                 <span class="col-auto">{{ survey.end_at }}</span>
@@ -121,7 +157,6 @@
                         </div>
                     </div>
                 </li>
-                {% comment %}{{ endfor リスト表示}}{% endcomment %}  
             </ul>
         </div>
         {% endblock content %}

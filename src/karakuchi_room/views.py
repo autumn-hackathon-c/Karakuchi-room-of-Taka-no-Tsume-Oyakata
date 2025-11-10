@@ -34,7 +34,8 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote,Option
+from karakuchi_room.models import Survey, Vote
+from django.db.models import Count
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -76,6 +77,9 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
     ## アンケートに紐づく選択肢（Option)や投票(Votes)を取得する。    
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        
+        # この詳細ページのアンケート
+        survey = self.object 
 
         # 選択肢（Option）一覧はそのまま
         ctx["option_list"] = self.object.options.filter(is_deleted=False)
@@ -101,6 +105,24 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
             )
 
         ctx["vote"] = vote
+        
+        # これまでのコメント一覧（このアンケートの全投票）
+        ctx["vote_list"] = (
+            Vote.objects
+            .filter(survey=survey, is_deleted=False)
+            .select_related("user", "option")
+            .order_by("-created_at")
+        )
+
+        # 選択項目ごとの票数（このアンケート内）
+        ctx["option_vote_counts"] = (
+            Vote.objects
+            .filter(survey=survey, is_deleted=False)
+            .values("option__id", "option__label")
+            .annotate(vote_count=Count("id"))
+            .order_by("option__id")
+        )
+        
         return ctx
 
 # ゲストユーザー（ログイン機能ができるまで暫定的に記載）
