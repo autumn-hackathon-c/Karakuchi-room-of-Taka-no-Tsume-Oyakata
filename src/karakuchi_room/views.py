@@ -9,13 +9,10 @@ from django.contrib.auth.views import LoginView
 # django.contrib.auth.viewは認証用ビュー群
 
 
-# from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 # 裏側のロジック(view)でコントロールする
 # ログインしているユーザーだけにアクセスを許可する
 
-
-# from django.contrib.auth.forms import UserCreationForm
-# ユーザー周りのフォームをインポート
 
 from django.urls import reverse_lazy
 # reverse_lazyをインポートすることでリダイレクト先を指定できる
@@ -62,13 +59,13 @@ logger = logging.getLogger(__name__)
 
 
 # アンケート一覧画面
-class SurveyListView(ListView):
+class SurveyListView(LoginRequiredMixin, ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
 
 
 # アンケート詳細画面
-class SurveyDetailView(DetailView):
+class SurveyDetailView(LoginRequiredMixin, DetailView):
     model = Survey
     template_name = "karakuchi_room/surveys_detail.html"
 
@@ -117,7 +114,7 @@ def get_guest_user():
 
 
 # アンケート新規作成
-class SurveyCreateView(CreateView):
+class SurveyCreateView(LoginRequiredMixin, CreateView):
     model = Survey
     # ModelForm を使う
     form_class = SurveyCreateForm
@@ -163,7 +160,7 @@ class SurveyCreateView(CreateView):
 
 
 # アンケート編集画面(一時保存)
-class SurveyTemporaryUpdateView(UpdateView):
+class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
     model = Survey
     form_class = SurveyFormDraft
     template_name = "karakuchi_room/surveys_edit_save_temporary.html"
@@ -206,7 +203,7 @@ class SurveyTemporaryUpdateView(UpdateView):
 
 
 # アンケート編集画面(公開済)
-class SurveyUpdateView(UpdateView):
+class SurveyUpdateView(LoginRequiredMixin, UpdateView):
     model = Survey
     form_class = SurveyFormPublished
     template_name = "karakuchi_room/surveys_edit_published.html"
