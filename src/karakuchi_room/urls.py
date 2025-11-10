@@ -20,7 +20,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     # path("surveys/", SurveyListView.as_view(), name="survey-list"),
     # アンケート一覧
-    path("", SurveyListView.as_view(), name="survey-list"), 
+    path("", SurveyListView.as_view(), name="survey-list"),
     # アンケート新規作成
     path("surveys/create/", SurveyCreateView.as_view(), name="survey-create"),
     # アンケート詳細
