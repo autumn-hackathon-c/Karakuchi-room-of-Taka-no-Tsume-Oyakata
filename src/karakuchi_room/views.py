@@ -37,7 +37,7 @@ from .forms import (
 from django.utils import timezone
 from django.db import transaction
 from karakuchi_room.models import Survey, Vote
-from django.db.models import Count
+from django.db.models import Count,Exists, OuterRef
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -65,6 +65,27 @@ logger = logging.getLogger(__name__)
 class SurveyListView(LoginRequiredMixin, ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
+    
+    def get_queryset(self):
+        # 現在ログイン中のユーザーを取得
+        current_user = self.request.user
+
+        # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
+        surveys_with_vote_status = (
+            Survey.objects
+            .all()
+            .annotate(
+                has_voted=Exists(
+                    Vote.objects.filter(
+                        survey=OuterRef("pk"),    # 対象のアンケートに対応する投票
+                        user=current_user,        # 現在のログインユーザーによる投票
+                        is_deleted=False,         # 有効な投票のみ対象
+                    )
+                )
+            )
+        )
+        # 投票状況付きのアンケート一覧を返す
+        return surveys_with_vote_status
 
 
 # アンケート詳細画面
@@ -82,31 +103,23 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
         
         # この詳細ページのアンケート
         survey = self.object 
+        user = self.request.user
 
         # 選択肢（Option）一覧はそのまま
         ctx["option_list"] = self.object.options.filter(is_deleted=False)
 
         # 投票（Vote）をテンプレに渡す（未ログインなら None）
-        vote = None
-        user = self.request.user
-        if not user.is_authenticated:
+        user_vote = None
+        if  user.is_authenticated:
             # 未ログインなら None のまま
-            ctx["vote"] = None
-            return ctx
-
-        if user.is_authenticated:
-            Vote = self.model._meta.apps.get_model("karakuchi_room", "Vote")
-            # ユーザーIDを「ハイフン付きUUID文字列」として検索
-            uid36 = str(user.pk) 
-
-            vote = (
+            user_vote = (
                 Vote.objects
-                .filter(survey_id=self.object.pk, user_id=uid36, is_deleted=False)
-                .only("id")
+                .filter(survey=survey, user=user, is_deleted=False)
                 .first()
             )
 
-        ctx["vote"] = vote
+        ctx["vote"] = user_vote  # ← これまでの ctx["vote"] と同じ意味
+
         
         # これまでのコメント一覧（このアンケートの全投票）
         ctx["vote_list"] = (

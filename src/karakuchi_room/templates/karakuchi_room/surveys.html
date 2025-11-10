@@ -100,9 +100,27 @@
                                 <h2><span class="badge bg-secondary m-1">終</span><a class="h2" href="{% url 'survey-detail' survey.pk%}">{{survey.title}}</a></h2>
                             </div>
                         {% else %}
-                            <div class="title">
-                                <h2><span class="badge bg-success m-1">受</span><a class="h2" href="{% url 'vote-create' survey.pk %}">{{survey.title}}</a></h2>
-                            </div>
+                            {% if survey.has_voted %}
+                                {# 受付中 ＋ もう投票済み #}
+                                <div class="title">
+                                    <h2>
+                                        <span class="badge bg-info m-1">済</span>
+                                        <a class="h2" href="{% url 'survey-detail' survey.pk %}">
+                                            {{ survey.title }}
+                                        </a>
+                                    </h2>
+                                </div>
+                            {% else %}
+                                {# 受付中 ＋ 未投票 #}
+                                <div class="title">
+                                    <h2>
+                                        <span class="badge bg-success m-1">受</span>
+                                        <a class="h2" href="{% url 'vote-create' survey.pk %}">
+                                            {{ survey.title }}
+                                        </a>
+                                    </h2>
+                                </div>
+                            {% endif %}
                         {% endif %}         
                         <div>
                         <!-- <span>23 votes</span> --> 
