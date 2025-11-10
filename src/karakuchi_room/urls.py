@@ -18,9 +18,9 @@ urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
     path("login/", MyLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    # path("", TaskListView.as_view(), name="surveys")
+    # path("surveys/", SurveyListView.as_view(), name="survey-list"),
     # アンケート一覧
-    path("surveys/", SurveyListView.as_view(), name="survey-list"),
+    path("", SurveyListView.as_view(), name="survey-list"),
     # アンケート新規作成
     path("surveys/create/", SurveyCreateView.as_view(), name="survey-create"),
     # アンケート詳細
