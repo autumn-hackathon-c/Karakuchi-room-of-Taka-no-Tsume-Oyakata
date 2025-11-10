@@ -41,7 +41,6 @@ class CustomUserCreationForm(UserCreationForm):
 
         fields = ("user_name", "email")
         # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
-        
 
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
@@ -68,14 +67,12 @@ class UserForm(forms.ModelForm):
         """
 
         widgets = {
-            
-        """    
+            """    
         # widgets = {}はDjangoのフォームのウィジェット
         # ウィジェット(widget)とはDjangoのフォームフィールドがHTML上でどのように
         # 表示、レンダリングされるかを制御するクラス 
         """
-        
-        "user_name": forms.TextInput(attrs={"class": "form-control"}),
+            "user_name": forms.TextInput(attrs={"class": "form-control"}),
         }
 
         # フォームの user_name 入力欄を、HTML の <input type="text"> にする
