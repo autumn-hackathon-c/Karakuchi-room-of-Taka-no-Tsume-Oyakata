@@ -1,7 +1,7 @@
 from django.urls import path
 
 from django.contrib.auth.views import LogoutView
-from .views import survey_delete
+from .views import survey_delete, vote_delete
 
 from karakuchi_room.views import MyLoginView, SignUpView
 
@@ -47,4 +47,7 @@ urlpatterns = [
     
     # 投票詳細
     path("votes/detail/<int:pk>", VoteDetailView.as_view(), name="vote-detail"),
+    
+    # 投票削除
+    path("votes/delete/<int:pk>", vote_delete, name="vote-delete"),
 ]

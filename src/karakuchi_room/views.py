@@ -355,9 +355,29 @@ class VoteCreateView(CreateView):
             # 作成するVoteにsurveyを紐づけ
             form.instance.user = self.request.user
             form.instance.survey = self.survey
-            return super().form_valid(form)
+            return super().form_valid(form)  
 
 
         def get_success_url(self):
             return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
+        
+
+# 投票削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
+def vote_delete(request, pk):
+    vote = get_object_or_404(Vote, pk=pk)
+    
+    # ソフトデリートではなく「物理削除」にする 
+    """
+    物理削除にした理由
+    
+    ソフトデリートだと以下のパターンでエラーが出るから
+    • 投票
+	• その投票を削除（/votes/delete/ or 画面の削除ボタン）
+	• 再度投票
+	• もう一度削除 ←ここでエラーが出る。
+    """
+    Vote.objects.filter(pk=vote.pk).delete()
+    
+    messages.success(request, "削除しました。")
+    return redirect("survey-list")
 
