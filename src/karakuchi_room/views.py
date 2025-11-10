@@ -31,6 +31,7 @@ from .forms import (
     SurveyFormPublished,
     OptionFormSetForPublished,
     VoteForm,
+    VoteDetailForm,
     VoteFormPublished
 )
 from django.utils import timezone
@@ -293,16 +294,22 @@ class VoteDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        
+        # このURLの Vote インスタンス
         vote = self.object
+        
+        # そのVoteが属しているアンケート
+        survey = vote.survey  
 
         # この投票が属しているアンケート
-        ctx["survey"] = vote.survey
+        ctx["survey"] = survey
         
-        # 入力フォーム（DetailViewは「form_class = VoteForm」と書いても反映されない。）
-        ctx["form"] = VoteForm() 
+        # 詳細用フォーム（surveyは self.survey を渡す）
+        # DetailViewは「form_class = VoteDetailForm」と書いても反映されない。
+        ctx["form"] = VoteDetailForm(instance=vote, survey=survey)
 
         # そのアンケートに紐づく選択肢一覧
-        ctx["option_list"] = vote.survey.options.filter(is_deleted=False)
+        ctx["option_list"] = survey.options.filter(is_deleted=False)
 
         # この投票で選ばれた選択肢
         ctx["selected_option"] = vote.option

@@ -393,7 +393,7 @@ OptionFormSetForPublished = inlineformset_factory(
 )
 
 
-# ✅ Voteの入力フォームを作成
+# ✅ 投票作成機能
 class VoteForm(forms.ModelForm):
     class Meta:
         model = Vote
@@ -416,6 +416,35 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+            
+# ✅ 投票詳細機能
+class VoteDetailForm(forms.ModelForm):
+    class Meta:
+        model = Vote
+        fields = ["option", "comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "（任意）理由やコメントがあれば入力してください",
+                }
+            ),
+        }
+    def __init__(self, *args, **kwargs):
+        survey = kwargs.pop("survey", None)
+        super().__init__(*args, **kwargs)
+        if survey is not None:
+            # このアンケートの選択肢だけ選べるように絞り込み
+            self.fields["option"].queryset = Option.objects.filter(
+                survey=survey,
+                is_deleted=False,
+            )
+            
+        # フィールド自体を disabled(無効) にする。
+        self.fields["option"].disabled = True
+        self.fields["comment"].disabled = True
+    
             
 # 投票編集機能
 class VoteFormPublished(forms.ModelForm):

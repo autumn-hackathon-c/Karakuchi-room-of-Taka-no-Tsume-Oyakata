@@ -60,7 +60,12 @@
                             type="radio"
                             name="option"
                             id="option_{{ option.id }}"
-                            value="{{ option.id }}">                 
+                            value="{{ option.id }}"
+                            disabled
+                            {% comment%} 選択済みの項目にチェックを付けて表示する {%endcomment %}
+                            {% if option.id == vote.option_id %}
+                                checked
+                            {% endif %}>                 
                             <label class="form-check-label" for="option_{{ option.id }}" >
                                 {{ option.label }}
                             </label>
