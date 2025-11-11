@@ -437,7 +437,7 @@ class VoteUpdateView(LoginRequiredMixin, UpdateView):
         return ctx
 
     def get_success_url(self):
-        return reverse_lazy("vote-detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy("survey-detail", kwargs={"pk": self.survey.pk})
 
 
 # 投票削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
