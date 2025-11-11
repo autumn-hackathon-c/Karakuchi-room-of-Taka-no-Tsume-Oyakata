@@ -37,10 +37,17 @@ from .forms import (
 from django.utils import timezone
 from django.db import transaction
 from karakuchi_room.models import Survey, Vote
-from django.db.models import Count,Exists, OuterRef
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
+
+from django.db.models import Count,Exists, OuterRef, Q
+"""
+Count    : レコードの件数を数える
+Exists   : サブクエリで「該当するレコードが存在するか」を調べる
+OuterRef : サブクエリの中で外側のクエリ（親クエリ）の値を参照する
+Q        : 複雑な条件を OR / AND / NOT で組み合わせる
+"""
 
 
 # 新規登録
@@ -69,12 +76,18 @@ class SurveyListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         # 現在ログイン中のユーザーを取得
         current_user = self.request.user
+        
+        # ベース条件：削除されていないもの
+        base_survey = Survey.objects.filter(is_deleted=False)
+
+        # 公開アンケート or 自分が作ったアンケート（下書き含む）
+        surveys_with_vote_status = base_survey.filter(
+            Q(is_public=True) | Q(user=current_user)
+        )
 
         # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
         surveys_with_vote_status = (
-            Survey.objects
-            .all()
-            .annotate(
+            surveys_with_vote_status .annotate(
                 has_voted=Exists(
                     Vote.objects.filter(
                         survey=OuterRef("pk"),    # 対象のアンケートに対応する投票
@@ -84,8 +97,10 @@ class SurveyListView(LoginRequiredMixin, ListView):
                 )
             )
         )
-        # 投票状況付きのアンケート一覧を返す
-        return surveys_with_vote_status
+        
+        
+        # 投票状況付きのアンケート一覧を新しい順で返す
+        return surveys_with_vote_status.order_by("-id")
 
 
 # アンケート詳細画面
