@@ -95,7 +95,8 @@
                             {% endcomment %}
                         </div>
                         
-                        {% if survey.is_expired %}
+                        {# 終了条件: 期限切れ もしくは is_open=1（受付終了） #}
+                        {% if survey.is_expired or survey.is_open == 1%}
                             <div class="title">
                                 <h2><span class="badge bg-secondary m-1">終</span><a class="h2" href="{% url 'survey-detail' survey.pk%}">{{survey.title}}</a></h2>
                             </div>

@@ -70,8 +70,8 @@
                 <!-- 投票受付の停止をチェックボックスで選択 -->
                 <div class="my-3">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="is_public" id="is_public1" value="1">
-                        <label class="form-check-label" for="is_public1">投票受付を停止する</label>
+                        {{ form.stop_vote }}  
+                        {{ form.stop_vote.label_tag }}
                     </div>
                 </div>
                 <!-- 投票受付の停止をチェックボックスで選択 ここまで-->
