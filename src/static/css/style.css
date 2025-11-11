@@ -18,6 +18,27 @@ body {
   }
 }
 
+/* サイドバーの背景 */
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  background-image: url("/static/img/sidebar_oyakata.png"); 
+  background-position: top left;
+  background-size: cover; 
+  color: white;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: white;
+}
+
+.sidebar button {
+  color: white;
+}
+
+
 
 /* //ハンバーガーメニューのデザイン// */
 .mobile-menu-icon {
