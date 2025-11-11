@@ -13,8 +13,6 @@ from .models import Survey, Option
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 """
-djangoのフォームフレームワーク全体を使うためのインポート
-HTMLの<form>をpythonで扱えるようにする
 UserCreationFormはユーザー登録用フォームをインポートしている
 Django標準の「ログイン用フォーム」クラスのAuthenticationFormをインポート
 ユーザー名とパスワード認証(ログイン)するためのフォーム
@@ -22,14 +20,10 @@ Django標準の「ログイン用フォーム」クラスのAuthenticationForm�
 
 
 User = get_user_model()
+
 """
-UserCreationFormをそのまま使うとエラーが出るからget_user_model()を使って
-現在のUserモデルを取得して変数Userに入れている
-新規登録フォーム
-これはsetting.pyでカスタムユーザーを定義しているので必要
-AUTH_USER_MODEL = "karakuchi_room.User"←これ
-これを書かないとデフォルトのユーザーモデルが使われてエラーが出る
-これを書く事で(karakuchi_room.User)に対して動作するようになる
+カスタムユーザを使用するにはget_user_modelが必要
+これがないとUserCreationFormの標準ユーザを使用してしまいエラーになる
 """
 
 
@@ -42,21 +36,11 @@ class CustomUserCreationForm(UserCreationForm):
         # ここで「どのモデルに対応させるか」「どのフィールドを使うか」を定義する
 
         model = User
-
-        """"
         # get_user_model()の返り値に設定する
         # 使用するDBの表を指定している
-        """
 
         fields = ("user_name", "email")
-
-        """
-        # フォームに表示したい追加フィールド
-        # パスワードは自動的に追加されるから
-        # ここに書く必要はないし、書くべきでもない
-        # 指定するフィールド名は、実際にカスタムUserモデルで定義されている
-        # models.pyのフィールド名と一致している必要がある
-        """
+        # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
 
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
@@ -71,19 +55,15 @@ class UserForm(forms.ModelForm):
         # ModelForm系で使う内部クラスMetaの開始
         # ここで「どのモデルに対応させるか」「どのフィールドを使うか」を定義する
         model = User
-
         """
         # Userはget_user_model()の返り値
         # modelのフィールド情報を参照して自動的にフォームフィールドを作る
         """
 
         fields = ["user_name"]
-
         """
-        # フォームに含めるモデルフィールドを指定している
-        # ここではuser_nameだけをフォームに表示、処理するという意味
-        # models.pyに記述しているフィールド名と一致していることが条件。
-        # これが一致してないとFieldErrorになる
+        # models.pyに定義しているカスタムフィールドを記述
+        # htmlでユーザーを表示させる時などに使用する→{{ user.user_name }}
         """
 
         widgets = {
@@ -105,32 +85,10 @@ class UserForm(forms.ModelForm):
 
 class LoginForm(AuthenticationForm):
     # AuthenticationFormを継承してLoginFormという変数に格納する
-    # 継承によりAuthenticationForm の認証ロジック（入力値の検証・ユーザー特定など）をそのまま使いつつ、
-    # フィールドの見た目（widget）や追加バリデーションを上書き・拡張できる
-
-    # ここで初期化しないとDjangoがうまく動作しない
-    # 初期化する事でLoginViewから渡されるrequestをフォームに保存できる
-    # request→authenticate(self.request, username=email, password=password)
-    # これがあるおかげでフィールドの書き換えができる
+    # AuthenticationFormの標準認証はusernameとpassword
 
     def __init__(self, request=None, *args, **kwargs):
-        # def __init__(...)はpythonの初期化関数
-        # LoginFormが生成された瞬間に実行される
-        # selfはクラス自身を指している(LoginForm)
-        # selfを通じて、LoginFormインスタンス(実体(usernameなど))に対して設定している
-        # requestは行き先が書かれたメモみたいなもの
-        # request=Noneを設定する事でrequestを渡されなかった時のためのデフォルト値(None)をつけている
-        # AuthenticationForm（Django 標準ログインフォーム）は、場合によっては、requestを受け取るがすべてのケースで request を渡すとは限らない。
-        # form = LoginForm()←これ。requestが来なくてもフォームを作れるようにしている
-        # request=Noneとすることでrequestがなくてもエラーにしないようにしている
-        # args(アーグス)は位置引数をまとめて受け取る
-        # 例：func(10, 20, 30)順番に渡しているので名前がないのでargs
-        # argsはタプル()で渡す
-        # **kwargs(クワーグス)はキーワード引数をまとめて受け取る
-        # 例：func(name="shiho", age=35)名前つきで渡しているからkwargs
-        # kwargsは関数側で**kwargsを使って受け取った時に辞書になる{...}
-        # この２つ(argsと**kwargs)はAuthenticationForm（親クラス）が受け取る引数を そのまま渡すために必要
-        # 一言で言うと継承したフォームが受け取る引数を壊さず正しく親に渡すために必要！
+        # フィールドを設定するために初期化
 
         self.request = request
 
@@ -141,13 +99,7 @@ class LoginForm(AuthenticationForm):
         super().__init__(request, *args, **kwargs)
 
         """
-        # ここで親クラスのinitにも渡している
-        # super()とは親クラス(スーパークラス)を参照するための組み込み関数
-        # ここで親クラスに定義されたメソッド（ここでは__init__）を呼び出して、親クラスの初期化処理を実行させるために使う
-        # まとめ
-        # 呼び出し側が LoginForm(request, data=request.POST) のとき：
-        # request を self.request に保存
-        # super().__init__ はAuthenticationForm.__init__(request,　data=request.POST) を呼ぶ
+        受け取ったrequestを親クラス(__init__)に渡している
         """
 
         # ここからはUIを変更している
@@ -160,10 +112,6 @@ class LoginForm(AuthenticationForm):
 
         self.fields["username"].widget.attrs.update(
             {
-                #  self.fields['username'].widgetはそのフィールドがHTMLに変換される
-                # .attrs(アトリブツ)はウィジェットに付与するHTML属性(辞書)を保持するプロパティ
-                # .attrsに設定した内容はレンダリング時に<input...>の属性として出力される
-                # .update({...})は既存の attrs 辞書に対して、指定したキーと値を追加、上書きする
                 "class": "form-control",
                 # ここではclass属性に"form-control" を付けて
                 # Bootstrap のデザインが適用されるように指示している
@@ -201,12 +149,9 @@ class LoginForm(AuthenticationForm):
             )
 
             """
-            # user_cacheはログインしようとしているユーザーを一時的に保存じておくための変数
-            # DjangoのAuthenticationForm（標準のログインフォーム）が内部で 同じ属性名(user_cache)を使っている
-            # authenticate() を実行して「このユーザーは存在するか？」「パスワードは正しいか？」を確認している
+            # ログイン認証
             # ここでusername=emailとする事でauthenticate に渡す username 引数に email をセットしている
-            # これでメールアドレスをusernameとして認証してくれる(djangoのフォーム名は固定)
-            # 認証が成功したらユーザオブジェクトが返ってくる
+    
             """
 
             if self.user_cache is None:
@@ -214,33 +159,19 @@ class LoginForm(AuthenticationForm):
                 raise forms.ValidationError("メールアドレスが正しくありません")
 
             """
-                # raiseとはエラーを意図的に発生させるキーワード
-                # forms.ValidationErrorとはフォームの入力に問題がある時にエラーの文字列を出すコード
-                # テンプレート側では{{ form.non_field_errors }}これを書く事でブラウザに表示される
+            # raiseとはエラーを意図的に発生させるキーワード
+            # forms.ValidationErrorとはフォームの入力に問題がある時にエラーの文字列を出すコード
+            # テンプレート側では{{ form.non_field_errors }}これを書く事でブラウザに表示される
             """
             self.confirm_login_allowed(self.user_cache)
 
             """
-            # self.はLoginFormのこと
             # confirm_login_allowedこれはDjango標準のログインフォームに定義されているメソッド
             # そのユーザーがログインしても良い状態か追加チェックするために使用される
             # これは上で認証が成功した後の追加チェックのためのもの
             """
 
         return self.cleaned_data
-
-
-"""
-        # return self.cleaned_dataはフォームに入力されたデータが、
-        # バリデーションを追加した後のデータが入ってる辞書
-        # これを書かないとcleaned_dataが戻らない
-        # cleaned_data を Django に返して、フォームを正常終了させるための返り値
-        # まとめ
-        # 1.ユーザーがフォームにデータを入力して送信
-        # 2.Djangoがフォームの.clean()を呼ぶ
-        # 3.clean() 内で独自処理（authenticate など）を実行
-        # 4.問題がなければ、self.cleaned_data を返す → フォームが「有効」になる
-    """
 
 
 # Django のフォームクラスを使用するために ModelForm を継承
