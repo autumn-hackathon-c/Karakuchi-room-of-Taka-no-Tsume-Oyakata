@@ -291,8 +291,19 @@ class SurveyUpdateView(LoginRequiredMixin, UpdateView):
 
 # アンケート削除(DeleteViewは別途削除用のページが必要なので、今回は別の方法で実装)
 def survey_delete(request, pk):
-    obj = get_object_or_404(Survey, pk=pk)
-    obj.delete()
+    survey = get_object_or_404(Survey, pk=pk)
+    # ソフトデリートではなく「物理削除」にする 
+    """
+    物理削除にした理由
+    
+    ソフトデリートだと以下のパターンでエラーが出るから
+    • 投票
+	• その投票を削除（/votes/delete/ or 画面の削除ボタン）
+	• 再度投票
+	• もう一度削除 ←ここでエラーが出る。
+    """
+    Survey.objects.filter(pk=survey.pk).delete()
+    
     messages.success(request, "削除しました。")
     return redirect("survey-list")
 
