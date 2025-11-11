@@ -171,7 +171,7 @@ class Survey(SoftDeleteModel):
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
-    
+
     # ✅ 状態を自動判定するプロパティ
     @property
     def is_expired(self):

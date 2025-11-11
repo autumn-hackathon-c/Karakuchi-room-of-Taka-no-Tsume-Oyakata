@@ -238,7 +238,7 @@ class SurveyFormDraft(forms.ModelForm):
 
     # ラジオ → True/False 変換を安全に（0/1を布教）
     is_public = forms.TypedChoiceField(
-        choices=[(0, "一時保存にする"),(1, "公開する")],
+        choices=[(0, "一時保存にする"), (1, "公開する")],
         # coerce：フォームの入力値を「どんな型に変換するか」決める関数
         coerce=to_bool,
         # ラジオボタンUI
@@ -281,7 +281,7 @@ OptionFormSetForDraft = inlineformset_factory(
 # アンケート編集機能(公開)
 class SurveyFormPublished(forms.ModelForm):
     # ウィジェットのフォーマットと入力フォーマットを明示
-    
+
     end_at = forms.DateTimeField(
         required=False,
         widget=forms.DateTimeInput(
@@ -293,12 +293,14 @@ class SurveyFormPublished(forms.ModelForm):
         ),
         input_formats=["%Y-%m-%dT%H:%M"],
     )
-    
+
     # チェックボックス用のフィールド（DBには直接ない仮想フィールド）
     stop_vote = forms.BooleanField(
         required=False,
         label="投票受付を停止する",
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input", "id": "stop_vote"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "stop_vote"}
+        ),
     )
 
     class Meta:
@@ -308,7 +310,6 @@ class SurveyFormPublished(forms.ModelForm):
             "description",
             "end_at",
         ]  # is_public はフォームに出さない等
-        
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -316,27 +317,27 @@ class SurveyFormPublished(forms.ModelForm):
         # フィールド自体を disabled(無効) にする。
         self.fields["title"].disabled = True
         self.fields["description"].disabled = True
-        
+
         # is_open: 0=受付中, 1=受付終了
         # 既に存在していて、is_open=1（受付終了）のときだけチェックON
         if self.instance and self.instance.pk:
-            self.fields["stop_vote"].initial = (self.instance.is_open == 1)
+            self.fields["stop_vote"].initial = self.instance.is_open == 1
         else:
             # 新規作成などの場合は常にチェックOFF
             self.fields["stop_vote"].initial = False
-        
+
     def save(self, commit=True):
         # まず title/description/end_at を通常どおり保存
         survey = super().save(commit=False)
-        
+
         stop = self.cleaned_data.get("stop_vote", False)
-        
+
         # ★ stop_vote = True → 受付終了(1)、False → 受付中(0)
         survey.is_open = 1 if stop else 0
-        
+
         # ✅ デバッグ出力
         print(f"[DEBUG] stop_vote={stop} → is_open={survey.is_open}")
-        
+
         if commit:
             survey.save()
         return survey
@@ -371,6 +372,7 @@ class VoteForm(forms.ModelForm):
                 }
             ),
         }
+
     def __init__(self, *args, **kwargs):
         survey = kwargs.pop("survey", None)
         super().__init__(*args, **kwargs)
@@ -380,7 +382,8 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-            
+
+
 # ✅ 投票詳細機能
 class VoteDetailForm(forms.ModelForm):
     class Meta:
@@ -395,6 +398,7 @@ class VoteDetailForm(forms.ModelForm):
                 }
             ),
         }
+
     def __init__(self, *args, **kwargs):
         survey = kwargs.pop("survey", None)
         super().__init__(*args, **kwargs)
@@ -404,14 +408,13 @@ class VoteDetailForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-            
+
         # フィールド自体を disabled(無効) にする。
         self.fields["comment"].disabled = True
-    
-            
+
+
 # 投票編集機能
 class VoteFormPublished(forms.ModelForm):
-
     class Meta:
         model = Vote
         fields = ["option", "comment"]
@@ -433,4 +436,3 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-
