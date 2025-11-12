@@ -70,10 +70,14 @@
         </div>
         <!-- チェックボックス ここまで-->
         <div class="tags w-100 mx-auto p-3">
-            {% comment %}
-            {{ for タグ表示 }}
+            {% comment %} 
+            {{ for タグ表示 }} 
             {% endcomment %}
-            <button class="btn btn-light rounded-5">{{ タグ }}</button>
+            {% for tag in all_tags %}
+            <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
+            {% empty %}
+                <span>タグがありません</span>
+            {% endfor %}            
             {% comment %}
             {{ endfor タグ表示 }}
             {% endcomment %}
@@ -84,19 +88,23 @@
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
-                            {% if survey.tags.all %}
-                                <div class="badge bg-secondary">
-                                    {% for tag in survey.tags.all %}
-                                        <span>{{ tag.tag_name }}</span>
-                                </div>
-                            {% else %}
-                                <p>タグなし</p>
-                            {% endif %}        
+                            {% for tag in survey.tag.all %}
+                                <span class="badge bg-secondary">{{ tag.tag_name }}</span>
+                            {% empty %}
+                                <span class="text-muted">タグなし</span>
+                            {% endfor %}
+                        </div>
+                        {% comment %} <div class="selected-tags"> {% endcomment %}
+                            {% comment %}
+                            {{ for　タグ表示 }}
+                            {% endcomment %}
+                            {% comment %} <div class="badge bg-secondary"> {% endcomment %}
                                 {% comment %} <span>雑談</span> {% endcomment %}
+                            {% comment %} </div> {% endcomment %}
                             {% comment %}
                             {{ endfor　タグ表示 }}
                             {% endcomment %}
-                        </div>
+                        {% comment %} </div> {% endcomment %}
                         <div class="title">
                             <h2><span class="badge bg-success m-1">受</span><a class="h2" href="{% url 'survey-detail' survey.pk %}">{{survey.title}}</a></h2>
                         </div>         

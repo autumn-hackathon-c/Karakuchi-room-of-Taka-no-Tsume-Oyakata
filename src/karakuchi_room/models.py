@@ -171,12 +171,12 @@ class Survey(SoftDeleteModel):
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
-    tag = models.ManyToManyField("Tag", through="TagSurvey", related_name="surveys", verbose_name="タグ")
+    tag = models.ManyToManyField(
+        "Tag", through="TagSurvey", related_name="surveys", verbose_name="タグ"
+    )
     # ManyToManyFieldは多対多の関係を表している
     # DB上は中間テーブルがあるがDjango上では認識されずDjangoが勝手に中間テーブルを作ってしまう
     # なのでここで中間テーブル(TagSurvey)があることをDjangoに明示している
-
-
 
     is_public = models.BooleanField(
         default=False, db_default=False, verbose_name="公開フラグ"
@@ -198,7 +198,7 @@ class Survey(SoftDeleteModel):
     is_deleted = models.BooleanField(
         default=False, db_default=False, verbose_name="削除フラグ"
     )
-    
+
     class Meta:
         db_table = "surveys"
         verbose_name = "アンケート"
@@ -225,7 +225,6 @@ class Tag(SoftDeleteModel):
     is_deleted = models.BooleanField(
         default=False, db_default=False, verbose_name="削除フラグ"
     )
-    
 
     class Meta:
         db_table = "tags"

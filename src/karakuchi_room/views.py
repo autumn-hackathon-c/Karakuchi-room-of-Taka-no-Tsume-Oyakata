@@ -59,9 +59,22 @@ logger = logging.getLogger(__name__)
 
 
 # アンケート一覧画面
+# models.pyでSurveyとtagを紐付けているので、アンケートに紐づいているタグはここで呼び出せる
+# {% for tag in survey.tag.all %}から{{ tag.tag_name }}を呼び出せる
 class SurveyListView(LoginRequiredMixin, ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
+    context_object_name = "survey_list"
+
+    # タグを一覧表示
+    def get_context_data(self, **kwargs):
+        # 親クラス(listView)がコンテキストに渡そうとしているデータを受け取り可能にしている
+        context = super().get_context_data(**kwargs)
+        # 親クラス(ListView)が作ったcontext(survey_listなど)を取得している
+        context["all_tags"] = Tag.objects.filter(is_deleted=False)
+        # ここでTagのデータを自分で追加している
+        # filter(is_deleted=False)は論理削除されていないタグの一覧とういう意味
+        return context
 
 
 # アンケート詳細画面
@@ -235,10 +248,3 @@ def survey_delete(request, pk):
     obj.delete()
     messages.success(request, "削除しました。")
     return redirect("survey-list")
-
-# タグを一覧表示
-# models.pyでSurveyとtagを紐付けている
-class TagListView(ListView):
-    model = Survey
-    template_name = "karakuchi_room/surveys.html"
-

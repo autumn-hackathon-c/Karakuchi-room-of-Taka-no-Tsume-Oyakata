@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('karakuchi_room', '0004_alter_option_survey_alter_survey_user_and_more'),
+        ("karakuchi_room", "0004_alter_option_survey_alter_survey_user_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='survey',
-            name='tag',
-            field=models.ManyToManyField(related_name='surveys', through='karakuchi_room.TagSurvey', to='karakuchi_room.tag', verbose_name='タグ'),
+            model_name="survey",
+            name="tag",
+            field=models.ManyToManyField(
+                related_name="surveys",
+                through="karakuchi_room.TagSurvey",
+                to="karakuchi_room.tag",
+                verbose_name="タグ",
+            ),
         ),
     ]
