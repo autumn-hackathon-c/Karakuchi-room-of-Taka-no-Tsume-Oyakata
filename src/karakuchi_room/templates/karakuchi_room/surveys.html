@@ -70,17 +70,11 @@
         </div>
         <!-- チェックボックス ここまで-->
         <div class="tags w-100 mx-auto p-3">
-            {% comment %} 
-            {{ for タグ表示 }} 
-            {% endcomment %}
             {% for tag in all_tags %}
             <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
             {% empty %}
                 <span>タグがありません</span>
             {% endfor %}            
-            {% comment %}
-            {{ endfor タグ表示 }}
-            {% endcomment %}
         </div>
         <div class="surveys-list">
             <ul class="list-unstyled">       
