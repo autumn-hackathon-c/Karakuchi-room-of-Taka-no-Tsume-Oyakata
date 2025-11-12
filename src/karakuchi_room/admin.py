@@ -7,6 +7,7 @@ from karakuchi_room.models import User, Survey, Option, Vote, Tag, TagSurvey
 (admin.site.register(Option),)
 admin.site.register(Vote)
 
+
 # 管理画面でSurvey編集画面に表示される「中間テーブルの編集フォーム」の定義
 # SurveyにTagSurveyを埋め込んでいる
 class TagSurveyInline(admin.TabularInline):
@@ -18,4 +19,3 @@ class TagSurveyInline(admin.TabularInline):
 @admin.register(Survey)
 class SurveyAdmin(admin.ModelAdmin):
     inlines = [TagSurveyInline]
-

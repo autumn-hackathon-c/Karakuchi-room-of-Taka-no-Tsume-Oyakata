@@ -36,7 +36,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote,Tag
+from karakuchi_room.models import Survey, Vote, Tag
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
