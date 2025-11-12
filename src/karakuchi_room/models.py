@@ -178,6 +178,14 @@ class Survey(SoftDeleteModel):
     # DB上は中間テーブルがあるがDjango上では認識されずDjangoが勝手に中間テーブルを作ってしまう
     # なのでここで中間テーブル(TagSurvey)があることをDjangoに明示している
 
+    # ✅ 状態を自動判定するプロパティ
+    @property
+    def is_expired(self):
+        # 現在時刻が end_at を過ぎていれば True
+        if self.end_at is None:
+            return False  # 終了日時が設定されていない場合は受付中扱い
+        return now() >= self.end_at
+
     is_public = models.BooleanField(
         default=False, db_default=False, verbose_name="公開フラグ"
     )

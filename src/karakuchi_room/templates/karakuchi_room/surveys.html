@@ -20,7 +20,7 @@
                 <div class="col-auto">
                     <div class="d-flex align-items-center">
                         <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
+                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧</a>
                         <a class=" me-3" href="">ユーザー情報</a>
                         {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
                         <form action="{% url 'logout' %}" method="POST">
@@ -70,17 +70,11 @@
         </div>
         <!-- チェックボックス ここまで-->
         <div class="tags w-100 mx-auto p-3">
-            {% comment %} 
-            {{ for タグ表示 }} 
-            {% endcomment %}
             {% for tag in all_tags %}
             <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
             {% empty %}
                 <span>タグがありません</span>
             {% endfor %}            
-            {% comment %}
-            {{ endfor タグ表示 }}
-            {% endcomment %}
         </div>
         <div class="surveys-list">
             <ul class="list-unstyled">       
@@ -94,33 +88,58 @@
                                 <span class="text-muted">タグなし</span>
                             {% endfor %}
                         </div>
-                        {% comment %} <div class="selected-tags"> {% endcomment %}
-                            {% comment %}
-                            {{ for　タグ表示 }}
-                            {% endcomment %}
-                            {% comment %} <div class="badge bg-secondary"> {% endcomment %}
-                                {% comment %} <span>雑談</span> {% endcomment %}
-                            {% comment %} </div> {% endcomment %}
-                            {% comment %}
-                            {{ endfor　タグ表示 }}
-                            {% endcomment %}
-                        {% comment %} </div> {% endcomment %}
-                        <div class="title">
-                            <h2><span class="badge bg-success m-1">受</span><a class="h2" href="{% url 'survey-detail' survey.pk %}">{{survey.title}}</a></h2>
-                        </div>         
+                        {# 終了：期限切れ or is_open=1（受付終了） #}
+                            {% if survey.is_expired or survey.is_open == 1 %}
+                                <div class="title">
+                                    <h2>
+                                        <span class="badge bg-secondary m-1">終</span>
+                                        <a class="h2" href="{% url 'survey-detail' survey.pk %}">{{ survey.title }}</a>
+                                    </h2>
+                                </div>
+                            {% else %}
+                                {# ★作成者本人なら、受付中でも未投票でも必ず詳細へ #}
+                                {% if survey.user == request.user %}
+                                    <div class="title">
+                                        <h2>
+                                            <span class="badge bg-warning m-1">作</span>
+                                            <a class="h2" href="{% url 'survey-detail' survey.pk %}">{{ survey.title }}</a>
+                                        </h2>
+                                    </div>
+                                {% else %}
+                                    {% if survey.has_voted %}
+                                        {# 受付中 ＋ もう投票済み #}
+                                        <div class="title">
+                                            <h2>
+                                                <span class="badge bg-info m-1">済</span>
+                                                <a class="h2" href="{% url 'survey-detail' survey.pk %}">
+                                                    {{ survey.title }}
+                                                </a>
+                                            </h2>
+                                        </div>
+                                    {% else %}
+                                        {# 受付中 ＋ 未投票 → 投票作成へ #}
+                                        <div class="title">
+                                            <h2>
+                                                <span class="badge bg-success m-1">受</span>
+                                                <a class="h2" href="{% url 'vote-create' survey.pk %}">
+                                                    {{ survey.title }}
+                                                </a>
+                                            </h2>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
                         <div>
                         <!-- <span>23 votes</span> --> 
                             <span>{{survey.end_at}}</span>
                         </div>
                     </div>
-                    </a>
                 </li>
                 {%endfor%}
             </ul>
         </div>
         
         {% endblock content %}
-       
     </div>
     <footer class="text-center p-3">
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>

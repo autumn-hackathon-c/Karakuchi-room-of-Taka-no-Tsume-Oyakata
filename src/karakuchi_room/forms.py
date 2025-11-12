@@ -7,7 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Survey, Option
+from .models import Survey, Option, Vote
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -238,7 +238,7 @@ class SurveyFormDraft(forms.ModelForm):
 
     # ラジオ → True/False 変換を安全に（0/1を布教）
     is_public = forms.TypedChoiceField(
-        choices=[(1, "公開する"), (0, "一時保存にする")],
+        choices=[(0, "一時保存にする"), (1, "公開する")],
         # coerce：フォームの入力値を「どんな型に変換するか」決める関数
         coerce=to_bool,
         # ラジオボタンUI
@@ -281,6 +281,7 @@ OptionFormSetForDraft = inlineformset_factory(
 # アンケート編集機能(公開)
 class SurveyFormPublished(forms.ModelForm):
     # ウィジェットのフォーマットと入力フォーマットを明示
+
     end_at = forms.DateTimeField(
         required=False,
         widget=forms.DateTimeInput(
@@ -291,6 +292,15 @@ class SurveyFormPublished(forms.ModelForm):
             format="%Y-%m-%dT%H:%M",
         ),
         input_formats=["%Y-%m-%dT%H:%M"],
+    )
+
+    # チェックボックス用のフィールド（DBには直接ない仮想フィールド）
+    stop_vote = forms.BooleanField(
+        required=False,
+        label="投票受付を停止する",
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "id": "stop_vote"}
+        ),
     )
 
     class Meta:
@@ -308,6 +318,30 @@ class SurveyFormPublished(forms.ModelForm):
         self.fields["title"].disabled = True
         self.fields["description"].disabled = True
 
+        # is_open: 0=受付中, 1=受付終了
+        # 既に存在していて、is_open=1（受付終了）のときだけチェックON
+        if self.instance and self.instance.pk:
+            self.fields["stop_vote"].initial = self.instance.is_open == 1
+        else:
+            # 新規作成などの場合は常にチェックOFF
+            self.fields["stop_vote"].initial = False
+
+    def save(self, commit=True):
+        # まず title/description/end_at を通常どおり保存
+        survey = super().save(commit=False)
+
+        stop = self.cleaned_data.get("stop_vote", False)
+
+        # ★ stop_vote = True → 受付終了(1)、False → 受付中(0)
+        survey.is_open = 1 if stop else 0
+
+        # ✅ デバッグ出力
+        print(f"[DEBUG] stop_vote={stop} → is_open={survey.is_open}")
+
+        if commit:
+            survey.save()
+        return survey
+
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForPublished = inlineformset_factory(
@@ -322,3 +356,83 @@ OptionFormSetForPublished = inlineformset_factory(
         )
     },
 )
+
+
+# ✅ 投票作成機能
+class VoteForm(forms.ModelForm):
+    class Meta:
+        model = Vote
+        fields = ["option", "comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "（任意）理由やコメントがあれば入力してください",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        survey = kwargs.pop("survey", None)
+        super().__init__(*args, **kwargs)
+        if survey is not None:
+            # このアンケートの選択肢だけ選べるように絞り込み
+            self.fields["option"].queryset = Option.objects.filter(
+                survey=survey,
+                is_deleted=False,
+            )
+
+
+# ✅ 投票詳細機能
+class VoteDetailForm(forms.ModelForm):
+    class Meta:
+        model = Vote
+        fields = ["option", "comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "（任意）理由やコメントがあれば入力してください",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        survey = kwargs.pop("survey", None)
+        super().__init__(*args, **kwargs)
+        if survey is not None:
+            # このアンケートの選択肢だけ選べるように絞り込み
+            self.fields["option"].queryset = Option.objects.filter(
+                survey=survey,
+                is_deleted=False,
+            )
+
+        # フィールド自体を disabled(無効) にする。
+        self.fields["comment"].disabled = True
+
+
+# 投票編集機能
+class VoteFormPublished(forms.ModelForm):
+    class Meta:
+        model = Vote
+        fields = ["option", "comment"]
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "（任意）理由やコメントがあれば入力してください",
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        survey = kwargs.pop("survey", None)
+        super().__init__(*args, **kwargs)
+        if survey is not None:
+            self.fields["option"].queryset = Option.objects.filter(
+                survey=survey,
+                is_deleted=False,
+            )

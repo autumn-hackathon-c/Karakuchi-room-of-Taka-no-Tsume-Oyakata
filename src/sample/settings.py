@@ -83,6 +83,12 @@ DATABASES = {
         "PASSWORD": os.getenv("MYSQL_PASSWORD"),
         "HOST": "db",
         "PORT": "3306",
+        # 絵文字の文字化け対策
+        "OPTIONS": {
+            "charset": "utf8mb4",
+            "use_unicode": True,
+            "init_command": "SET NAMES utf8mb4",
+        },
     }
 }
 

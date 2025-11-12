@@ -22,7 +22,11 @@
                         <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
                         <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
                         <a class=" me-3" href="">ユーザー情報</a>
-                        <a class="btn btn-outline-primary" href="">ログアウト</a>
+                        {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
+                            <form action="{% url 'logout' %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-primary">ログアウト</button>
+                            </form>
                     </div>
                 </div>
             </div>
@@ -49,21 +53,23 @@
             <span class="col-auto">期限: {{ survey.end_at }}まで</span>
         </div>
         {% comment %} アンケート作成者本人の場合 {% endcomment %}
-        <div class="d-flex justify-content-between">
-            {% comment %}
-            <div>
-                <span class="col-auto">23 votes</span>
+        {% if survey.user == request.user %}
+            <div class="d-flex justify-content-between">
+                {% comment %}
+                <div>
+                    <span class="col-auto">23 votes</span>
+                </div>
+                {% endcomment %}
+                <div>
+                    {% if survey.is_public %}
+                        <a href="{% url 'survey-edit' survey.pk %}">編集</a>
+                    {% else %}
+                        <a href="{% url 'survey-temporary-edit' survey.pk %}">編集</a>
+                    {% endif %}
+                    <a href="{% url 'survey-delete' survey.pk %}">削除</a>
+                </div>
             </div>
-            {% endcomment %}
-            <div>
-                {% if survey.is_public %}
-                    <a href="{% url 'survey-edit' survey.pk %}">編集</a>
-                {% else %}
-                    <a href="{% url 'survey-temporary-edit' survey.pk %}">編集</a>
-                {% endif %}
-                <a href="{% url 'survey-delete' survey.pk %}">削除</a>
-            </div>
-        </div>
+        {% endif %}
         {% comment %} アンケート作成者で本人ではない場合 {% endcomment %}
         {% comment %} <div class="d-flex justify-content-end">
             <span class="col-auto">2026/1/20</span>
@@ -73,14 +79,20 @@
         </div>
         {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
         <div class="m-3 p-3">
-            {% for option in vote_list %}
+            {% for option in option_list %}
                 {{ option.label }}
             {% endfor %}
             <canvas id="myChart"></canvas>
         </div>
         {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
         <div>
-            <p>あなたは投票済みです！<a href="">投票詳細へ</a></p>
+            {% if vote and vote.pk %}
+                <p>
+                    <a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
+                </p>
+            {% else %}
+                <p>まだ投票していません。</p>
+            {% endif %}
         </div>
         {% comment %} ユーザーが投票している場合、表示 ここまで{% endcomment %}
         <div class="comment-list">
@@ -88,7 +100,6 @@
                 <h4>みんなのコメント</h4>
             </div>
             <ul class="list-unstyled">
-                {% comment %}{{ for コメント表示 }}{% endcomment %}
                 <li>
                     <div class="card p-3">
                         <div class="d-flex">
@@ -96,11 +107,51 @@
                             <div class="text-primary me-2">
                                 <span>■</span>
                             </div>
-                            <div>
-                                <p>操作中にエラーで落ちてしまいましたニャン♪😿公開前にチェックしておくべき事項だと思いますニャン♪</p>
-                            </div>
+
+                            {% comment %} 全てのコメント一覧 {% endcomment %}
+                            {% if vote_list %}
+                                <ul>
+                                    {% for all_comment in vote_list %}
+                                        <li class="mb-2">
+                                            「{{ all_comment.comment|default:"（コメントなし）" }}」<br>
+                                            選択肢：{{ all_comment.option.label }}<br>
+                                            投稿日時：{{ all_comment.created_at|date:"Y-m-d H:i" }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>まだコメント付きの投票はありません。</p>
+                            {% endif %}
                         </div>
+                        <hr>
+                            {% comment %} 選択肢の票数を集計 {% endcomment %}
+                            {% if option_vote_counts %}
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>選択肢</th>
+                                            <th>票数</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for count in option_vote_counts %}
+                                            <tr>
+                                                <td>{{ count.option__label }}</td>
+                                                <td>{{ count.vote_count }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                            <p>まだ有効な投票はありません。</p>
+                        {% endif %}
                         {% comment %} 投票者本人の場合  {% endcomment %}
+                        <div>
+                                {% comment %} 複数のテーブルが関係する場合のカラムの表示方法 {% endcomment %}
+                                <p>選んだ選択肢：{{ vote.option.label }}</p>
+                                
+                                <p>コメント：{{ vote.comment }}</p>
+                        </div>
                         <div class="d-flex justify-content-end">
                             <div>
                                 <span class="col-auto">{{ survey.end_at }}</span>
@@ -108,7 +159,6 @@
                         </div>
                     </div>
                 </li>
-                {% comment %}{{ endfor リスト表示}}{% endcomment %}  
             </ul>
         </div>
         {% endblock content %}
