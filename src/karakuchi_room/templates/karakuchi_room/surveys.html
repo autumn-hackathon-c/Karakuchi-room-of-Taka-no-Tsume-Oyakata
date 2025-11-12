@@ -70,10 +70,14 @@
         </div>
         <!-- チェックボックス ここまで-->
         <div class="tags w-100 mx-auto p-3">
-            {% comment %}
-            {{ for タグ表示 }}
+            {% comment %} 
+            {{ for タグ表示 }} 
             {% endcomment %}
-            <button class="btn btn-light rounded-5">{{ タグ }}</button>
+            {% for tag in all_tags %}
+            <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
+            {% empty %}
+                <span>タグがありません</span>
+            {% endfor %}            
             {% comment %}
             {{ endfor タグ表示 }}
             {% endcomment %}
@@ -84,12 +88,19 @@
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
+                            {% for tag in survey.tag_survey.all %}
+                                <span class="badge bg-secondary">{{ tag.tag_name }}</span>
+                            {% empty %}
+                                <span class="text-muted">タグなし</span>
+                            {% endfor %}
+                        </div>
+                        {% comment %} <div class="selected-tags"> {% endcomment %}
                             {% comment %}
                             {{ for　タグ表示 }}
                             {% endcomment %}
-                            <div class="badge bg-secondary">
-                                <span>雑談</span>
-                            </div>
+                            {% comment %} <div class="badge bg-secondary"> {% endcomment %}
+                                {% comment %} <span>雑談</span> {% endcomment %}
+                            {% comment %} </div> {% endcomment %}
                             {% comment %}
                             {{ endfor　タグ表示 }}
                             {% endcomment %}

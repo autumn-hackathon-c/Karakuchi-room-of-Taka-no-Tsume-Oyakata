@@ -36,7 +36,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote
+from karakuchi_room.models import Survey, Vote,Tag
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -70,9 +70,22 @@ logger = logging.getLogger(__name__)
 
 
 # アンケート一覧画面
+# models.pyでSurveyとtagを紐付けているので、アンケートに紐づいているタグはここで呼び出せる
+# {% for tag in survey.tag.all %}から{{ tag.tag_name }}を呼び出せる
 class SurveyListView(LoginRequiredMixin, ListView):
     model = Survey
     template_name = "karakuchi_room/surveys.html"
+    context_object_name = "survey_list"
+
+    # タグを一覧表示
+    def get_context_data(self, **kwargs):
+        # 親クラス(listView)がコンテキストに渡そうとしているデータを受け取り可能にしている
+        context = super().get_context_data(**kwargs)
+        # 親クラス(ListView)が作ったcontext(survey_listなど)を取得している
+        context["all_tags"] = Tag.objects.filter(is_deleted=False)
+        # ここでTagのデータを自分で追加している
+        # filter(is_deleted=False)は論理削除されていないタグの一覧とういう意味
+        return context
 
     def get_queryset(self):
         # 現在ログイン中のユーザーを取得
