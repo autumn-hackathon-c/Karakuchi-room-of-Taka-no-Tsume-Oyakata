@@ -5,7 +5,8 @@ from karakuchi_room.models import User, Survey, Option, Vote, Tag, TagSurvey
 # 管理画面でテストデータを入れるために実装
 (admin.site.register(User),)
 (admin.site.register(Option),)
-admin.site.register(Vote)
+(admin.site.register(Vote),)
+(admin.site.register(Tag),)
 
 
 # 管理画面でSurvey編集画面に表示される「中間テーブルの編集フォーム」の定義
