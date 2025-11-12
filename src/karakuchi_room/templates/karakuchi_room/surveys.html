@@ -84,12 +84,15 @@
                 <li>
                     <div class="card mb-3">
                         <div class="selected-tags">
-                            {% comment %}
-                            {{ for　タグ表示 }}
-                            {% endcomment %}
-                            <div class="badge bg-secondary">
-                                <span>雑談</span>
-                            </div>
+                            {% if survey.tags.all %}
+                                <div class="badge bg-secondary">
+                                    {% for tag in survey.tags.all %}
+                                        <span>{{ tag.tag_name }}</span>
+                                </div>
+                            {% else %}
+                                <p>タグなし</p>
+                            {% endif %}        
+                                {% comment %} <span>雑談</span> {% endcomment %}
                             {% comment %}
                             {{ endfor　タグ表示 }}
                             {% endcomment %}

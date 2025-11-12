@@ -32,7 +32,7 @@ from .forms import (
     OptionFormSetForPublished,
 )
 from django.db import transaction
-from karakuchi_room.models import Survey
+from karakuchi_room.models import Survey, Tag
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -235,3 +235,10 @@ def survey_delete(request, pk):
     obj.delete()
     messages.success(request, "削除しました。")
     return redirect("survey-list")
+
+# タグを一覧表示
+# models.pyでSurveyとtagを紐付けている
+class TagListView(ListView):
+    model = Survey
+    template_name = "karakuchi_room/surveys.html"
+
