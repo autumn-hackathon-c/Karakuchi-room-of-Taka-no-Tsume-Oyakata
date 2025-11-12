@@ -20,7 +20,7 @@
                 <div class="col-auto">
                     <div class="d-flex align-items-center">
                         <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
+                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧</a>
                         <a class=" me-3" href="">ユーザー情報</a>
                         {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
                         <form action="{% url 'logout' %}" method="POST">
@@ -94,18 +94,6 @@
                                 <span class="text-muted">タグなし</span>
                             {% endfor %}
                         </div>
-                        {% comment %} <div class="selected-tags"> {% endcomment %}
-                            {% comment %}
-                            {{ for　タグ表示 }}
-                            {% endcomment %}
-                            {% comment %} <div class="badge bg-secondary"> {% endcomment %}
-                                {% comment %} <span>雑談</span> {% endcomment %}
-                            {% comment %} </div> {% endcomment %}
-                            {% comment %}
-                            {{ endfor　タグ表示 }}
-                            {% endcomment %}
-                        </div>
-                        
                         {# 終了：期限切れ or is_open=1（受付終了） #}
                             {% if survey.is_expired or survey.is_open == 1 %}
                                 <div class="title">
@@ -152,7 +140,6 @@
                             <span>{{survey.end_at}}</span>
                         </div>
                     </div>
-                    </a>
                 </li>
                 {%endfor%}
             </ul>
