@@ -1,108 +1,65 @@
-<!DOCTYPE html>
-<html lang="ja">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-</head>
+{% block content %}
 
-<body>
-    <!-- ナビゲーションバー仮 -->
-    <nav>
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center py-3">
-                <div class="col">
-                    <a href=""><img width="100" src="image/logo.png" alt="鷹の爪親方の辛口部屋のロゴ"></a>
-                </div>
-                <div class="col-auto">
-                    <div class="d-flex align-items-center">
-                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                            <a class=" me-3" href="">ユーザー情報</a>
-                            {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
-                            <form action="{% url 'logout' %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-primary">ログアウト</button>
-                            </form>
-                    </div>
-                </div>
+<div class="header page-title mb-4">
+    <h2>アンケート作成</h2>
+</div>
+<div class="login-form card p-3 mx-auto">
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.title.id_for_label }}">タイトル（必須）</label>
+            {{ form.title}}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.description.id_for_label }}">詳細（任意）</label>
+            {{ form.description }}
+        </div>
+        <!-- 選択肢　別途JSでの実装が必要 -->
+        <div class="mb-3 options">
+            <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
+
+            {{ formset.management_form }}
+            {% for option_name in formset.forms %}
+            <div class="mb-3">
+                {{ option_name.label_tag }} {{ option_name }}
+            </div>
+            {% endfor %}
+
+            <button type="button" class="btn btn-secondary">選択肢を追加</button>
+        </div>
+        <!-- 選択肢　別途JSでの実装が必要 ここまで-->
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
+            {{ form.end_at}}
+        </div>
+        <!-- 公開、一時保存をラジオボタンで選択 -->
+        <div class="select-radio d-flex justify-content-around mb-5">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="is_public" id="is_public1" value="1">
+                <label class="form-check-label" for="is_public1">
+                    公開する
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="is_public" id="is_public2" value="0" checked>
+                <label class="form-check-label" for="is_public2">
+                    一時保存にする
+                </label>
             </div>
         </div>
-        <!-- ナビゲーションバー仮 -->
-    </nav>
-    <div class="container">
-        {% comment %}
-        <!-- 実装時、{% block content}{% endblock content %}外はbase.htmlから参照する -->
-        {% endcomment %} 
-        {% block content %}
-        
-        <div class="header">
-            <h2>アンケート作成</h2>
+        <!-- 公開、一時保存をラジオボタンで選択　ここまで -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-success px-5">作成！</button>
         </div>
-        <div class="login-form card p-3 mx-auto">
-            <form action="" method="post">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label class="form-label" for="{{ form.title.id_for_label }}">タイトル（必須）</label>
-                    {{ form.title}}
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="{{ form.description.id_for_label }}">詳細（任意）</label>
-                    {{ form.description }}
-                </div>
-                <!-- 選択肢　別途JSでの実装が必要 -->
-                <div class="mb-3 options">
-                    <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
+    </form>
+</div>
+<div class="text-center my-5">
+    <a href="{% url 'survey-list'%}">アンケート作成をキャンセルして戻る</a>
+</div>
+</div>
+</div>
 
-                    {{ formset.management_form }}
-                    {% for option_name in formset.forms %}
-                        <div class="mb-3">
-                            {{ option_name.label_tag }} {{ option_name }}
-                        </div>
-                    {% endfor %}
-
-                    <button type="button" class="btn btn-secondary">選択肢を追加</button>
-                </div>
-                <!-- 選択肢　別途JSでの実装が必要 ここまで-->
-                <div class="mb-3">
-                    <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
-                    {{ form.end_at}}
-                </div>
-                <!-- 公開、一時保存をラジオボタンで選択 -->
-                <div class="select-radio d-flex justify-content-around mb-5">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="is_public" id="is_public1" value="1">
-                        <label class="form-check-label" for="is_public1">
-                            公開する
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="is_public" id="is_public2" value="0" checked>
-                        <label class="form-check-label" for="is_public2">
-                            一時保存にする
-                        </label>
-                    </div>
-                </div>
-                <!-- 公開、一時保存をラジオボタンで選択　ここまで -->
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success px-5">作成！</button>
-                </div>
-            </form>
-        </div>
-        <div class="text-center my-5">
-            <a href="{% url 'survey-list'%}">アンケート作成をキャンセルして戻る</a>
-        </div>
-    </div>
-    </div>
-            {% endblock content %}
-    </div>
-    <footer class="text-center p-3">
-        <span class="text-muted"> &copy; Team C 2025 Autumn</span>
-    </footer>
-</body>
-
-</html>
+{% endblock content %}

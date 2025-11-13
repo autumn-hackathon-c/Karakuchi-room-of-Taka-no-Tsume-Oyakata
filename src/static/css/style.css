@@ -63,3 +63,8 @@ body {
 .mobile-menu-icon > span:last-child {
   margin-bottom: 0;
 }
+
+/* ページタイトルの見出し */
+.page-title {
+  color: #371606;
+}
