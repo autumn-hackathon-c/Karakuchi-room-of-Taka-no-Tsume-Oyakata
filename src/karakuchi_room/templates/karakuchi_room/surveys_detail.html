@@ -6,13 +6,9 @@
     <h2>{{ survey.title }}</h2>
 </div>
 <div class="selcted-tags w-100 mx-auto py-2 row">
-    {% comment %}
-    <!-- {{ for タグ表示 }} -->
-    {% endcomment %}
+    {% comment %}{{ for タグ表示 }}{% endcomment %}
     <div class="col-auto me-2 mb-2 bg-secondary-subtle rounded-5">{{ タグ }}</div>
-    {% comment %}
-    <!-- {{ endfor タグ表示 }} -->
-    {% endcomment %}
+    {% comment %}{{ endfor タグ表示 }}{% endcomment %}
 </div>
 <div class="row mb-2">
     {% comment %} <span class="col-auto">{{ survey.start_at }}</span> {% endcomment %}

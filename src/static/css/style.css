@@ -68,3 +68,14 @@ body {
 .page-title {
   color: #371606;
 }
+
+/* // フォームの最大幅を設定 // */
+.main {
+  max-width: 800px;
+  width: 100%;
+}
+
+.login-form, .signup-form {
+  max-width: 500px;
+  width: 100%;
+}

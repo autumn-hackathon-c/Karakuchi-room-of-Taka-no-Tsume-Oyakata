@@ -5,37 +5,32 @@
 <div class="header page-title my-4">
     <h2>新規登録</h2>
 </div>
-<div class="login-form card p-3 mx-auto">
-    <form action="" method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.user_name.id_for_label }}">ユーザー名</label>
-            {{ form.user_name }}
-            {% comment %} <label class="form-label" for="user_name">ユーザー名</label> {% endcomment %}
-            {% comment %} <input class="form-control" type="text" id="user_name" name="user_name"> {% endcomment %}
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.email.id_for_label }}">Emailアドレス</label>
-            {{ form.email }}
-            {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.password1.id_for_label }}">パスワード</label>
-            {{ form.password1 }}
-            {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="{{ form.password2.id_for_label }}">パスワード（確認用）</label>
-            {{ form.password2 }}
-            {% comment %} <input class="form-control" type="password" id="pwd_confirm" name="pwd_confirm"> {% endcomment
-            %}
-        </div>
-        <div class="mb-3 d-flex justify-content-between">
-            {% comment %} <a href="nav-link" href="">ログインへ</a> ←ここ、ひとむさんに確認する{% endcomment %}
-            <a href="{% url 'login' %}">ログインへ</a>
-            <button type="submit" class="btn btn-primary">登録</button>
-        </div>
-    </form>
+<div class="card p-3 mx-auto">
+    <div class="signup-form mx-auto">
+        <form class="signup-form mx-auto" action="" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.user_name.id_for_label }}">ユーザー名</label>
+                {{ form.user_name }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Emailアドレス</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.password1.id_for_label }}">パスワード</label>
+                {{ form.password1 }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.password2.id_for_label }}">パスワード（確認用）</label>
+                {{ form.password2 }}
+            </div>
+            <div class="mb-3 d-flex justify-content-between">
+                <a href="{% url 'login' %}">ログインへ</a>
+                <button type="submit" class="btn btn-primary">登録</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock content %}

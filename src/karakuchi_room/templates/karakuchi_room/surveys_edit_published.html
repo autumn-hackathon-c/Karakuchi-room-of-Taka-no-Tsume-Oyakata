@@ -16,7 +16,7 @@
             <label class="form-label" for="{{ form.description.id_for_label }}">詳細（任意）</label>
             {{ form.description }}
         </div>
-        <!-- 選択肢　別途JSでの実装が必要 -->
+         {% comment %} 選択肢　別途JSでの実装が必要  {% endcomment %}
         <div class="mb-3 options">
             <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
             {% if formset %}
@@ -26,19 +26,19 @@
             {% endfor %}
             {% endif %}
         </div>
-        <!-- 選択肢　別途JSでの実装が必要 ここまで-->
+         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
         <div class="mb-3">
             <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
             {{ form.end_at}}
         </div>
-        <!-- 投票受付の停止をチェックボックスで選択 -->
+         {% comment %} 投票受付の停止をチェックボックスで選択 {% endcomment %}
         <div class="my-3">
             <div class="form-check">
                 {{ form.stop_vote }}
                 {{ form.stop_vote.label_tag }}
             </div>
         </div>
-        <!-- 投票受付の停止をチェックボックスで選択 ここまで-->
+        {% comment %} 投票受付の停止をチェックボックスで選択 ここまで {% endcomment %}
         <div class="text-center">
             <button type="submit" class="btn btn-success px-5">変更！</button>
         </div>
