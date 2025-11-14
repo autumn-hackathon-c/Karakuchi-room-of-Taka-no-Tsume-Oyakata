@@ -179,7 +179,6 @@ class LoginForm(AuthenticationForm):
 
 # アンケート新規作成
 class SurveyCreateForm(forms.ModelForm):
-
     # しほ：タグをチェックボックスで選択できるように追加
     tag_survey = forms.ModelMultipleChoiceField(
         # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
@@ -187,10 +186,10 @@ class SurveyCreateForm(forms.ModelForm):
         queryset=Tag.objects.filter(is_deleted=False),
         # 論理削除されていないタグのみを表示
         widget=forms.CheckboxSelectMultiple,  # チェックボックスで表示
-        required=False
+        required=False,
         # requiredは入力必須かどうかを指定している
         # ここをFalseにすることでタグを選択しなくてもフォームは通る
-    )    
+    )
 
     # Metaクラスの中で、「どのモデルを使うか」「どのフィールドを操作するか」を定義
     class Meta:
@@ -225,8 +224,6 @@ class SurveyCreateForm(forms.ModelForm):
             "is_public": forms.RadioSelect(
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
-
-            
         }
 
 
@@ -452,4 +449,3 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-
