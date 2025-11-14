@@ -290,6 +290,10 @@ class SurveyFormDraft(forms.ModelForm):
     class Meta:
         model = Survey
         fields = ["title", "description", "end_at", "is_public"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+        }
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
@@ -339,6 +343,10 @@ class SurveyFormPublished(forms.ModelForm):
             "description",
             "end_at",
         ]  # is_public はフォームに出さない等
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
