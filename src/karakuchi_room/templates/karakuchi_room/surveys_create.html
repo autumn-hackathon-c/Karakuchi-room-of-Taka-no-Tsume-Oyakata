@@ -17,7 +17,7 @@
             <label class="form-label" for="{{ form.description.id_for_label }}">詳細（任意）</label>
             {{ form.description }}
         </div>
-         {% comment %} 選択肢　別途JSでの実装が必要  {% endcomment %}
+        {% comment %} 選択肢　別途JSでの実装が必要 {% endcomment %}
         <div class="mb-3 options">
             <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
 
@@ -31,11 +31,21 @@
             <button type="button" class="btn btn-secondary">選択肢を追加</button>
         </div>
         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
+        {% comment %} タグを選択 {% endcomment %}
+        <div>
+            <label>タグ</label>
+            {% for checkbox in form.tag_survey %}
+            <div class="form-check">
+                {{ checkbox.tag }}
+                {{ checkbox.choice_label}}
+            </div>
+            {% endfor %}
+        </div>
         <div class="mb-3">
             <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
             {{ form.end_at}}
         </div>
-         {% comment %} 公開、一時保存をラジオボタンで選択  {% endcomment %}
+        {% comment %} 公開、一時保存をラジオボタンで選択 {% endcomment %}
         <div class="select-radio d-flex justify-content-around mb-5">
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="is_public" id="is_public1" value="1">
@@ -50,7 +60,7 @@
                 </label>
             </div>
         </div>
-         {% comment %} 公開、一時保存をラジオボタンで選択　ここまで  {% endcomment %}
+        {% comment %} 公開、一時保存をラジオボタンで選択　ここまで {% endcomment %}
         <div class="text-center">
             <button type="submit" class="btn btn-success px-5">作成！</button>
         </div>
@@ -58,8 +68,6 @@
 </div>
 <div class="text-center my-5">
     <a href="{% url 'survey-list'%}">アンケート作成をキャンセルして戻る</a>
-</div>
-</div>
 </div>
 
 {% endblock content %}

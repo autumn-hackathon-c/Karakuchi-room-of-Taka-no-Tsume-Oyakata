@@ -20,6 +20,9 @@ from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm, LoginForm
 # 同じアプリケーション内のforms.pyからCustomUserFormとLoginFormをインポート
 
+from .models import Tag, TagSurvey
+# タグを表示、選択するためにmodels.pyから中間テーブルとそれに紐づいているテーブルをインポート
+
 # from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 
@@ -36,7 +39,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote, Tag
+from karakuchi_room.models import Survey, Vote
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -196,6 +199,7 @@ class SurveyCreateView(LoginRequiredMixin, CreateView):
 
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():  # どちらか失敗すればロールバック
+                # Survey(アンケート)保存
                 survey = form.save(commit=False)
                 user = (
                     self.request.user
@@ -203,9 +207,22 @@ class SurveyCreateView(LoginRequiredMixin, CreateView):
                     else get_guest_user()
                 )
                 survey.user = user
-                survey.save()
+                survey.save()  # ←ここでsurvey.idが確定
                 formset.instance = survey  # Option の親を設定
                 formset.save()
+
+                # しほ：ここからタグ保存処理
+                selected_tags = form.cleaned_data.get("tag_survey", [])
+                # フォームの入力チェック（バリデーション）
+                # tag_surveyのフォームが空の場合は[]を返す
+                # []を返すことでループのエラーを防ぐ
+                for tag in selected_tags:
+                    # フォームでユーザーが選択したTag(タグ)モデルのそのものの(インスタンス)のリストを取り出している
+                    TagSurvey.objects.get_or_create(survey=survey, tag=tag)
+                    # 中間テーブル(TagSurvey)に同じ組み合わせデータがすでにあるかを確認している
+                    # 例えばsurvey=アンケート１＋tag=雑談
+                    # 同じ組み合わせデータが中間テーブル(TagSurvey)にない場合は新規作成される。(True)
+                    # 既に同じデータがある場合は新規作成されない(False)
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-list")
@@ -454,3 +471,9 @@ def vote_delete(request, pk):
 
     messages.success(request, "削除しました。")
     return redirect("survey-list")
+
+
+# これは後で使うかも
+# TagSurvey.objects.filter(survey=survey).delete()
+# 編集対応するなら削除機能も必要
+# models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
