@@ -39,8 +39,24 @@ class CustomUserCreationForm(UserCreationForm):
         # get_user_model()の返り値に設定する
         # 使用するDBの表を指定している
 
-        fields = ("user_name", "email")
+        fields = ["user_name", "email"]
         # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
+
+        widgets = {
+            "user_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    # フォーム専用フィールドは以下で設定する
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # ウィジェットを明示的に設定する
+        self.fields["password1"].widget = forms.PasswordInput(
+            attrs={"class": "form-control"}
+        )
+        self.fields["password2"].widget = forms.PasswordInput(
+            attrs={"class": "form-control"}
+        )
 
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
@@ -185,7 +201,7 @@ class SurveyCreateForm(forms.ModelForm):
         # ここではタグを複数選択させるために使っている
         queryset=Tag.objects.filter(is_deleted=False),
         # 論理削除されていないタグのみを表示
-        widget=forms.CheckboxSelectMultiple,  # チェックボックスで表示
+        widget=forms.SelectMultiple,  # チェックボックスで表示
         required=False,
         # requiredは入力必須かどうかを指定している
         # ここをFalseにすることでタグを選択しなくてもフォームは通る

@@ -34,12 +34,11 @@
         {% comment %} タグを選択 {% endcomment %}
         <div>
             <label>タグ</label>
-            {% for checkbox in form.tag_survey %}
+            {{ form.tag_survey }}
             <div class="form-check">
                 {{ checkbox.tag }}
                 {{ checkbox.choice_label}}
             </div>
-            {% endfor %}
         </div>
         <div class="mb-3">
             <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
