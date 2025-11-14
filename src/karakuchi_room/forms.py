@@ -7,7 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Survey, Option, Vote
+from .models import Survey, Option, Vote, Tag
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -179,6 +179,19 @@ class LoginForm(AuthenticationForm):
 
 # アンケート新規作成
 class SurveyCreateForm(forms.ModelForm):
+
+    # しほ：タグをチェックボックスで選択できるように追加
+    tag_survey = forms.ModelMultipleChoiceField(
+        # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
+        # ここではタグを複数選択させるために使っている
+        queryset=Tag.objects.filter(is_deleted=False),
+        # 論理削除されていないタグのみを表示
+        widget=forms.CheckboxSelectMultiple,  # チェックボックスで表示
+        required=False
+        # requiredは入力必須かどうかを指定している
+        # ここをFalseにすることでタグを選択しなくてもフォームは通る
+    )    
+
     # Metaクラスの中で、「どのモデルを使うか」「どのフィールドを操作するか」を定義
     class Meta:
         # このフォームが対応するモデルは Survey モデル
@@ -186,7 +199,8 @@ class SurveyCreateForm(forms.ModelForm):
 
         # フォームで入力／編集するフィールド
         # モデルにあるフィールドのうち、これだけをフォームに表示する
-        fields = ["title", "description", "end_at", "is_public"]
+        fields = ["title", "description", "end_at", "is_public", "tag_survey"]
+        # しほ：アンケート作成のUIでタグを選べるようにするためにフィールドを追加(tag_survey)
 
         # 各フィールドに対して使用するウィジェット（入力フォームの種類）を指定
         widgets = {
@@ -211,6 +225,8 @@ class SurveyCreateForm(forms.ModelForm):
             "is_public": forms.RadioSelect(
                 choices=[(1, "公開する"), (0, "一時保存する")]
             ),
+
+            
         }
 
 
@@ -436,3 +452,4 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+
