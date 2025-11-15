@@ -28,21 +28,21 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
 
   # DB名
-  db:
-      image: mysql:8.0
-      container_name: mysql
-      restart: always
-      ports:
-        - "3306:3306"
+  # db:
+  #     image: mysql:8.0
+  #     container_name: mysql
+  #     restart: always
+  #     ports:
+  #       - "3306:3306"
         
-  #環境変数の設定
-      environment:
-        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-        MYSQL_DATABASE: ${MYSQL_DATABASE}
-        MYSQL_USER: ${MYSQL_USER}
-        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-        TZ: Asia/Tokyo
-      volumes:
-          - db_data:/var/lib/mysql
+  # #環境変数の設定
+  #     environment:
+  #       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+  #       MYSQL_DATABASE: ${MYSQL_DATABASE}
+  #       MYSQL_USER: ${MYSQL_USER}
+  #       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  #       TZ: Asia/Tokyo
+  #     volumes:
+  #         - db_data:/var/lib/mysql
 volumes:
   db_data:
