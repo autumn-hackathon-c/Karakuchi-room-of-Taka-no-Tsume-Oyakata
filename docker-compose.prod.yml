@@ -10,10 +10,6 @@ services:
     # 作成するコンテナ名の指定
     container_name: django
 
-    # 使用するポートの設定
-    ports:
-      - "8000"
-
     #envファイルの反映
     env_file:
       - .env 
@@ -32,10 +28,10 @@ services:
     depends_on:
       - django
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       # ホスト側の nginx/django.conf を Nginx の設定ディレクトリに読み取り専用でマウント
-      - ./nginx/django.conf:/etc/nginx/conf.d:ro
+      - ./nginx/django.conf:/etc/nginx/conf.d:ro/django.conf
 
     
 
