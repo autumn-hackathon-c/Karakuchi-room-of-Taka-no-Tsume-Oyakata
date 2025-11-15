@@ -20,7 +20,7 @@ RUN pip install --upgrade pip \
 COPY . /app
 
 # entrypoint.sh を実行可能にする
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /containers//entrypoint.sh
 
 # コンテナ起動時に entrypoint.sh を実行
 ENTRYPOINT ["./entrypoint.sh"]
