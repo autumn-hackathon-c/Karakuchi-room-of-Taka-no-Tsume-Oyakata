@@ -16,8 +16,8 @@ RUN pip install --upgrade pip \
     && pip install --upgrade setuptools \
     && pip install -r requirements.prod.txt
 
-# アプリケーションコードをコピー
-COPY . /app
+# 🔽 entrypoint.sh をコンテナ内にコピー
+COPY containers/entrypoint.sh /entrypoint.sh
 
 # entrypoint.sh を実行可能にする
 RUN chmod +x /containers//entrypoint.sh
