@@ -4,7 +4,7 @@ from .base import *  # noqa
 
 
 DEBUG = False
-ALLOWED_HOSTS = ["karakuchi-room.com","www.karakuchi-room.com"]
+ALLOWED_HOSTS = ["karakuchi-room.com", "www.karakuchi-room.com"]
 
 # RDS: writer/reader
 DATABASES = {
