@@ -36,8 +36,12 @@
 {% comment %} <div class="d-flex justify-content-end">
     <span class="col-auto">2026/1/20</span>
 </div> {% endcomment %}
-<div class="discription border border-secondary p-2 mt-3">
+<div class="discription border border-secondary p-2 my-3">
+    {% if survey.description %}
     <p>{{ survey.description }}</p>
+    {% else %}
+    <p>アンケートの詳細説明はありません</p>
+    {% endif %}
 </div>
 {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
 <div class="m-3 p-3">

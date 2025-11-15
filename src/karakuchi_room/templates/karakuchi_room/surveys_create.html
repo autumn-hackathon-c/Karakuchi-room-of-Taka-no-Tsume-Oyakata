@@ -32,11 +32,11 @@
         </div>
         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
         {% comment %} タグを選択 {% endcomment %}
-        <div>
-            <label class="form-label" for="{{ form.tag_survey.id_for_label }}">タグ</label>
+        <div class="mt-4">
+            <label class="form-label" for="{{ form.tag_survey.id_for_label }}">タグ（任意）（複数選択可能）</label>
             {{ form.tag_survey }}
         </div>
-        <div class="mb-3">
+        <div class="my-4">
             <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>
             {{ form.end_at}}
         </div>

@@ -12,7 +12,11 @@
     <span>投票期限：{{ survey.end_at }}</span>
 </div>
 <div class="discription border border-secondary p-2 my-3">
+    {% if survey.description %}
     <p>{{ survey.description }}</p>
+    {% else %}
+    <p>アンケートの詳細説明はありません</p>
+    {% endif %}
 </div>
 <div class="h4 mt-5">
     <p>あなたはどう思う？</p>
