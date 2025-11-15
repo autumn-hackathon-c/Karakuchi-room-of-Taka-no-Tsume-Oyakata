@@ -23,4 +23,4 @@ COPY containers/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # コンテナ起動時に entrypoint.sh を実行
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
