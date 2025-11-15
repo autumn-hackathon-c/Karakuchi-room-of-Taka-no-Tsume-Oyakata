@@ -45,12 +45,9 @@
 </div>
 {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
 <div class="m-3 p-3">
-    {% for option in option_list %}
-    {{ option.label }}
-    {% endfor %}
-    <canvas id="chart" width="400" hight="400" 
+    <canvas id="chart" width="400" height="400" 
         {% for oc in option_vote_counts %}
-        data-{{ oc.label|slugify }}="{{ oc.vote_count }}"
+        data-{{ oc.label }}="{{ oc.vote_count }}"
         {% endfor %}
     ></canvas>
 </div>

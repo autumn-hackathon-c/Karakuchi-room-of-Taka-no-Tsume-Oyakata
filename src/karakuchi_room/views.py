@@ -45,7 +45,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote
+from karakuchi_room.models import Survey, Vote, Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -160,11 +160,23 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
             .order_by("-created_at")
         )
 
+        # # 選択項目ごとの票数（このアンケート内）
+        # ctx["option_vote_counts"] = (
+        #     Vote.objects.filter(survey=survey, is_deleted=False)
+        #     .values("option__id", "option__label")
+        #     .annotate(vote_count=Count("id"))
+        #     .order_by("option__id")
+        # )
+
         # 選択項目ごとの票数（このアンケート内）Option を起点に、すべての選択肢を取得しつつ投票数（0票も含む）を集計
         ctx["option_vote_counts"] = (
-            survey.options.filter(is_deleted=False)
-            .annotate(vote_count=Count("votes", filter=Q(votes__is_deleted=False)))
-            .order_by("id")
+            Option.objects.filter(
+                survey=survey, is_deleted=False
+            )  # 論理削除されていないオプションを取得
+            .annotate(
+                vote_count=Count("votes", filter=Q(votes__is_deleted=False))
+            )  # 投票数を集計（論理削除されていないもの）
+            .order_by("id")  # オプションIDで並び替え
         )
 
         return ctx
