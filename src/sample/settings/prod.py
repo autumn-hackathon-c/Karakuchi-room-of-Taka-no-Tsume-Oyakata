@@ -45,10 +45,13 @@ AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "public, max-age=86400"  # デフォルト: 1日（主に media）
 }
 
-STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+# static files (S3)
+AWS_LOCATION = "static"
+
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
 
 # collectstatic の送り先を S3 に変更
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3StaticStorage"
 
 # MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 # DEFAULT_FILE_STORAGE = "closet_search.storage_backends.MediaStorage"
