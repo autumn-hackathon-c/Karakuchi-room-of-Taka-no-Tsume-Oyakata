@@ -190,18 +190,27 @@ class LoginForm(AuthenticationForm):
         return self.cleaned_data
 
 
+# タグ名だけを表示するためのカスタムフィールドを作成
+class TagMultipleChoiceField(forms.ModelMultipleChoiceField):
+    # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
+    # ここではタグを複数選択させるために使っている
+    def label_from_instance(self, obj):
+        # objには Tag のインスタンスが入る
+        return obj.tag_name  # タグ名だけをラベルにする
+
+
 # Django のフォームクラスを使用するために ModelForm を継承
 
 
 # アンケート新規作成
 class SurveyCreateForm(forms.ModelForm):
     # しほ：タグをチェックボックスで選択できるように追加
-    tag_survey = forms.ModelMultipleChoiceField(
-        # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
-        # ここではタグを複数選択させるために使っている
+    tag_survey = TagMultipleChoiceField(
         queryset=Tag.objects.filter(is_deleted=False),
         # 論理削除されていないタグのみを表示
-        widget=forms.SelectMultiple,  # チェックボックスで表示
+        widget=forms.SelectMultiple(
+            attrs={"class": "form-select"}
+        ),  # セレクトボックスで表示
         required=False,
         # requiredは入力必須かどうかを指定している
         # ここをFalseにすることでタグを選択しなくてもフォームは通る
