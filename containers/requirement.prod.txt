@@ -1,0 +1,6 @@
+django == 4.1
+gunicorn
+mysqlclient>=2.1
+django-bootstrap5
+boto3
+django-storages

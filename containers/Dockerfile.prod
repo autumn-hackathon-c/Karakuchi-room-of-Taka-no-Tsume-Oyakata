@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 必要なビルドツールと MySQL 開発用パッケージを追加
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    build-essential \
+    && apt-get clean
+
+# pip を最新化 + 本番用パッケージをインストール
+COPY requirements.prod.txt /app/requirements.prod.txt
+RUN pip install --upgrade pip \
+    && pip install --upgrade setuptools \
+    && pip install -r requirements.prod.txt
+
+# アプリケーションコードをコピー
+COPY . /app
+
+# entrypoint.sh を実行可能にする
+RUN chmod +x /app/entrypoint.sh
+
+# コンテナ起動時に entrypoint.sh を実行
+ENTRYPOINT ["./entrypoint.sh"]
