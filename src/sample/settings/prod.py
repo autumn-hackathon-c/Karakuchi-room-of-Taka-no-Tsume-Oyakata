@@ -57,8 +57,6 @@ AWS_LOCATION = "static"  # S3 上のフォルダ名
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3StaticStorage"
 
-# FileSystemStorage を使うコードが万一動いても落ちないように一応定義
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # --- 逆プロキシ(ALB)配下 ---
 USE_X_FORWARDED_HOST = True

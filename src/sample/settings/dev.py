@@ -22,9 +22,6 @@ DATABASES = {
     }
 }
 
-# 静的/メディアはローカル配信
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
 USE_X_FORWARDED_HOST = False
 SECURE_PROXY_SSL_HEADER = None
