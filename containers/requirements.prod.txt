@@ -1,4 +1,4 @@
-django == 4.1
+django == 5.0
 gunicorn
 mysqlclient>=2.1
 django-bootstrap5
