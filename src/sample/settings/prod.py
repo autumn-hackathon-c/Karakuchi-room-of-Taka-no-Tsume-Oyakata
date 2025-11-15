@@ -33,7 +33,6 @@ AWS_S3_CUSTOM_DOMAIN = os.getenv(
     "AWS_S3_CUSTOM_DOMAIN",
     f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com",
 )
-AWS_DEFAULT_ACL = None
 
 # 署名・公開URLの推奨
 AWS_S3_SIGNATURE_VERSION = "s3v4"
@@ -47,6 +46,9 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+
+# collectstatic の送り先を S3 に変更
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 # DEFAULT_FILE_STORAGE = "closet_search.storage_backends.MediaStorage"

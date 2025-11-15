@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "karakuchi_room.apps.KarakuchiRoomConfig",
+    "storages",
 ]
 
 MIDDLEWARE = [
