@@ -47,7 +47,6 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
-STATICFILES_STORAGE = "closet_search.storage_backends.StaticStorage"
 
 # MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 # DEFAULT_FILE_STORAGE = "closet_search.storage_backends.MediaStorage"

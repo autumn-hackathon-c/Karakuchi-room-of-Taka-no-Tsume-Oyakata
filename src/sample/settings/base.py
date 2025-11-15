@@ -1,4 +1,4 @@
-# src/closet_search/settings/base.py
+# src/sample/settings/base.py
 from pathlib import Path
 import os
 
