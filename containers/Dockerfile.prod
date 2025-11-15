@@ -6,7 +6,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     build-essential \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # pip を最新化 + 本番用パッケージをインストール
 COPY containers/requirements.prod.txt /app/requirements.prod.txt
