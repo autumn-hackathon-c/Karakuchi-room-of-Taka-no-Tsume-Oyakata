@@ -8,8 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# SECRET_KEY = os.environ.get("SECRET_KEY")
-SECRET_KEY = "django-insecure-d%p-lt!l95$%*=1@yiu2wn4c-c@bkjgu^=l)7df$64saa7uj9l"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = False  # ここでは固定せず、各環境で上書き
 
