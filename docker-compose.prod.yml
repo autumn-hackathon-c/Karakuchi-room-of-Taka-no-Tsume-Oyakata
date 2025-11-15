@@ -26,17 +26,16 @@ services:
     volumes:
       - ${SRC_PATH:-./src}:/app     # ← src を /app にマウント
     working_dir: /app               # ← manage.py がここにある
-
-    nginx:
-      image: nginx
-      container_name: nginx
-      depends_on:
-        - django
-      ports:
-        - "80:80"
-      volumes:
-        # ホスト側の nginx/django.conf を Nginx の設定ディレクトリに読み取り専用でマウント
-        - ./nginx/django.conf:/etc/nginx/conf.d:ro
+  nginx:
+    image: nginx
+    container_name: nginx
+    depends_on:
+      - django
+    ports:
+      - "80:80"
+    volumes:
+      # ホスト側の nginx/django.conf を Nginx の設定ディレクトリに読み取り専用でマウント
+      - ./nginx/django.conf:/etc/nginx/conf.d:ro
 
     
 
