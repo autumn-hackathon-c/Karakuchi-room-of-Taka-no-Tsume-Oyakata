@@ -19,7 +19,7 @@ services:
       - .env 
 
     environment:
-      DJANGO_SETTINGS_MODULE: karakuchi_room.settings.prod         
+      DJANGO_SETTINGS_MODULE: sample.settings.prod         
     
     # 対話的なセッションやコマンドラインの操作を許可する
     tty: true
