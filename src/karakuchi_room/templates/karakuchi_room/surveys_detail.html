@@ -48,7 +48,11 @@
     {% for option in option_list %}
     {{ option.label }}
     {% endfor %}
-    <canvas id="myChart"></canvas>
+    <canvas id="chart" width="400" hight="400" 
+        {% for oc in option_vote_counts %}
+        data-{{ oc.label|slugify }}="{{ oc.vote_count }}"
+        {% endfor %}
+    ></canvas>
 </div>
 {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
 <div>
@@ -102,7 +106,7 @@
                     <tbody>
                         {% for count in option_vote_counts %}
                         <tr>
-                            <td>{{ count.option__label }}</td>
+                            <td>{{ count.label }}</td>
                             <td>{{ count.vote_count }}</td>
                         </tr>
                         {% endfor %}

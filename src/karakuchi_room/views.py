@@ -1,26 +1,32 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+
 # 会員登録する」ためにCreateViewが必要
 # CREATEVIEWは汎用的なビューだからdjango.views.genericの中のCreateViewになる
 # ここはトイトイさんとコンフリクト起こすかも
 
 from django.contrib.auth.views import LoginView
+
 # LoginViewをインポートする事でテンプレート名や
 # リダイレクト先を指定するだけでログイン画面を作成できる
 # django.contrib.auth.viewは認証用ビュー群
 
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 # 裏側のロジック(view)でコントロールする
 # ログインしているユーザーだけにアクセスを許可する
 
 
 from django.urls import reverse_lazy
+
 # reverse_lazyをインポートすることでリダイレクト先を指定できる
 
 from .forms import CustomUserCreationForm, LoginForm
+
 # 同じアプリケーション内のforms.pyからCustomUserFormとLoginFormをインポート
 
 from .models import Tag, TagSurvey
+
 # タグを表示、選択するためにmodels.pyから中間テーブルとそれに紐づいているテーブルをインポート
 
 # from django.shortcuts import render
@@ -154,12 +160,11 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
             .order_by("-created_at")
         )
 
-        # 選択項目ごとの票数（このアンケート内）
+        # 選択項目ごとの票数（このアンケート内）Option を起点に、すべての選択肢を取得しつつ投票数（0票も含む）を集計
         ctx["option_vote_counts"] = (
-            Vote.objects.filter(survey=survey, is_deleted=False)
-            .values("option__id", "option__label")
-            .annotate(vote_count=Count("id"))
-            .order_by("option__id")
+            survey.options.filter(is_deleted=False)
+            .annotate(vote_count=Count("votes", filter=Q(votes__is_deleted=False)))
+            .order_by("id")
         )
 
         return ctx
