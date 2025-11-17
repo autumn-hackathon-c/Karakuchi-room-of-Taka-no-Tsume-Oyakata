@@ -179,6 +179,14 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
             .order_by("id")  # オプションIDで並び替え
         )
 
+        # コメントの総数
+        ctx["comment_count"] = (
+            Vote.objects.filter(survey=survey, is_deleted=False)
+            .exclude(comment__isnull=True)
+            .exclude(comment="")
+            .count()
+        )
+
         return ctx
 
 
