@@ -82,6 +82,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const li = document.createElement('li');
             li.style.display = 'flex';
             li.style.alignItems = 'center';
+            li.style.cursor = 'pointer';
+
+            // クリック時の処理
+            li.onclick = () => {
+                const { type } = chart.config;
+                chart.toggleDataVisibility(item.index);
+                chart.update();  // 更新を呼ぶ
+            };
 
             const boxSpan = document.createElement('span');
             boxSpan.className = 'box';
