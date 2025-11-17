@@ -64,8 +64,8 @@ body {
   margin-bottom: 0;
 }
 
-/* ページタイトルの見出し */
-.page-title {
+/* ページタイトルと小見出し */
+.page-title, .subheading {
   color: #371606;
 }
 
