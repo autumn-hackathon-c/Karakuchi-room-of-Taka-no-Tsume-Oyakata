@@ -14,7 +14,7 @@
     {% if survey.start_at %}
     <span class="col-auto">投票開始:{{ survey.start_at }}</span> 
     {% else %}
-    <span class="col-auto">投票開始: 開始前</span> 
+    <span class="col-auto">投票開始: 不明</span> 
     {% endif %}
 
     {% if survey.end_at %}
@@ -62,8 +62,13 @@
 {% comment %} ユーザーが投票済みか否か {% endcomment %}
 <div>
     {% if vote and vote.pk %}
-    <div class="alert alert-primary d-flex align-items-center" role="alert">
-        あなたは投票済みです！<a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
+    <div class="alert alert-primary d-flex justify-content-start gap-4 align-items-center" role="alert">
+        <div>
+            あなたは投票済みです！
+        </div>
+        <div>
+            <a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
+        </div>
     </div>
     {% comment %} ↓未投票の場合は投票画面に遷移or作成者は自分のアンケートに投票しないため不要 {% endcomment %}
     {% comment %} {% else %}  
