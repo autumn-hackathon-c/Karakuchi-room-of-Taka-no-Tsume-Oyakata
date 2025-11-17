@@ -79,3 +79,35 @@ body {
   max-width: 500px;
   width: 100%;
 }
+
+/* // 凡例のスタイルを整える // */
+#legend-container ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;          /* 複数行に折り返す */
+}
+
+#legend-container li {
+  display: flex;
+  align-items: center;
+  margin: 4px 8px;
+  max-width: 100;         /* 凡例アイテムの最大幅を制限 */
+}
+
+#legend-container li span {
+  white-space: normal;      /* テキストを折り返す */
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+#legend-container .box {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-right: 6px;
+  display: inline-block;
+}
+

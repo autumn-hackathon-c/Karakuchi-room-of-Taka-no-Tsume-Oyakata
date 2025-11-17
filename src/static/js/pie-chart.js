@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // data- 属性の値をループして取得
     Array.from($chart.attributes).forEach(function(attr) {
         if (attr.name.startsWith("data-")) {
-            const label = attr.name.replace("data-", "").replace("-", " "); // ラベルを取得
+            const label = attr.name.replace("data-", ""); // ラベルを取得
             const count = parseInt(attr.value, 10); // 投票数を取得
 
             labels.push(label);  // ラベル（選択肢）を追加
@@ -48,28 +48,85 @@ document.addEventListener("DOMContentLoaded", function() {
                 data: counts,
                 backgroundColor: labels.map((_, i) => {
                 // ラベル数に応じて色を生成、または固定配列から取るなど
-                    const colors = ["#34d399", "#f87171", "#60a5fa", "#fbbf24", "#a78bfa"];
-                    return colors[i % colors.length];
+                    const colors = ["#34d399", "#f87171", "#60a5fa", "#fbbf24"];
+                    return colors[i];
                 })
             }]
         }
     }
+    
+    // プラグイン：HTMLに凡例を出す
+    const htmlLegendPlugin = {
+        id: 'htmlLegend',
+        //チャートの描画前に凡例を再構築する
+        afterUpdate(chart, args, options) {
+            if (chart._legendBuilt) {
+                return;
+            }
+            chart._legendBuilt = true;
+            const legendContainer = document.getElementById(options.containerID);
+            let ul = legendContainer.querySelector('ul');
+            if (!ul) {
+            ul = document.createElement('ul');
+            legendContainer.appendChild(ul);
+            }
+
+            // 古いアイテムを消す
+            while (ul.firstChild) {
+            ul.firstChild.remove();
+            }
+
+            // 凡例アイテムをChart.js本体の設定に基づいて取得
+            const items = chart.options.plugins.legend.labels.generateLabels(chart);
+            items.forEach(item => {
+            const li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.alignItems = 'center';
+
+            const boxSpan = document.createElement('span');
+            boxSpan.className = 'box';
+
+            // fillStyle が無ければ dataset の backgroundColor を参照する
+            const color = item.fillStyle ?? chart.data.datasets[0].backgroundColor[item.index];
+            boxSpan.style.background = color;
+
+            boxSpan.style.width = '16px';
+            boxSpan.style.height = '16px';
+            boxSpan.style.marginRight = '6px';
+
+            li.appendChild(boxSpan);
+
+            const text = document.createElement('span');
+            text.textContent = item.text;
+            if (item.hidden) {
+                text.style.textDecoration = 'line-through';
+            }
+            li.appendChild(text);
+
+            ul.appendChild(li);
+            console.log(item);
+            });
+        }
+    };
+
 
     new Chart(ctx, {
         type: 'pie',
         data: data,
         options: {
+            maintainAspectRatio: false,
+            responsible: false,
             plugins: {
                 // 表示されるラベルをどこに置くかという設定
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            size: 18
-                        }
-                    }
+                    display: false,
+                },
+                // 凡例が見切れないようにHTMLで出力
+                htmlLegend: {
+                    containerID: "legend-container"
                 }
             }
-        }
+        },
+        plugins: [htmlLegendPlugin]
     });
 });

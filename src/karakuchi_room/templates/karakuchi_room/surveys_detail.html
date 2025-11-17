@@ -43,14 +43,8 @@
     <p>アンケートの詳細説明はありません</p>
     {% endif %}
 </div>
-{% comment %} 円グラフ chart.jsで実装する {% endcomment %}
-<div class="m-3 p-3">
-    <canvas id="chart" width="400" height="400" 
-        {% for oc in option_vote_counts %}
-        data-{{ oc.label }}="{{ oc.vote_count }}"
-        {% endfor %}
-    ></canvas>
-</div>
+{% comment %} 円グラフ {% endcomment %}
+{% include "karakuchi_room/snippets/chart_and_legends.html" %}
 {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
 <div>
     {% if vote and vote.pk %}

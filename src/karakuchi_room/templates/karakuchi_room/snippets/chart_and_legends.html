@@ -1,0 +1,12 @@
+<div class="m-3 p-3">
+    <div class="chart-wrapper mb-2" max-width: 400%; max-height: 400px;">
+        <canvas id="chart"  
+            {% for oc in option_vote_counts %}
+            data-{{ oc.label }}="{{ oc.vote_count }}"
+            {% endfor %}
+        ></canvas>
+    </div>
+    <div id="legend-container">
+        {% comment %} chart.jsによりこの中に自動で凡例が入る {% endcomment %}
+    </div>
+</div>
