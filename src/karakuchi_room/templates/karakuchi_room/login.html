@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 <div class="header page-title my-4">
     <h2>ログイン</h2>
 </div>
+
+<div class="text-center">
+    <img width="100" src="{% static 'img/favicon.png' %}" alt="唐辛子のキャラクター">
+</div>
+
 <div class="card p-3 mx-auto">
     <div class="login-form mx-auto">
         <form action="" method="post">
@@ -26,7 +33,7 @@
             </div> {% endcomment %}
             <div class="my-4 d-flex justify-content-between">
                 <a href="{% url 'signup' %}">新規登録へ</a>
-                <button type="submit" class="btn btn-primary">ログイン</button>
+                <button type="submit" class="btn btn-success">ログイン</button>
             </div>
         </form>
     </div>
