@@ -170,6 +170,14 @@ class Survey(SoftDeleteModel):
     description = models.TextField(blank=True, verbose_name="詳細")
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
+    
+    def save(self, *args, **kwargs):
+        # 新規作成時のみ start_at を自動セット
+        if self.pk is None and self.start_at is None:
+            self.start_at = now()
+        super().save(*args, **kwargs)
+    
+    
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
     tag_survey = models.ManyToManyField(
         "Tag", through="TagSurvey", related_name="surveys", verbose_name="タグ"
