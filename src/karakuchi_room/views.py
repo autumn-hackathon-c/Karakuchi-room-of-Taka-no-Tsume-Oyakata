@@ -153,7 +153,7 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
 
         ctx["vote"] = user_vote  # ← これまでの ctx["vote"] と同じ意味
 
-        # これまでのコメント一覧（このアンケートの全投票）
+        # # これまでの投票一覧（このアンケートの全投票）
         ctx["vote_list"] = (
             Vote.objects.filter(survey=survey, is_deleted=False)
             .select_related("user", "option")
@@ -179,13 +179,35 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
             .order_by("id")  # オプションIDで並び替え
         )
 
-        # コメントの総数
-        ctx["comment_count"] = (
+        # コメント付きの投票を取得(コメントなしの投票を除外)
+        ctx["vote_with_comment"] = (
             Vote.objects.filter(survey=survey, is_deleted=False)
             .exclude(comment__isnull=True)
             .exclude(comment="")
-            .count()
+            .select_related("option")
+            .order_by("-created_at")
         )
+
+        # Chart.js 用の配列を作る 選択肢と凡例の色を対応付ける
+        labels = []
+        vote_counts = []
+        colors = []
+        # 固定パレット
+        COLOR_PALETTE = ["#34d399", "#f87171", "#60a5fa", "#fbbf24"]
+
+        option_color_map = {}  # option_id → 色マップ
+
+        for idx, opt in enumerate(ctx["option_vote_counts"]):
+            labels.append(opt.label)
+            vote_counts.append(opt.vote_count)
+            color = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+            colors.append(color)
+            option_color_map[opt.id] = color
+
+        ctx["chart_labels"] = labels
+        ctx["chart_counts"] = vote_counts
+        ctx["chart_colors"] = colors
+        ctx["option_color_map"] = option_color_map
 
         return ctx
 

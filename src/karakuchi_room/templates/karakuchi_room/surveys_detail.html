@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load my_filters %}
+
 {% block content %}
 
 <div class="header page-title my-4">
@@ -23,7 +25,7 @@
     <span class="col-auto">投票期限: 指定なし</span>
     {% endif %}
 </div>
-<div class="h5">
+<div>
     <span class="col-auto">投票総数：{{vote_list.count}}票</span>
 </div>
 {% comment %} アンケート作成者本人の場合 {% endcomment %}
@@ -78,6 +80,11 @@
     {% endif %}
 </div>
 
+{% comment %} JSON データを安全に埋め込む {% endcomment %}
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_counts|json_script:"chart-counts" }}
+{{ chart_colors|json_script:"chart-colors" }}
+
 {% comment %} 円グラフと凡例 {% endcomment %}
 {% include "karakuchi_room/snippets/chart_and_legends.html" %}
 
@@ -108,38 +115,33 @@
     </div>
 
 
-    {% if comment_count %}
+    {% if vote_with_comment.count %}
     <ul class="list-unstyled">
-        {% for all_comment in vote_list %}
-        {% if all_comment.comment %}
+        {% for comment in vote_with_comment %}
         <li class="mb-2">
             <div class="card p-3">
-                {% comment %} //凡例の色を入れるより、選択肢そのものがわかった方が良いのではと考え、実装保留// {% endcomment %}
-                {% comment %} //代替案としてホバー時に選択肢全文を確認するためのtooltipを導入// {% endcomment %}
-                {% comment %} <div class="row"> {% endcomment %}
+                <div class="row">
                     {% comment %} 円グラフの凡例に色をあわせる {% endcomment %}
-                    {% comment %} <div class="me-2 col-auto">
-                        <span class="d-inline-block text-truncate" style="max-width: 250px;" data-bs-toggle="tooltip" 
-                        data-bs-placement="top" data-bs-html="true" 
-                        title="{{all_comment.option.label|escape}}">
-                        ■
+                    {% with color=option_color_map|dict_get:comment.option.id %}
+                    <div class="col-auto">
+                        <span style="color: {{color}};">
+                            ■
                         </span>
-                    </div> {% endcomment %}
-                    {% comment %} <div class="col"> {% endcomment %}
-                        <div class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{all_comment.option.label|escape}}" data-bs-offset="-250,0">
-                            選択肢：{{ all_comment.option.label|truncatechars:20}}
+                    </div>
+                    {% endwith %}
+                        <div class="col">
+                            <div class="text-muted" 
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{comment.option.label|escape}}" data-bs-offset="-250,0">
+                                選択肢：{{ comment.option.label|truncatechars:20}}
+                            </div>
+                            <div>
+                                {{ comment.comment}}
+                            </div>
+                            <div class="text-muted">
+                                投稿日時：{{ comment.created_at|date:"Y-m-d H:i" }}
+                            </div>
                         </div>
-                        <div>
-                            {{ all_comment.comment}}
-                        </div>
-                        <div class="text-muted">
-                            投稿日時：{{ all_comment.created_at|date:"Y-m-d H:i" }}
-                        </div>
-                    {% comment %} </div> {% endcomment %}
-                {% comment %} </div> {% endcomment %}
-            </div>
-        </li>
-        {% endif %}
+                    </li>
         {% endfor %}
     </ul>
     {% else %}
