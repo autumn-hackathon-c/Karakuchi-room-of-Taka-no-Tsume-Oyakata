@@ -435,6 +435,7 @@ class VoteFormPublished(forms.ModelForm):
         widgets = {
             "comment": forms.Textarea(
                 attrs={
+                    "id": "comment_input",
                     "class": "form-control",
                     "rows": 3,
                     "placeholder": "（任意）理由やコメントがあれば入力してください",

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="ja">
 
 <head>
@@ -82,11 +83,15 @@
                 {{ form.comment }}
             </div>
             {% comment %} 追加機能 文章加工機能{% endcomment %}
-            {% comment %} <div class="edit-button row mb-5">
-                <button class="btn btn-secondary col-md m-3">甘口文章に変換</button>
-                <button class="btn btn-secondary col-md m-3">文章の癖を減らす</button>
-            </div> {% endcomment %}
-            {% comment %} 追加機能 文章加工機能ここまで{% endcomment %}
+                <div class="edit-button text-center">
+                    <!-- AIで柔らかくするボタン -->
+                    <button id="ai_soften_btn" type="button" class="btn btn-secondary px-5">
+                        AIで柔らかくする
+                    </button>
+                </div>
+
+                <!-- AI の結果メッセージ -->
+                <div id="ai_result" class="text-muted mb-4"></div>
             <div class="submit-btn text-center">
                 <button type="submit" class="btn btn-success px-5">投票内容を修正！</button>
             </div>
@@ -100,5 +105,7 @@
         <span class="text-muted"> &copy; Team C 2025 Autumn</span>
     </footer>
 </body>
+
+<script src="{% static 'js/ai_comment.js' %}"></script>
 
 </html>
