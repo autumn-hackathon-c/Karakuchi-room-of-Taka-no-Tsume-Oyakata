@@ -19,14 +19,25 @@
         {% comment %} 選択肢　別途JSでの実装が必要 {% endcomment %}
         <div class="mb-3 options">
             <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
-            {% if formset %}
             {{ formset.management_form }}
-            {% for f in formset %}
-            {{ f.as_p }}
-            {% endfor %}
-            {% endif %}
-            <button type="button" class="btn btn-secondary">選択肢を追加</button>
+            <div id="option-container">
+                {% for option_name in formset.forms %}
+                <div class="option-item mb-3 d-flex justify-content-center align-items-center" >
+                    {{ option_name.id_for_label }}{{ option_name.label }}
+                    <button type="button" class="btn btn-none remove-option">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-secondary add-option">選択肢を追加</button>
         </div>
+
+        {% comment %} hidden 用のテンプレート空フォーム  {% endcomment %}
+        <div id="empty-form-template" style="display: none;">
+        {% for field in formset.empty_form.visible_fields %}
+            {{ field }}  {# 空フォームもラベルなしで出す #}
+        {% endfor %}
+        </div>
+
         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
         <div class="mb-3">
             <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>

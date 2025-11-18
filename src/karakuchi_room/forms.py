@@ -257,7 +257,8 @@ OptionFormSet = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
-    extra=4,  # 表示する空フォーム数
+    extra=2,  # 表示する空フォーム数
+    max_num=4,
     can_delete=False,
     widgets={
         "label": forms.TextInput(

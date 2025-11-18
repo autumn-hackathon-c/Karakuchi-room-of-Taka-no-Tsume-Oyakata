@@ -1,10 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // 埋め込まれた JSON データを取得
-    const labels = JSON.parse(document.getElementById("chart-labels").textContent);
-    const counts = JSON.parse(document.getElementById("chart-counts").textContent);
-    const colors = JSON.parse(document.getElementById("chart-colors").textContent);
-
-
+    
     // canvasのDOM要素を取得
     const $chart = document.querySelector("#chart");
     
@@ -12,6 +7,11 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!$chart) {
         return;
     }
+    
+    // 埋め込まれた JSON データを取得
+    const labels = JSON.parse(document.getElementById("chart-labels").textContent);
+    const counts = JSON.parse(document.getElementById("chart-counts").textContent);
+    const colors = JSON.parse(document.getElementById("chart-colors").textContent);
 
     // canvas要素に対して呼び出すメソッド。描画コンテキストを取得
     const ctx = $chart.getContext("2d");
