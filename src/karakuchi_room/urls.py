@@ -1,7 +1,7 @@
 from django.urls import path
 
 from django.contrib.auth.views import LogoutView
-from .views import survey_delete, vote_delete,soften_comment
+from .views import survey_delete, vote_delete, soften_comment
 
 from karakuchi_room.views import MyLoginView, SignUpView
 

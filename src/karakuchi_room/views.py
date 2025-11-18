@@ -428,7 +428,7 @@ class VoteCreateView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
-    
+
 
 # 投票編集画面
 class VoteUpdateView(LoginRequiredMixin, UpdateView):
@@ -502,9 +502,9 @@ def soften_comment(request):
     # -----------------------------
     moderation = openai.Moderation.create(input=text)
     if moderation.results[0].flagged:
-        return JsonResponse({
-            "error": "不適切な内容の可能性があります。修正してください。"
-        }, status=400)
+        return JsonResponse(
+            {"error": "不適切な内容の可能性があります。修正してください。"}, status=400
+        )
 
     # -----------------------------
     # ② 柔らかい表現への書き換え（GPT）
@@ -526,5 +526,3 @@ def soften_comment(request):
     soft_text = response.choices[0].message["content"]
 
     return JsonResponse({"soft_text": soft_text})
-
-
