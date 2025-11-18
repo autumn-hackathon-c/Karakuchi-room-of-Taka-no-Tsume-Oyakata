@@ -312,7 +312,8 @@ OptionFormSetForDraft = inlineformset_factory(
     model=Option,
     fields=["label"],
     extra=0,  # 表示する空フォーム数(編集画面のため空はなし)
-    can_delete=False,
+    max_num=4,
+    can_delete=True,
     widgets={
         "label": forms.TextInput(
             attrs={"class": "form-control", "placeholder": "選択肢を入力"}

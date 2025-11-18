@@ -25,7 +25,7 @@
             <div id="option-container">
                 {% for option_name in formset.forms %}
                 <div class="option-item mb-3 d-flex justify-content-center align-items-center" >
-                    {{ option_name.id_for_label }}{{ option_name.label }}
+                    {{ option_name.label }}
                     <button type="button" class="btn btn-none remove-option">✕</button>
                 </div>
                 {% endfor %}
