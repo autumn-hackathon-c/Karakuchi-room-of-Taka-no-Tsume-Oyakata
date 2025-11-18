@@ -1,0 +1,39 @@
+# version: '3'
+
+services:
+  # サービス名
+  django:
+    build:
+      context: .    #  ← プロジェクトルートをビルドコンテキストに！
+      dockerfile: containers/Dockerfile.prod   # Dockerfileのファイル名
+    
+    # 作成するコンテナ名の指定
+    container_name: django
+
+    #envファイルの反映
+    env_file:
+      - .env 
+
+    environment:
+      DJANGO_SETTINGS_MODULE: sample.settings.prod         
+    
+    # 対話的なセッションやコマンドラインの操作を許可する
+    tty: true
+    volumes:
+      - ${SRC_PATH:-./src}:/app     # ← src を /app にマウント
+    working_dir: /app               # ← manage.py がここにある
+  nginx:
+    image: nginx
+    container_name: nginx
+    depends_on:
+      - django
+    ports:
+      - "80:80"   # ★ nginxコンテナにEC2のポート80を割り当てる
+    volumes:
+      # ホスト側の nginx/django.conf を Nginx の設定ディレクトリに読み取り専用でマウント
+      - ./nginx/django.conf:/etc/nginx/conf.d/default.conf:ro
+
+    
+
+volumes:
+  db_data:
