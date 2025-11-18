@@ -180,7 +180,11 @@ class Survey(SoftDeleteModel):
 
         # 【公開される瞬間】を検知
         # old.is_public = False → self.is_public = True に変わった場合
-        if previous_state and previous_state.is_public is False and self.is_public is True:
+        if (
+            previous_state
+            and previous_state.is_public is False
+            and self.is_public is True
+        ):
             if self.start_at is None:
                 self.start_at = now()
         super().save(*args, **kwargs)
