@@ -31,7 +31,7 @@ docker-compose up -d
 
 #### 3.3 削除
 ```
-docker-compose　down
+docker-compose down
 ```
 
 ### 3.4 アクセス確認方法
@@ -81,6 +81,24 @@ make format
 上記がOKでないとマージできないので
 プルリク投げる際は都度上記を実行するようにしてください。
 ただし、フロントエンド(HTML,CSS,JavaScript)の内容は修正不可
+
+
+### 3.管理ユーザー作成コマンド
+```
+docker compose exec django python manage.py createsuperuser
+```
+
+### 4.ログ確認コマンド（エラーが出た時に試してください。）
+
+Django コンテナのログを確認
+```
+docker compose -f docker-compose.yml logs -f django -f django
+
+```
+MySQL コンテナのログを確認
+```
+docker compose -f docker-compose.yml logs -f django -f db
+```
 
 
 

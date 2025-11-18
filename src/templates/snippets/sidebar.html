@@ -1,0 +1,43 @@
+<div class="offcanvas offcanvas-end sidebar" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop"
+    aria-labelledby="staticBackdropLabel">
+    <div class="offcanvas-header d-dlex justify-content-end gap-5 mb-3">
+        {% if user.is_authenticated %}
+        <h5 class="offcanvas-title" id="staticBackdropLabel">ようこそ、{{user.user_name}}さん！</h5>
+        {% endif %}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column p-0 pt-lg-3 overflow-y-auto">
+        <ul class="nav flex-column align-items-end gap-3">
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'survey-list'%}">
+                    アンケート一覧
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'survey-create'%}">
+                    アンケート作成
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    ユーザー情報
+                </a>
+            </li>
+            <li class="nav-item">
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link"> ログアウト</button>
+                </form>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'survey-list'%}">ログイン</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'signup' %}">新規登録</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

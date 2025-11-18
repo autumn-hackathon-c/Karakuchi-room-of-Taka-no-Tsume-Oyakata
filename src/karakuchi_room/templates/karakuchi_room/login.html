@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h2>ログイン</h2>
+</div>
+<div class="login-form card p-3 mx-auto">
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Emailアドレス</label>
+            {{ form.username }}
+            {% comment %} <input class="form-control" type="text" id="email" name="email"> {% endcomment %}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.password.id_for_label }}">パスワード</label>
+            {{ form.password }}
+            {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
+        </div>
+        <div class="mb-3 d-flex justify-content-between">
+            <a href="{% url 'signup' %}">新規登録へ</a>
+            <button type="submit" class="btn btn-primary">ログイン</button>
+        </div>
+    </form>
+</div>
+{% endblock content%}

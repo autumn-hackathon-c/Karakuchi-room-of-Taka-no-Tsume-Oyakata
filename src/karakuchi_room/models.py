@@ -1,6 +1,7 @@
 from django.db import models
 from uuid import uuid4
 from django.conf import settings
+from django.utils.timezone import now
 from django.contrib.auth.models import (
     BaseUserManager,
     AbstractBaseUser,
@@ -8,24 +9,71 @@ from django.contrib.auth.models import (
 )
 
 
+# QuerySetベースの論理削除用クラス。
+class SoftDeleteQuerySet(models.QuerySet):
+    # bulk操作(複数レコードに対して一括で処理する操作のこと)でも物理削除せず、削除フラグを立てる
+    def soft_delete(self):
+        return super().update(is_deleted=True, updated_at=now())
+
+    # 通常表示用（未削除データのみ）
+    def active(self):
+        return self.filter(is_deleted=False)
+
+    # 削除済データのみ
+    def deleted(self):
+        return self.filter(is_deleted=True)
+
+
+# 「未削除データのみ」を扱うManager。
+class SoftDeleteManager(models.Manager):
+    # objectsを経由する通常のQueryは未削除データだけを返す
+    def get_queryset(self):
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
+
+
+#  個別オブジェクトの delete() も論理削除に差し替え
+class SoftDeleteModel(models.Model):
+    objects = SoftDeleteManager()
+    all_objects = SoftDeleteQuerySet.as_manager()
+
+    #   この部分は命名を変えると物理削除なるので変更しない。
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.updated_at = now()
+        self.save(update_fields=["is_deleted", "updated_at"])
+        # 子も論理削除へ
+        for rel in self._meta.related_objects:
+            if rel.one_to_many or rel.one_to_one:
+                accessor = rel.get_accessor_name()
+                for obj in getattr(self, accessor).all():
+                    obj.delete()  # 子の SoftDelete.delete() が呼ばれる
+
+    class Meta:
+        abstract = True
+
+
 # カスタムユーザのマネージャークラス（ユーザ作成用のロジックを提供）
 class UserManager(BaseUserManager):
     # 一般ユーザの作成
-    def create_user(self, user_name, email_address, password, **extra_fields):
+    def create_user(self, user_name, email, password, **extra_fields):
         if not user_name:
             raise ValueError("名前は必須です")
-        if not email_address:
+        if not email:
             raise ValueError("メールアドレスは必須です")
         if not password:
             raise ValueError("パスワードは必須です。")
 
         # Emailを正規化
-        email_address = self.normalize_email(email_address)
+        email = self.normalize_email(email)
+
+        # 管理者権限なし(django管理画面の公式設定)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
 
         # ユーザーインスタンスの作成
         user = self.model(
             user_name=user_name,
-            email_address=email_address,
+            email=email,
             # 追加の属性を柔軟に設定
             **extra_fields,
         )
@@ -39,46 +87,54 @@ class UserManager(BaseUserManager):
         return user
 
     # スーパーユーザ（管理者）の作成
-    def create_superuser(self, user_name, email_address, password, **extra_fields):
+    def create_superuser(self, user_name, email, password, **extra_fields):
+        # ✅ 管理者権限あり
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
         # ユーザーインスタンスの作成
-        user = self.create_superuser(
+        user = self.create_user(
             user_name=user_name,
-            email_address=self.normalize_email(email_address),
+            email=self.normalize_email(email),
             password=password,
             # 追加の属性を柔軟に設定
             **extra_fields,
         )
 
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
         return user
 
 
 # Users テーブル
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, SoftDeleteModel):
     id = models.UUIDField(
         primary_key=True, default=uuid4, null=False, editable=False, verbose_name="ID"
     )
 
     user_name = models.CharField(max_length=50, null=False, verbose_name="名前")
 
-    email_address = models.EmailField(
+    email = models.EmailField(
         max_length=255, unique=True, null=False, verbose_name="メールアドレス"
     )
+    # default アプリ（Python側）
 
-    is_admin = models.BooleanField(default=False, verbose_name="管理者フラグ")
+    # db_default データベース（SQL側）DBの DEFAULT 制約を付与するためにこちらが必要
+
+    is_staff = models.BooleanField(
+        default=False, db_default=False, verbose_name="管理者フラグ"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     # passwordカラムはAbstractBaseUser に含まれているので作成不要
 
     # ログイン時一意の識別子として使用される
-    USERNAME_FIELD = "email_address"
+    USERNAME_FIELD = "email"
     # superuser作成時追加で求められるフィールド
     REQUIRED_FIELDS = ["user_name"]
 
@@ -97,12 +153,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 # Surveysテーブル
-class Survey(models.Model):
+class Survey(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.PROTECT,  # 親ユーザー削除を禁止（論理削除に合わせる）
+        on_delete=models.CASCADE,
         related_name="surveys",
         db_column="user_id",
         null=False,
@@ -115,8 +171,24 @@ class Survey(models.Model):
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
+    tag_survey = models.ManyToManyField(
+        "Tag", through="TagSurvey", related_name="surveys", verbose_name="タグ"
+    )
+    # ManyToManyFieldは多対多の関係を表している
+    # DB上は中間テーブルがあるがDjango上では認識されずDjangoが勝手に中間テーブルを作ってしまう
+    # なのでここで中間テーブル(TagSurvey)があることをDjangoに明示している
 
-    is_public = models.BooleanField(default=False, verbose_name="公開フラグ")
+    # ✅ 状態を自動判定するプロパティ
+    @property
+    def is_expired(self):
+        # 現在時刻が end_at を過ぎていれば True
+        if self.end_at is None:
+            return False  # 終了日時が設定されていない場合は受付中扱い
+        return now() >= self.end_at
+
+    is_public = models.BooleanField(
+        default=False, db_default=False, verbose_name="公開フラグ"
+    )
 
     OPEN_STATUS = (
         (0, "受付中"),
@@ -125,12 +197,15 @@ class Survey(models.Model):
     is_open = models.PositiveSmallIntegerField(
         choices=OPEN_STATUS,
         default=0,
+        db_default=0,
         verbose_name="投票フラグ",
     )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="作成日時")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "surveys"
@@ -146,7 +221,7 @@ class Survey(models.Model):
 
 
 # Tagsテーブル
-class Tag(models.Model):
+class Tag(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     tag_name = models.CharField(max_length=50, verbose_name="タグ名", null=False)
@@ -155,7 +230,9 @@ class Tag(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tags"
@@ -167,14 +244,16 @@ class Tag(models.Model):
         ]
 
     def __str__(self):
-        return f"タグ名: {self.tag.tag_name}"
+        return f"タグ名: {self.tag_name}"
+        # return f"タグ名: {self.tag.tag_name}"
+        # しほ：フィールド名修正しました。
 
 
 # Tag_Surveysテーブル
-class TagSurvey(models.Model):
+class TagSurvey(SoftDeleteModel):
     tag = models.ForeignKey(
         Tag,  # Tagモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="tag_id",
         related_name="tag_surveys",
         verbose_name="タグID",
@@ -184,7 +263,7 @@ class TagSurvey(models.Model):
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="tag_surveys",
         verbose_name="アンケートID",
@@ -196,7 +275,9 @@ class TagSurvey(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新日時")
 
-    is_deleted = models.BooleanField(default=False, verbose_name="削除フラグ")
+    is_deleted = models.BooleanField(
+        default=False, db_default=False, verbose_name="削除フラグ"
+    )
 
     class Meta:
         db_table = "tag_surveys"
@@ -207,12 +288,12 @@ class TagSurvey(models.Model):
 
 
 # Optionsテーブル
-class Option(models.Model):
+class Option(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="options",
         verbose_name="アンケートID",
@@ -239,6 +320,7 @@ class Option(models.Model):
 
     is_deleted = models.BooleanField(
         default=False,
+        db_default=False,
         verbose_name="削除フラグ",
     )
 
@@ -256,12 +338,12 @@ class Option(models.Model):
 
 
 # Votesテーブル
-class Vote(models.Model):
+class Vote(SoftDeleteModel):
     id = models.AutoField(primary_key=True, verbose_name="ID")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Userモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="user_id",
         related_name="votes",
         verbose_name="ユーザーID",
@@ -271,7 +353,7 @@ class Vote(models.Model):
 
     survey = models.ForeignKey(
         Survey,  # Surveyモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="survey_id",
         related_name="votes",  # option.votes.all()
         verbose_name="アンケートID",
@@ -281,7 +363,7 @@ class Vote(models.Model):
 
     option = models.ForeignKey(
         Option,  # Optionモデル（親）
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         db_column="option_id",
         related_name="votes",  # option.votes.all()
         verbose_name="選択ID",
@@ -307,6 +389,7 @@ class Vote(models.Model):
 
     is_deleted = models.BooleanField(
         default=False,
+        db_default=False,
         verbose_name="削除フラグ",
     )
 
