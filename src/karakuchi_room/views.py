@@ -43,6 +43,11 @@ from karakuchi_room.models import Survey, Vote
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
+import os
+import json
+import openai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import Count, Exists, OuterRef, Q
 
@@ -52,6 +57,8 @@ Exists   : サブクエリで「該当するレコードが存在するか」を
 OuterRef : サブクエリの中で外側のクエリ（親クエリ）の値を参照する
 Q        : 複雑な条件を OR / AND / NOT で組み合わせる
 """
+
+openai.api_key = os.environ.get("API_KEY")
 
 
 # 新規登録
@@ -421,7 +428,7 @@ class VoteCreateView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy("survey-detail", kwargs={"pk": self.object.survey.pk})
-
+    
 
 # 投票編集画面
 class VoteUpdateView(LoginRequiredMixin, UpdateView):
@@ -477,3 +484,47 @@ def vote_delete(request, pk):
 # TagSurvey.objects.filter(survey=survey).delete()
 # 編集対応するなら削除機能も必要
 # models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
+
+
+# コメント生成AI機能
+@csrf_exempt
+def soften_comment(request):
+    """コメントを柔らかい表現に変換し、誹謗中傷をチェックする"""
+
+    data = json.loads(request.body)
+    text = data.get("text", "")
+
+    if not text.strip():
+        return JsonResponse({"error": "文章が入力されていません。"}, status=400)
+
+    # -----------------------------
+    # ① 誹謗中傷フィルター（Moderation）
+    # -----------------------------
+    moderation = openai.Moderation.create(input=text)
+    if moderation.results[0].flagged:
+        return JsonResponse({
+            "error": "不適切な内容の可能性があります。修正してください。"
+        }, status=400)
+
+    # -----------------------------
+    # ② 柔らかい表現への書き換え（GPT）
+    # -----------------------------
+    prompt = f"""
+次の文章を、柔らかく丁寧な表現に書き換えてください。
+攻撃的・失礼・ネガティブな要素があればすべて取り除き、
+相手に配慮した優しい文章にしてください。
+
+元の文章：
+{text}
+"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    soft_text = response.choices[0].message["content"]
+
+    return JsonResponse({"soft_text": soft_text})
+
+

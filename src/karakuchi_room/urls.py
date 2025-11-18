@@ -1,7 +1,7 @@
 from django.urls import path
 
 from django.contrib.auth.views import LogoutView
-from .views import survey_delete, vote_delete
+from .views import survey_delete, vote_delete,soften_comment
 
 from karakuchi_room.views import MyLoginView, SignUpView
 
@@ -56,4 +56,6 @@ urlpatterns = [
         VoteUpdateView.as_view(),
         name="vote-edit",
     ),
+    # コメント生成AI機能
+    path("api/comment/soften/", soften_comment, name="soften-comment"),
 ]
