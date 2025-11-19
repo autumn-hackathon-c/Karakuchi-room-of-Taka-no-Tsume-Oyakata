@@ -1,26 +1,32 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
+
 # 会員登録する」ためにCreateViewが必要
 # CREATEVIEWは汎用的なビューだからdjango.views.genericの中のCreateViewになる
 # ここはトイトイさんとコンフリクト起こすかも
 
 from django.contrib.auth.views import LoginView
+
 # LoginViewをインポートする事でテンプレート名や
 # リダイレクト先を指定するだけでログイン画面を作成できる
 # django.contrib.auth.viewは認証用ビュー群
 
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 # 裏側のロジック(view)でコントロールする
 # ログインしているユーザーだけにアクセスを許可する
 
 
 from django.urls import reverse_lazy
+
 # reverse_lazyをインポートすることでリダイレクト先を指定できる
 
 from .forms import CustomUserCreationForm, LoginForm
+
 # 同じアプリケーション内のforms.pyからCustomUserFormとLoginFormをインポート
 
 from .models import Tag, TagSurvey
+
 # タグを表示、選択するためにmodels.pyから中間テーブルとそれに紐づいているテーブルをインポート
 
 # from django.shortcuts import render
@@ -39,7 +45,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote
+from karakuchi_room.models import Survey, Vote, Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -147,20 +153,61 @@ class SurveyDetailView(LoginRequiredMixin, DetailView):
 
         ctx["vote"] = user_vote  # ← これまでの ctx["vote"] と同じ意味
 
-        # これまでのコメント一覧（このアンケートの全投票）
+        # # これまでの投票一覧（このアンケートの全投票）
         ctx["vote_list"] = (
             Vote.objects.filter(survey=survey, is_deleted=False)
             .select_related("user", "option")
             .order_by("-created_at")
         )
 
-        # 選択項目ごとの票数（このアンケート内）
+        # # 選択項目ごとの票数（このアンケート内）
+        # ctx["option_vote_counts"] = (
+        #     Vote.objects.filter(survey=survey, is_deleted=False)
+        #     .values("option__id", "option__label")
+        #     .annotate(vote_count=Count("id"))
+        #     .order_by("option__id")
+        # )
+
+        # 選択項目ごとの票数（このアンケート内）Option を起点に、すべての選択肢を取得しつつ投票数（0票も含む）を集計
         ctx["option_vote_counts"] = (
-            Vote.objects.filter(survey=survey, is_deleted=False)
-            .values("option__id", "option__label")
-            .annotate(vote_count=Count("id"))
-            .order_by("option__id")
+            Option.objects.filter(
+                survey=survey, is_deleted=False
+            )  # 論理削除されていないオプションを取得
+            .annotate(
+                vote_count=Count("votes", filter=Q(votes__is_deleted=False))
+            )  # 投票数を集計（論理削除されていないもの）
+            .order_by("id")  # オプションIDで並び替え
         )
+
+        # コメント付きの投票を取得(コメントなしの投票を除外)
+        ctx["vote_with_comment"] = (
+            Vote.objects.filter(survey=survey, is_deleted=False)
+            .exclude(comment__isnull=True)
+            .exclude(comment="")
+            .select_related("option")
+            .order_by("-created_at")
+        )
+
+        # Chart.js 用の配列を作る 選択肢と凡例の色を対応付ける
+        labels = []
+        vote_counts = []
+        colors = []
+        # 固定パレット
+        COLOR_PALETTE = ["#34d399", "#f87171", "#60a5fa", "#fbbf24"]
+
+        option_color_map = {}  # option_id → 色マップ
+
+        for idx, opt in enumerate(ctx["option_vote_counts"]):
+            labels.append(opt.label)
+            vote_counts.append(opt.vote_count)
+            color = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+            colors.append(color)
+            option_color_map[opt.id] = color
+
+        ctx["chart_labels"] = labels
+        ctx["chart_counts"] = vote_counts
+        ctx["chart_colors"] = colors
+        ctx["option_color_map"] = option_color_map
 
         return ctx
 
@@ -271,8 +318,22 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
             self.object.save()
+
             formset.instance = self.object
-            formset.save()
+
+            # commit=False にして、削除対象・更新対象を分ける
+            opts = formset.save(commit=False)
+
+            # 削除マークが付いたものを論理削除
+            for obj in formset.deleted_objects:
+                obj.is_deleted = True
+                obj.save()
+
+            # 更新／新規のものを保存
+            for opt in opts:
+                opt.is_deleted = False  # 削除マークがないものは有効化
+                opt.survey = self.object
+                opt.save()
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)
