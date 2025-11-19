@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // フォームの削除
     function removeForm(item) {
         const deleteInput = item.querySelector("input[name$='-DELETE']");
+        if (formCount <= minForms) return;
         if (deleteInput) {
         // 既存オプション (DBにあるもの) の場合 → 削除マークを付けて非表示に
         // deleteInput.checked = true;
