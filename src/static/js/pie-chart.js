@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", function() {
             }]
         }
     }
+
+    // プラグイン登録
+    Chart.register(ChartDataLabels);
     
     // プラグイン：HTMLに凡例を出す
     const htmlLegendPlugin = {
@@ -111,6 +114,22 @@ document.addEventListener("DOMContentLoaded", function() {
             maintainAspectRatio: false,
             responsible: false,
             plugins: {
+                datalabels: {
+                    color: "#fff", // ラベル文字色
+                    // totalCountが0の時はラベルを表示しない
+                    display: (context) => {
+                        return totalCount !== 0;
+                    },
+                    formatter: (value, context) => {
+                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); 
+                        const percentage = (value / total * 100).toFixed(1) + "%";
+                        return value + "票\n" + percentage;
+                    },
+                    font: {
+                        weight: "bold",
+                        size: 12,
+                    }
+                },
                 // 表示されるラベルをどこに置くかという設定
                 legend: {
                     display: false,
@@ -121,6 +140,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         },
-        plugins: [htmlLegendPlugin]
+        plugins: [htmlLegendPlugin, ChartDataLabels]
     });
 });
