@@ -3,9 +3,11 @@
 {% load my_filters %}
 
 {% block content %}
-
 <div class="header page-title my-4">
-    <h2>{{ survey.title }}</h2>
+    <h2>アンケート詳細</h2>
+</div>
+<div class="header survey-title my-4 fw-bold">
+    <h3>{{ survey.title }}</h3>
 </div>
 {% comment %} <div class="selcted-tags w-100 mx-auto py-2 row">
     {{ for tag in survey.tag_survey.all }}
