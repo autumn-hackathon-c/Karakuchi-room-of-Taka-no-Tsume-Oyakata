@@ -177,7 +177,7 @@ class Survey(SoftDeleteModel):
             previous_state = Survey.objects.filter(pk=self.pk).first()
         else:
             previous_state = None
-            
+
         # --- 新規作成時（pkなし）で公開の場合 ---
         if previous_state is None:
             if self.is_public and self.start_at is None:
