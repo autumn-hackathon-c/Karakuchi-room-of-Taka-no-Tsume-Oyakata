@@ -318,8 +318,22 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
             self.object.save()
+
             formset.instance = self.object
-            formset.save()
+
+            # commit=False にして、削除対象・更新対象を分ける
+            opts = formset.save(commit=False)
+
+            # 削除マークが付いたものを論理削除
+            for obj in formset.deleted_objects:
+                obj.is_deleted = True
+                obj.save()
+
+            # 更新／新規のものを保存
+            for opt in opts:
+                opt.is_deleted = False  # 削除マークがないものは有効化
+                opt.survey = self.object
+                opt.save()
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)

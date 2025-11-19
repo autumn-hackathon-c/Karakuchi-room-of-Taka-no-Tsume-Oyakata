@@ -39,14 +39,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // フォームの削除
     function removeForm(item) {
-        if (formCount <= minForms) return;
-
+        const deleteInput = item.querySelector("input[name$='-DELETE']");
+        if (deleteInput) {
+        // 既存オプション (DBにあるもの) の場合 → 削除マークを付けて非表示に
+        // deleteInput.checked = true;
+        deleteInput.value = "on";
+        item.classList.add("d-none");
+        } else {
+        // 新しく追加したフォーム (まだ DB にない) の場合 → 削除して TOTAL_FORMS を調整
         item.remove();
         formCount--;
         totalFormsInput.value = formCount;
-
-        // 削除後、フォームのインデックスを更新
         updateFormIndexes();
+        }
     }
 
     // インデックスを再計算して更新

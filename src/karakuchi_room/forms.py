@@ -6,7 +6,7 @@ settings.pyのAUTH_USER_MODELに設定された
 
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
 from .models import Survey, Option, Vote, Tag
 
 
@@ -306,6 +306,14 @@ class SurveyFormDraft(forms.ModelForm):
         }
 
 
+# DELETEフィールドを隠しフィールドに書き換え、JSで操作する
+class MyInlineFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if "DELETE" in form.fields:
+            form.fields["DELETE"].widget = HiddenInput()
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
@@ -313,7 +321,8 @@ OptionFormSetForDraft = inlineformset_factory(
     fields=["label"],
     extra=0,  # 表示する空フォーム数(編集画面のため空はなし)
     max_num=4,
-    can_delete=True,
+    formset=MyInlineFormSet,
+    can_delete=True,  # 論理削除のチェックに使う
     widgets={
         "label": forms.TextInput(
             attrs={"class": "form-control", "placeholder": "選択肢を入力"}
