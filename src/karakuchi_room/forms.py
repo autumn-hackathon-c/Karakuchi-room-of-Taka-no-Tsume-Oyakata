@@ -173,19 +173,36 @@ class LoginForm(AuthenticationForm):
 
         return self.cleaned_data
 
+# これは必須ではないが、入れておくとUIが綺麗になるのと実務でよく使われる
+# これがないとブラウザに表示した時にタグ名：雑談, タグ名：プログラミング....のように全てにタグ名：がついてしまう
+# タグ名だけを表示するためのカスタムフィールド
+class TagMultipleChoiceField(forms.ModelMultipleChoiceField):
+    # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
+    # ここではタグを複数選択させるために使っている
+    def label_from_instance(self, obj):
+        # objには Tag のインスタンスが入る
+        return obj.tag_name  # タグ名だけをラベルにする
+
+
+
+
 
 # Django のフォームクラスを使用するために ModelForm を継承
 
 
 # アンケート新規作成
 class SurveyCreateForm(forms.ModelForm):
-    # しほ：タグをチェックボックスで選択できるように追加
-    tag_survey = forms.ModelMultipleChoiceField(
-        # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
+    # しほ：タグをセレクトボックスで選択できるように追加
+    tag_survey = TagMultipleChoiceField(
+        # TagMultipleChoiceFieldこれは上でforms.ModelMultipleChoiceFieldを引数に入れたカスタムフィールド
         # ここではタグを複数選択させるために使っている
         queryset=Tag.objects.filter(is_deleted=False),
         # 論理削除されていないタグのみを表示
-        widget=forms.CheckboxSelectMultiple,  # チェックボックスで表示
+        widget=forms.SelectMultiple(   # セレクトボックスで表示
+            attrs={"class": "form-select" }
+            # BootstrapのCSSスタイルを指定。
+            # form-selectを指定することで見た目が整ったセレクトボックスになる
+        ),  
         required=False,
         # requiredは入力必須かどうかを指定している
         # ここをFalseにすることでタグを選択しなくてもフォームは通る
@@ -354,6 +371,21 @@ class SurveyFormPublished(forms.ModelForm):
         if commit:
             survey.save()
         return survey
+    
+#　アンケート編集画面でのタグフォームはclassを分ける必要がある
+# なぜか？：SurveyFormDraftはis_public(公開状態),end_at(終了日時),title,bodyなど本体のデータが入っている
+# つまりSurvey(アンケート)モデルそのものを編集するためのフォーム
+# そこにタグまで入れてしまうとSurveyFormDraftの責務が増えすぎて壊れてしまう
+class TagForm(forms.Form):
+    tag_survey = TagMultipleChoiceField(
+        queryset=Tag.objects.filter(is_deleted=False),
+        widget=forms.SelectMultiple(
+            attrs={ "class": "form-select" }
+        ),
+        required=False,
+    )
+
+
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成

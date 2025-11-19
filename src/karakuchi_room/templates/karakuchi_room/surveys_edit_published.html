@@ -62,6 +62,12 @@
                         {% endfor %}
                     {% endif %}
                 </div>
+                {% comment %} しほ：ここからタグフォームを追加してます {% endcomment %}
+                <div>
+                    <label class="form-label" for="{{ form.tag_survey.id_for_label }}">タグ(任意)</label>
+                    {{ form.tag_survey }}
+                </div>
+                {% comment %} ここまで {% endcomment %}
                 <!-- 選択肢　別途JSでの実装が必要 ここまで-->
                 <div class="mb-3">
                     <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>

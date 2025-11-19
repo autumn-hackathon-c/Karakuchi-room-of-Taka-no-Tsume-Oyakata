@@ -68,14 +68,9 @@
                     <button type="button" class="btn btn-secondary">選択肢を追加</button>
                 </div>
                 {% comment %} タグを選択 {% endcomment %}
-                <div>
-                    <label>タグ</label>
-                    {% for checkbox in form.tag_survey %}
-                        <div class="form-check">
-                            {{ checkbox.tag }}
-                            {{ checkbox.choice_label}}
-                        </div>
-                    {% endfor %}    
+                <div class="mt-4">
+                    <label class="form-label" for="{{ form.tag_survey.id_for_label }}">タグ（任意）（複数選択可能）</label>
+                    {{ form.tag_survey }}    
                 </div>
 
                 <!-- 選択肢　別途JSでの実装が必要 ここまで-->
