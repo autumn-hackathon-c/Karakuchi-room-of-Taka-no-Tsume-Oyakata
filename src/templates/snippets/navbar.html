@@ -2,18 +2,18 @@
     <div class="col-auto">
         {% comment %} デスクトップ／タブレット用メニュー（md以上で表示） {% endcomment %}
         <div class="navbar-nav">
-            <div class="d-none d-md-flex align-items-center">
+            <div class="d-none d-md-flex align-items-center gap-4">
                 {% if user.is_authenticated %}
-                <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                    <a class=" me-3" href="">ユーザー情報</a>
-                    <form action="{% url 'logout' %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary">ログアウト</button>
+                <a href="{% url 'survey-create'%}">アンケート作成</a>
+                <a href="{% url 'survey-list'%}">アンケート一覧
+                <a href="">ユーザー情報</a>
+                <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-logout-btn nav-link">ログアウト</button>
                     </form>
-                    {% else %}
-                    <a class="btn btn-primary me-3" href="{% url 'survey-list'%}">ログイン</a>
-                    <a class="btn btn-outline-primary" href="{% url 'signup' %}">新規登録</a>
+                {% else %}
+                <a href="{% url 'survey-list'%}">ログイン</a>
+                <a href="{% url 'signup' %}">新規登録</a>
                     {% endif %}
             </div>
         </div>

@@ -1,171 +1,156 @@
-<!DOCTYPE html>
-<html lang="ja">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-</head>
+{% load my_filters %}
 
-<body>
-    {% comment %} ナビゲーションバー仮 {% endcomment %}
-    <nav>
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center py-3">
-                <div class="col">
-                    <a href=""><img width="100" src="image/logo.png" alt="鷹の爪親方の辛口部屋のロゴ"></a>
-                </div>
-                <div class="col-auto">
-                    <div class="d-flex align-items-center">
-                        <a class="me-3" href="{% url 'survey-create'%}">アンケート作成</a>
-                        <a class="me-3" href="{% url 'survey-list'%}">アンケート一覧
-                        <a class=" me-3" href="">ユーザー情報</a>
-                        {% comment %} Django5から<a href="{% url 'logout' %}"> （GET）が禁止され<form method="post"> （POST）でログアウトできるようになっている {% endcomment %}
-                            <form action="{% url 'logout' %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-primary">ログアウト</button>
-                            </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- ナビゲーションバー仮 -->
-    </nav>
-    <div class="container">
-        {% comment %}実装時、{% block content}{% endblock content %}外はbase.htmlから参照する{% endcomment %}
-        {% block content %}
-        <div class="header">
-            <h2>{{ survey.title }}</h2>
-        </div>
-        <div class="selcted-tags w-100 mx-auto py-2 row">
-            {% comment %}
-            <!-- {{ for タグ表示 }} -->
-            {% endcomment %}
-            <div class="col-auto me-2 mb-2 bg-secondary-subtle rounded-5">{{ タグ }}</div>
-            {% comment %}
-            <!-- {{ endfor タグ表示 }} -->
-            {% endcomment %}
-        </div>
-        <div class="row mb-2">
-            <span class="col-auto">投票開始: {{ survey.start_at }}</span>
-            <span class="col-auto">投票期限: {{ survey.end_at }}まで</span>
-        </div>
-        {% comment %} アンケート作成者本人の場合 {% endcomment %}
-        {% if survey.user == request.user %}
-            <div class="d-flex justify-content-between">
-                {% comment %}
-                <div>
-                    <span class="col-auto">23 votes</span>
-                </div>
-                {% endcomment %}
-                <div>
-                    {% if survey.is_public %}
-                        <a href="{% url 'survey-edit' survey.pk %}">編集</a>
-                    {% else %}
-                        <a href="{% url 'survey-temporary-edit' survey.pk %}">編集</a>
-                    {% endif %}
-                    <a href="{% url 'survey-delete' survey.pk %}">削除</a>
-                </div>
-            </div>
-        {% endif %}
-        {% comment %} アンケート作成者で本人ではない場合 {% endcomment %}
-        {% comment %} <div class="d-flex justify-content-end">
-            <span class="col-auto">2026/1/20</span>
-        </div> {% endcomment %}
-        <div class="discription border border-secondary p-2 mt-3">
-            <p>{{ survey.description }}</p>
-        </div>
-        {% comment %} 円グラフ chart.jsで実装する {% endcomment %}
-        <div class="m-3 p-3">
-            {% for option in option_list %}
-                {{ option.label }}
-            {% endfor %}
-            <canvas id="myChart"></canvas>
-        </div>
-        {% comment %} ユーザーが投票している場合、表示 {% endcomment %}
+{% block content %}
+<div class="header page-title my-4">
+    <h2>アンケート詳細</h2>
+</div>
+<div class="header survey-title my-4 fw-bold">
+    <h3>{{ survey.title }}</h3>
+</div>
+{% comment %} <div class="selcted-tags w-100 mx-auto py-2 row">
+    {{ for tag in survey.tag_survey.all }}
+    <div class="col-auto me-2 mb-2 bg-secondary-subtle rounded-5">{{ tag.tag_name }}</div>
+    {{ endfor }}
+</div> {% endcomment %}
+<div class="row mb-2">
+    {% if survey.start_at %}
+    <span class="col-auto">投票開始:{{ survey.start_at }}</span> 
+    {% else %}
+    <span class="col-auto">投票開始: 不明</span> 
+    {% endif %}
+
+    {% if survey.end_at %}
+    <span class="col-auto">投票期限: {{ survey.end_at }}まで</span>
+    {% else %}
+    <span class="col-auto">投票期限: 指定なし</span>
+    {% endif %}
+</div>
+<div>
+    <span class="col-auto">投票総数：{{vote_list.count}}票</span>
+</div>
+{% comment %} アンケート作成者本人の場合 {% endcomment %}
+{% if survey.user == request.user %}
+<div class="alert alert-primary" role="alert">
+    <div class="d-flex justify-content-between">
         <div>
-            {% if vote and vote.pk %}
-                <p>
-                    <a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
-                </p>
-            {% else %}
-                <p>まだ投票していません。</p>
-            {% endif %}
+            あなたはアンケート作成者です！
         </div>
-        {% comment %} ユーザーが投票している場合、表示 ここまで{% endcomment %}
-        <div class="comment-list">
+        <div class="d-flex justify-content-between gap-3">
+            {% if survey.is_public %}
             <div>
-                <h4>みんなのコメント</h4>
+                <a href="{% url 'survey-edit' survey.pk %}">編集</a>
             </div>
-            <ul class="list-unstyled">
-                <li>
-                    <div class="card p-3">
-                        <div class="d-flex">
-                            {% comment %} 円グラフの凡例に色をあわせる {% endcomment %}
-                            <div class="text-primary me-2">
-                                <span>■</span>
-                            </div>
-
-                            {% comment %} 全てのコメント一覧 {% endcomment %}
-                            {% if vote_list %}
-                                <ul>
-                                    {% for all_comment in vote_list %}
-                                        <li class="mb-2">
-                                            「{{ all_comment.comment|default:"（コメントなし）" }}」<br>
-                                            選択肢：{{ all_comment.option.label }}<br>
-                                            投稿日時：{{ all_comment.created_at|date:"Y-m-d H:i" }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p>まだコメント付きの投票はありません。</p>
-                            {% endif %}
-                        </div>
-                        <hr>
-                            {% comment %} 選択肢の票数を集計 {% endcomment %}
-                            {% if option_vote_counts %}
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>選択肢</th>
-                                            <th>票数</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for count in option_vote_counts %}
-                                            <tr>
-                                                <td>{{ count.option__label }}</td>
-                                                <td>{{ count.vote_count }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            {% else %}
-                            <p>まだ有効な投票はありません。</p>
-                        {% endif %}
-                        {% comment %} 投票者本人の場合  {% endcomment %}
-                        <div>
-                                {% comment %} 複数のテーブルが関係する場合のカラムの表示方法 {% endcomment %}
-                                <p>選んだ選択肢：{{ vote.option.label }}</p>
-                                
-                                <p>コメント：{{ vote.comment }}</p>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <div>
-                                <span class="col-auto">{{ survey.end_at }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+            {% else %}
+            <div>
+                <a href="{% url 'survey-temporary-edit' survey.pk %}">編集</a>
+            </div>
+            {% endif %}
+            <div>
+                <a href="{% url 'survey-delete' survey.pk %}">削除</a>
+            </div>
         </div>
-        {% endblock content %}
     </div>
-    <footer class="text-center p-3">
-        <span class="text-muted"> &copy; Team C 2025 Autumn</span>
-    </footer>
-</body>
+</div>
+{% endif %}
 
-</html>
+<div class="discription border border-secondary p-2 my-3">
+    {% if survey.description %}
+    <p>{{ survey.description }}</p>
+    {% else %}
+    <p>アンケートの詳細説明はありません</p>
+    {% endif %}
+</div>
+
+{% comment %} ユーザーが投票済みか否か {% endcomment %}
+<div>
+    {% if vote and vote.pk %}
+    <div class="alert alert-primary d-flex justify-content-start gap-4 align-items-center" role="alert">
+        <div>
+            あなたは投票済みです！
+        </div>
+        <div>
+            <a href="{% url 'vote-detail' vote.pk %}">投票詳細へ</a>
+        </div>
+    </div>
+    {% comment %} ↓未投票の場合は投票画面に遷移or作成者は自分のアンケートに投票しないため不要 {% endcomment %}
+    {% comment %} {% else %}  
+    <div class="alert alert-primary d-flex align-items-center" role="alert">
+        あなたは投票していません
+    </div> {% endcomment %}
+    {% endif %}
+</div>
+
+{% comment %} JSON データを安全に埋め込む {% endcomment %}
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_counts|json_script:"chart-counts" }}
+{{ chart_colors|json_script:"chart-colors" }}
+
+{% comment %} 円グラフと凡例 {% endcomment %}
+{% include "karakuchi_room/snippets/chart_and_legends.html" %}
+
+
+{% comment %} 選択肢の票数を集計 JavaScriptが有効にならない時のために表示しておくとユーザーに優しいかも {% endcomment %}
+<div>
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th class="col-10 col-md-11">選択肢</th>
+                <th class="col-2 col-md-1">票数</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for count in option_vote_counts %}
+            <tr>
+                <td>{{ count.label }}</td>
+                <td>{{ count.vote_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="comment-list my-4">
+    <div>
+        <h4 class="subheading">みんなのコメント</h4>
+    </div>
+
+
+    {% if vote_with_comment.count %}
+    <ul class="list-unstyled">
+        {% for comment in vote_with_comment %}
+        <li class="mb-2">
+            <div class="card p-3">
+                <div class="row">
+                    {% comment %} 円グラフの凡例に色をあわせる {% endcomment %}
+                    {% with color=option_color_map|dict_get:comment.option.id %}
+                    <div class="col-auto">
+                        <span style="color: {{color}};">
+                            ■
+                        </span>
+                    </div>
+                    {% endwith %}
+                        <div class="col">
+                            <div class="text-muted" 
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{comment.option.label|escape}}" data-bs-offset="-250,0">
+                                選択肢：{{ comment.option.label|truncatechars:20}}
+                            </div>
+                            <div>
+                                {{ comment.comment}}
+                            </div>
+                            <div class="text-muted">
+                                投稿日時：{{ comment.created_at|date:"Y-m-d H:i" }}
+                            </div>
+                        </div>
+                    </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>コメントがありません</p>
+    {% endif %}
+
+
+</div>
+
+{% endblock content %}
