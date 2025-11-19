@@ -59,7 +59,7 @@ document.getElementById("ai_soften_btn").addEventListener("click", function () {
             // ----------------------------------------------------
             if (data.error) {
                 document.getElementById("ai_result").innerHTML =
-                    `<span class="text-danger">${data.error}</span>`;
+                    `<span style="color:#CC0000">${data.error}</span>`;
                 return; // ここで処理を止める
             }
 
@@ -69,7 +69,8 @@ document.getElementById("ai_soften_btn").addEventListener("click", function () {
             document.getElementById("comment_input").value = data.soft_text;
 
             // 変換完了メッセージを画面に表示
-            document.getElementById("ai_result").innerText =
-                "AIが文章を柔らかく書き換えました。";
+            const result = document.getElementById("ai_result");
+            result.style.color = "#007700";   // ← 緑色にする
+            result.innerText = "AIが文章を柔らかく書き換えました。";
         });
 });

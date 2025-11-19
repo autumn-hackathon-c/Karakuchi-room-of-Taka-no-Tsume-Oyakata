@@ -46,15 +46,15 @@
         {{ form.comment }}
     </div>
     {% comment %} 追加機能 文章加工機能{% endcomment %}
-    <div class="edit-button text-center">
+    <!-- AI の結果メッセージ -->
+    <div id="ai_result" class="mb-4 text-center"></div>
+
+    <div class="edit-button text-center mb-4">
         <!-- AIで柔らかくするボタン -->
         <button id="ai_soften_btn" type="button" class="btn btn-secondary px-5">
             AIで柔らかくする
         </button>
     </div>
-
-    <!-- AI の結果メッセージ -->
-    <div id="ai_result" class="text-muted mb-4"></div>
 
     <div class="submit-btn text-center">
         <button type="submit" class="btn btn-success px-5">投票！</button>
