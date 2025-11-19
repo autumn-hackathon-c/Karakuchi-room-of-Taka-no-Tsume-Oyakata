@@ -170,6 +170,29 @@ class Survey(SoftDeleteModel):
     description = models.TextField(blank=True, verbose_name="詳細")
 
     start_at = models.DateTimeField(null=True, blank=True, verbose_name="投票開始日時")
+
+    def save(self, *args, **kwargs):
+        # 既存の値を DB から取得（更新時のみ）
+        if self.pk:
+            previous_state = Survey.objects.filter(pk=self.pk).first()
+        else:
+            previous_state = None
+
+        # --- 新規作成時（pkなし）で公開の場合 ---
+        if previous_state is None:
+            if self.is_public and self.start_at is None:
+                self.start_at = now()
+
+        # --- 更新で非公開→公開に変わった瞬間 ---
+        if (
+            previous_state
+            and previous_state.is_public is False
+            and self.is_public is True
+        ):
+            if self.start_at is None:
+                self.start_at = now()
+        super().save(*args, **kwargs)
+
     end_at = models.DateTimeField(null=True, blank=True, verbose_name="投票終了日時")
     tag_survey = models.ManyToManyField(
         "Tag", through="TagSurvey", related_name="surveys", verbose_name="タグ"
