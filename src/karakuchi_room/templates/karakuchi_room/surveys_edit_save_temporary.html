@@ -21,15 +21,24 @@
             <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
             
             {{ formset.management_form }}
+
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
             <div id="option-container">
                 {% for option_name in formset.forms %}
                 {# 隠しフィールドを先に出力 #}
                 {% for hidden in option_name.hidden_fields %}
-                {{ hidden }}
+                    {# DELETE だけ除外する #}
+                    {% if "DELETE" not in hidden.name %}
+                        {{ hidden }}
+                    {% endif %}
                 {% endfor %}
                 <div class="option-item mb-3 d-flex justify-content-center align-items-center" >
                     {{ option_name.label }}
-                    {{ option_name.DELETE }}
                     <button type="button" class="btn btn-none remove-option">✕</button>
                 </div>
                 {% endfor %}
@@ -39,11 +48,15 @@
         </div>
 
         {% comment %} hidden 用のテンプレート空フォーム  {% endcomment %}
-        <div id="empty-form-template" style="display: none;">
+        <template id="empty-form-template">
+        {% for hidden in formset.empty_form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+        
         {% for field in formset.empty_form.visible_fields %}
             {{ field }}  {# 空フォームもラベルなしで出す #}
         {% endfor %}
-        </div>
+        </template>
 
         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
         <div class="mb-3">

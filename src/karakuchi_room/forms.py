@@ -7,6 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
+from django.forms import ValidationError
 from .models import Survey, Option, Vote, Tag
 
 
@@ -312,6 +313,35 @@ class MyInlineFormSet(BaseInlineFormSet):
         super().add_fields(form, index)
         if "DELETE" in form.fields:
             form.fields["DELETE"].widget = HiddenInput()
+
+    def clean(self):
+        super().clean()
+
+        valid_count = 0  # 有効な選択肢の数
+
+        for form in self.forms:
+            # クリーニング前のフォームは無視
+            if not hasattr(form, "cleaned_data"):
+                continue
+
+            # 削除対象ならスキップ
+            if form.cleaned_data.get("DELETE", False):
+                continue
+
+            # label が空ならスキップ
+            label = form.cleaned_data.get("label")
+            if not label:
+                continue
+
+            valid_count += 1
+
+        # ▼ ここからバリデーション ▼
+
+        if valid_count < 2:
+            raise ValidationError("選択肢は2つ以上必要です。")
+
+        if valid_count > 4:
+            raise ValidationError("選択肢は最大4つまでです。")
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成

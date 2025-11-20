@@ -304,25 +304,47 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
     # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        ctx = self.get_context_data()
-        formset = ctx["formset"]
+        
+        self.object = form.save(commit=False)
+        print("[1] self.object:", self.object)
+
+        
+        # POSTフォームセットを必ず自前で生成
+        print("[2] POST keys:", list(self.request.POST.keys()))
+        formset = OptionFormSetForDraft(
+            self.request.POST,
+            instance=self.object,
+            prefix="options"
+        )
+        
+        print("[3] formset.is_valid() BEFORE:", formset.is_valid())
+        print("[4] formset.errors:", formset.errors)
+        print("[5] formset.non_form_errors:", formset.non_form_errors())
+
 
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
             return self.form_invalid(form)
+        
+        print(">>> formset VALID → 保存処理へ進む")
 
         with transaction.atomic():  # どちらか失敗すればロールバック
             # UpdateView: 既存 self.object を更新
-            self.object = form.save(commit=False)
+            print("[6] cleaned_data:", form.cleaned_data)
             # フォームから is_public の値を反映（ラジオで公開に切り替え可能にするため）
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
             self.object.save()
-
+            print("[7] Survey saved:", self.object)
+                    
             formset.instance = self.object
-
+            
             # commit=False にして、削除対象・更新対象を分ける
             opts = formset.save(commit=False)
+            print("[8] commit=False opts:", opts)
+            print("[9] deleted_objects:", formset.deleted_objects)
+            
+            
 
             # 削除マークが付いたものを論理削除
             for obj in formset.deleted_objects:
@@ -334,6 +356,8 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
                 opt.is_deleted = False  # 削除マークがないものは有効化
                 opt.survey = self.object
                 opt.save()
+                
+            print("===== form_valid END → redirect =====")
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)
