@@ -121,6 +121,10 @@ document.addEventListener("DOMContentLoaded", function() {
                         return totalCount !== 0;
                     },
                     formatter: (value, context) => {
+                        // 値が 0 のときは空文字を返してラベルを実質消す
+                        if (value === 0) {
+                            return '';
+                        }
                         const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); 
                         const percentage = (value / total * 100).toFixed(1) + "%";
                         return value + "票\n" + percentage;
