@@ -17,7 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 # reverse_lazyをインポートすることでリダイレクト先を指定できる
 
-from .forms import CustomUserCreationForm, LoginForm, TagForm
+from .forms import CustomUserCreationForm, LoginForm
 # 同じアプリケーション内のforms.pyからCustomUserFormとLoginFormをインポート
 
 from .models import Tag, TagSurvey
@@ -253,6 +253,8 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
         ctx = super().get_context_data(**kwargs)
         formset = OptionFormSetForDraft(self.request.POST or None, instance=self.object)
         ctx["formset"] = formset
+        ctx["all_tags"] = Tag.objects.filter(is_deleted=False)
+        # しほ：論理削除されていないタグの一覧を表示
         return ctx
 
     # 公開済みは常に公開のままに固定するなら明示しておく
@@ -285,8 +287,9 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
             # .delete()で検索したアンケートに紐づいているタグを削除している
             # アンケート＋タグでセットになって保存しているので紐づいているタグを一旦クリアにすることでタグの追加、削除することができる
             for tag in selected_tags:
-            # `tag` にはユーザーが選んだ Tag モデルのインスタンス
-            # （例：<Tag id=1 name="雑談">）がそのまま入っている
+                tag = Tag.objects.get(pk=tag)
+                # `tag` にはユーザーが選んだ Tag モデルのインスタンス
+                # （例：<Tag id=1 name="雑談">）がそのまま入っている
                 TagSurvey.objects.get_or_create(survey=self.object, tag=tag)
                 # これは追加、削除があった場合の保存処理
                 # 中間テーブル(TagSurvey)に同じレコード(組み合わせ)がないかを確認(survey=self.object, tag=tag)
@@ -343,25 +346,6 @@ class SurveyUpdateView(LoginRequiredMixin, UpdateView):
             )
             survey.user = user
             survey.save()
-
-            # しほ：ここからタグの追加、削除
-            # 選択されたタグを再保存
-            # ここのロジックは公開済/一時保存でも一緒になる
-            select_tags = form.cleaned_data.get("tag_survey", [])
-            # フォームで選択された Tag（タグ）モデルのインスタンス一覧を取り出す。
-            # 空の場合は[]を返すことでルーブを防ぐ
-            TagSurvey.objects.filter(survey=self.object).delete()
-            # 中間モデル(TagSurvey)から今編集しているアンケート(self.object)に紐づくタグを取得
-            # .delete()で検索したアンケートに紐づいているタグを一旦クリアにする
-            for tag in select_tags:
-            # `tag` にはユーザーが選んだ Tag モデルのインスタンス
-            # （例：<Tag id=1 name="雑談">）がそのまま入っている
-                TagSurvey.objects.get_or_create(survey=self.object, tag=tag)
-                # 追加削除があれば再保存
-                # 中間テーブル(TagSurvey)に同じレコード(組み合わせ)がないかを確認(survey=self.object, tag=tag)
-                # 存在しなければ新しく作成、存在すれば作らない(get_or_create)
-
-            # フォームセット（選択肢）も再保存
             formset.instance = survey  # Option の親を設定
             formset.save()
 

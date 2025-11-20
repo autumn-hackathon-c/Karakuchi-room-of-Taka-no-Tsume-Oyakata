@@ -7,7 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Survey, Option, Vote, Tag
+from .models import Survey, Option, Vote, Tag, TagSurvey
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -215,8 +215,7 @@ class SurveyCreateForm(forms.ModelForm):
 
         # フォームで入力／編集するフィールド
         # モデルにあるフィールドのうち、これだけをフォームに表示する
-        fields = ["title", "description", "end_at", "is_public", "tag_survey"]
-        # しほ：アンケート作成のUIでタグを選べるようにするためにフィールドを追加(tag_survey)
+        fields = ["title", "description", "end_at", "is_public", "tag_survey" ]
 
         # 各フィールドに対して使用するウィジェット（入力フォームの種類）を指定
         widgets = {
@@ -287,12 +286,26 @@ class SurveyFormDraft(forms.ModelForm):
         ),
         input_formats=["%Y-%m-%dT%H:%M"],
     )
-
+    # しほ：SurveyFormDraftにtag_surveyを入れる
+    # タグフォームを作成
+    tag_survey = TagMultipleChoiceField(
+        # 上で引数にforms.ModelMultipleChoiceFieldを継承しているカスタムクラスを定義
+        queryset=Tag.objects.filter(is_deleted=False),
+        widget=forms.SelectMultiple(
+            attrs={"class": "form-select"}
+        ),  
+        required=False,
+    )
     class Meta:
         model = Survey
-        fields = ["title", "description", "end_at", "is_public"]
-
-
+        fields = ["title", "description", "end_at", "is_public", "tag_survey" ]
+        # しほ：フィールドにtag_surveyを追加
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if self.instance.pk:
+                self.fields["tag_survey"].initial = self.instance.tag_survey.values_list("id", flat=True)
+        
+    
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
@@ -370,22 +383,7 @@ class SurveyFormPublished(forms.ModelForm):
 
         if commit:
             survey.save()
-        return survey
-    
-#　アンケート編集画面でのタグフォームはclassを分ける必要がある
-# なぜか？：SurveyFormDraftはis_public(公開状態),end_at(終了日時),title,bodyなど本体のデータが入っている
-# つまりSurvey(アンケート)モデルそのものを編集するためのフォーム
-# そこにタグまで入れてしまうとSurveyFormDraftの責務が増えすぎて壊れてしまう
-class TagForm(forms.Form):
-    tag_survey = TagMultipleChoiceField(
-        queryset=Tag.objects.filter(is_deleted=False),
-        widget=forms.SelectMultiple(
-            attrs={ "class": "form-select" }
-        ),
-        required=False,
-    )
-
-
+        return survey    
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
