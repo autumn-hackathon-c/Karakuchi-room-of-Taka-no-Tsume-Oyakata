@@ -558,7 +558,6 @@ def soften_comment(request):
     if not text.strip():
         return JsonResponse({"error": "文章が入力されていません。"}, status=400)
 
-
     # -----------------------------
     # 柔らかい表現への書き換え（GPT）
     # -----------------------------

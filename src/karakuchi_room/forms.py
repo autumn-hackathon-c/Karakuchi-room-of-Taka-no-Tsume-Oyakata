@@ -441,7 +441,7 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-    
+
     def clean_comment(self):
         comment = self.cleaned_data.get("comment", "").strip()
 
@@ -452,7 +452,8 @@ class VoteForm(forms.ModelForm):
             )
 
         return comment
-    
+
+
 # ✅ 投票詳細機能
 class VoteDetailForm(forms.ModelForm):
     class Meta:
@@ -506,7 +507,7 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
-    
+
     def clean_comment(self):
         comment = self.cleaned_data.get("comment", "").strip()
 
