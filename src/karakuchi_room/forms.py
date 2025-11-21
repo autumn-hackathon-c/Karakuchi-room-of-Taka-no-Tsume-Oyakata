@@ -52,10 +52,10 @@ class CustomUserCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         # ウィジェットを明示的に設定する
         self.fields["password1"].widget = forms.PasswordInput(
-            attrs={"class": "form-control"}
+            attrs={"class": "form-control", "id": "password1"}
         )
         self.fields["password2"].widget = forms.PasswordInput(
-            attrs={"class": "form-control"}
+            attrs={"class": "form-control", "id": "password2"}
         )
 
 
@@ -144,6 +144,7 @@ class LoginForm(AuthenticationForm):
             {
                 "class": "form-control",
                 "autocomplete": "current-password",
+                "id": "password",
             }
         )
         # ここまでがUIを変更している
