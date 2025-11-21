@@ -604,4 +604,3 @@ def soften_comment(request):
     soft_text = response.choices[0].message["content"]
 
     return JsonResponse({"soft_text": soft_text})
-
