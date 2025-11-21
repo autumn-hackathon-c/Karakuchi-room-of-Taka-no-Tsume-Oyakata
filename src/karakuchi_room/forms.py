@@ -252,7 +252,8 @@ class SurveyCreateForm(forms.ModelForm):
             ),
         }
 
-#. アンケート新規作成(バリデーションチェック)  
+
+# . アンケート新規作成(バリデーションチェック)
 class ValidationFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
@@ -271,7 +272,6 @@ class ValidationFormSet(BaseInlineFormSet):
 
         if valid_count > 4:
             raise ValidationError("選択肢は最大4つまでです。")
-            
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成

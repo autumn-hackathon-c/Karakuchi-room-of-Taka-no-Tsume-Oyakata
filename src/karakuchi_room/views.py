@@ -304,17 +304,12 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
     # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        
         self.object = form.save(commit=False)
 
-        
         # POSTフォームセットを必ず自前で生成
         formset = OptionFormSetForDraft(
-            self.request.POST,
-            instance=self.object,
-            prefix="options"
+            self.request.POST, instance=self.object, prefix="options"
         )
-
 
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
@@ -326,13 +321,11 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
             self.object.save()
-                    
+
             formset.instance = self.object
-            
+
             # commit=False にして、削除対象・更新対象を分ける
             opts = formset.save(commit=False)
-            
-            
 
             # 削除マークが付いたものを論理削除
             for obj in formset.deleted_objects:
@@ -344,7 +337,6 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
                 opt.is_deleted = False  # 削除マークがないものは有効化
                 opt.survey = self.object
                 opt.save()
-                
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)
