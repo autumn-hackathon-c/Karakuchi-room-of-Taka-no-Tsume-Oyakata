@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
 from .models import Survey, Option, Vote, Tag
-from .ai_fillter import is_offensive
+from .ai_filters import is_offensive
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
