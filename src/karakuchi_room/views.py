@@ -300,6 +300,8 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
         ctx = super().get_context_data(**kwargs)
         formset = OptionFormSetForDraft(self.request.POST or None, instance=self.object)
         ctx["formset"] = formset
+        ctx["all_tags"] = Tag.objects.filter(is_deleted=False)
+        # しほ：論理削除されていないタグの一覧を表示
         return ctx
 
     # 公開済みは常に公開のままに固定するなら明示しておく
@@ -334,6 +336,28 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
                 opt.is_deleted = False  # 削除マークがないものは有効化
                 opt.survey = self.object
                 opt.save()
+
+            # しほ：ここからタグの追加、削除
+            # 選択されたタグを再保存
+            selected_tags = form.cleaned_data.get("tag_survey", [])
+            # フォームの入力チェック（バリデーション）
+            # tag_surveyのフォームが空の場合は[]を返す
+            # []を返すことでループのエラーを防ぐ
+            TagSurvey.objects.filter(survey=self.object).delete()
+            # 中間テーブル(TagSurvey)から今編集しているアンケート(self.object)に紐づくタグを全て取得している
+            # .delete()で検索したアンケートに紐づいているタグを削除している
+            # アンケート＋タグでセットになって保存しているので紐づいているタグを一旦クリアにすることでタグの追加、削除することができる
+            for tag in selected_tags:
+                # `tag` にはユーザーが選んだ Tag モデルのインスタンス
+                # （例：<Tag id=1 name="雑談">）がそのまま入っている
+                TagSurvey.objects.get_or_create(survey=self.object, tag=tag)
+                # これは追加、削除があった場合の保存処理
+                # 中間テーブル(TagSurvey)に同じレコード(組み合わせ)がないかを確認(survey=self.object, tag=tag)
+                # 存在しなければ新しく作成、存在すれば作らない(get_or_create)
+
+            # 　フォームセット(選択肢)も再保存
+            formset.instance = self.object
+            formset.save()
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)
@@ -399,9 +423,6 @@ def survey_delete(request, pk):
 
 
 # 投票画面(Votes)
-
-
-# アンケート詳細画面
 class VoteDetailView(DetailView):
     model = Vote
     template_name = "karakuchi_room/votes_detail.html"
@@ -532,9 +553,3 @@ def vote_delete(request, pk):
 
     messages.success(request, "削除しました。")
     return redirect("survey-list")
-
-
-# これは後で使うかも
-# TagSurvey.objects.filter(survey=survey).delete()
-# 編集対応するなら削除機能も必要
-# models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
