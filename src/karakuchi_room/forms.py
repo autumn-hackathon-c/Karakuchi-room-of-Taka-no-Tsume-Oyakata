@@ -324,6 +324,10 @@ class SurveyFormDraft(forms.ModelForm):
             "is_public",
             "tag_survey",
         ]
+        widgets = {
+        "title": forms.TextInput(attrs={"class": "form-control"}),
+        "description": forms.Textarea(attrs={"class": "form-control"}),
+        }
         # しほ：フィールドにtag_surveyを追加
 
     def __init__(self, *args, **kwargs):
@@ -350,12 +354,7 @@ class SurveyFormDraft(forms.ModelForm):
             # .values_list("id", flat=True)は編集しているアンケートに紐づいているタグIDだけを取り出す処理
             # 編集画面を開いた時に、元々ついていたタグにチェックが入ってるようになる処理
 
-        # トイトイさんが追記？とりあえずエラー出たのでコメンtアウトしました（しほ）
-        # fields = ["title", "description", "end_at", "is_public"]
-        # widgets = {
-        # "title": forms.TextInput(attrs={"class": "form-control"}),
-        # "description": forms.Textarea(attrs={"class": "form-control"}),
-        # }
+
 
 
 # DELETEフィールドを隠しフィールドに書き換え、JSで操作する
