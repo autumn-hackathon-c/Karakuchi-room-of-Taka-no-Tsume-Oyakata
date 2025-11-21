@@ -37,9 +37,16 @@
                         {{ hidden }}
                     {% endif %}
                 {% endfor %}
-                <div class="option-item mb-3 d-flex justify-content-center align-items-center" >
-                    {{ option_name.label }}
-                    <button type="button" class="btn btn-none remove-option">✕</button>
+
+                <div class="option-item-wrapper mb-3">
+                    <div class="option-item d-flex justify-content-center align-items-center" >
+                        {{ option_name.label }}
+                        {{ option_name.DELETE }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <label class="form-label">既存の選択肢を削除</label>
+                        <input class="form-check-input remove-existing-option-check" type="checkbox">
+                    </div>
                 </div>
                 {% endfor %}
             </div>

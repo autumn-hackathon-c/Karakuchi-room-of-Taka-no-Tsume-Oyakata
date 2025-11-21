@@ -39,20 +39,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // フォームの削除
     function removeForm(item) {
-        const deleteInput = item.querySelector("input[name$='-DELETE']");
         if (formCount <= minForms) return;
-        if (deleteInput) {
-        // 既存オプション (DBにあるもの) の場合 → 削除マークを付けて非表示に
-        //deleteInput.checked = true;
-        deleteInput.value = "on";
-        item.classList.add("d-none");
-        } else {
         // 新しく追加したフォーム (まだ DB にない) の場合 → 削除して TOTAL_FORMS を調整
         item.remove();
         formCount--;
         totalFormsInput.value = formCount;
         updateFormIndexes();
-        }
     }
 
     // インデックスを再計算して更新
@@ -87,4 +79,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // フォーム追加とイベントの紐づけ
     addBtn.addEventListener("click", addForm);
+
+    // チェックボックスの状態に合わせてDELETEフィールドを更新する
+    function updateDeleteField(e) {
+
+        const target = e.target;
+        if (!target.classList.contains("remove-existing-option-check")) {
+            return;
+        }
+        const optionItemWrapper = target.closest(".option-item-wrapper");
+        const deleteInput = optionItemWrapper.querySelector("input[name$='-DELETE']");
+
+        // 既存オプション (DBにあるもの) の場合 → DELETEフィールドにチェックを入れて削除対象とする
+        deleteInput.checked = target.checked;
+        deleteInput.value = target.checked ? "on" : "";
+    }
+
+    // チェックボックスのクリックイベント
+    // 既存オプションを削除するチェックボックスの change を監視
+    optionContainer.addEventListener("change", updateDeleteField);
+
 });
