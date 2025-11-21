@@ -22,6 +22,7 @@
             
             {{ formset.management_form }}
 
+            {# バリデーションエラーメッセージ表示 #}
             {% if formset.non_form_errors %}
                 <div class="alert alert-danger">
                     {{ formset.non_form_errors }}
@@ -55,15 +56,11 @@
         </div>
 
         {% comment %} hidden 用のテンプレート空フォーム  {% endcomment %}
-        <template id="empty-form-template">
-        {% for hidden in formset.empty_form.hidden_fields %}
-            {{ hidden }}
-        {% endfor %}
-        
-        {% for field in formset.empty_form.visible_fields %}
-            {{ field }}  {# 空フォームもラベルなしで出す #}
-        {% endfor %}
-        </template>
+        <div id="empty-form-template" style="display: none;">  
+            {% for field in formset.empty_form.visible_fields %}
+                {{ field }}  {# 空フォームもラベルなしで出す #}
+            {% endfor %}
+        </div>
 
         {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
         <div class="mb-3">
