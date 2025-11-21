@@ -287,7 +287,6 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
             # .delete()で検索したアンケートに紐づいているタグを削除している
             # アンケート＋タグでセットになって保存しているので紐づいているタグを一旦クリアにすることでタグの追加、削除することができる
             for tag in selected_tags:
-                tag = Tag.objects.get(pk=tag)
                 # `tag` にはユーザーが選んだ Tag モデルのインスタンス
                 # （例：<Tag id=1 name="雑談">）がそのまま入っている
                 TagSurvey.objects.get_or_create(survey=self.object, tag=tag)
@@ -297,7 +296,7 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
             # 　フォームセット(選択肢)も再保存
             formset.instance = self.object
-            formset.save()    
+            formset.save()
 
             messages.success(self.request, "アンケートを作成しました。")
             return redirect("survey-detail", pk=self.object.pk)
@@ -493,5 +492,3 @@ def vote_delete(request, pk):
 
     messages.success(request, "削除しました。")
     return redirect("survey-list")
-
-

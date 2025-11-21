@@ -65,44 +65,7 @@
                 </div>
                 <!-- 選択肢　別途JSでの実装が必要 ここまで-->
                 {% comment %} しほ：ここからタグフォームを追加してます {% endcomment %}
-                <div>
-                    <label for="tag_survey">タグ(任意)</label>
-                        <select name="tag_survey" id="tag_survey" class="form-select" multiple>
-                            {% for tag in form.tag_survey.field.queryset %}
-                                <option value="{{ tag.id }}"
-                                    {% if tag.id|stringformat:"s" in form.tag_survey.value|default_if_none:"" %}selected{% endif %}>
-                                    {{ tag.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-
-                    {% comment %} <label for="tag_survey">タグ(任意)</label> {% endcomment %}
-                    {% comment %} 
-                    for="tag_surveyは"<select>のidと紐づいている。
-                    tag_surveyはforms.pyでSurveyFormDraftのクラスで定義している
-                    {% endcomment %}
-                    {% comment %} <select name="tag_survey" id="tag_survey" class="form-select" multiple> {% endcomment %}
-                        {% comment %} 
-                        <select> はセレクトボックス（ドロップダウン）
-                        name="tag_survey" → フォーム送信時にこの名前で値が送られる
-                        id="tag_survey" → ラベルの for と対応
-                        class="form-select" → Bootstrap などのスタイル適用用
-                        multiple → 複数選択可能にする
-                        {% endcomment %}
-                        {% comment %} {% for tag in all_tags %} {% endcomment %}
-                        {% comment %} タグ一覧を取得 {% endcomment %}
-                        {% comment %} <option value="{{ tag.id }}" {% endcomment %}
-                            {% comment %} タグ一覧をセレクトボックスの選択肢として表示 {% endcomment %}
-                            {% comment %} {% if tag.id|stringformat:"s" in form.tag_survey.value %}selected{% endif %}> {% endcomment %}
-                            {% comment %} 
-                            form.tag_survey.value → すでに選択されているタグ（初期値）
-                            selected → 選択済みタグとして表示
-                            {% endcomment %}
-                            {% comment %} {{ tag.name }} {% endcomment %}
-                        {% comment %} </option> {% endcomment %}
-                        {% comment %} {% endfor %} {% endcomment %}
-                    {% comment %} </select>    {% endcomment %}
-                </div>
+                {{ form.tag_survey }}
                 {% comment %} ここまで {% endcomment %}
                 <div class="mb-3">
                     <label class="form-label" for="{{ form.end_at.id_for_label }}">投票期限日（任意）</label>

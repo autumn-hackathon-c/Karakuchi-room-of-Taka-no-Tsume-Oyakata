@@ -7,7 +7,7 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Survey, Option, Vote, Tag, TagSurvey
+from .models import Survey, Option, Vote, Tag
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -173,6 +173,7 @@ class LoginForm(AuthenticationForm):
 
         return self.cleaned_data
 
+
 # これは必須ではないが、入れておくとUIが綺麗になるのと実務でよく使われる
 # これがないとブラウザに表示した時にタグ名：雑談, タグ名：プログラミング....のように全てにタグ名：がついてしまう
 # タグ名だけを表示するためのカスタムフィールド
@@ -182,9 +183,6 @@ class TagMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         # objには Tag のインスタンスが入る
         return obj.tag_name  # タグ名だけをラベルにする
-
-
-
 
 
 # Django のフォームクラスを使用するために ModelForm を継承
@@ -198,11 +196,11 @@ class SurveyCreateForm(forms.ModelForm):
         # ここではタグを複数選択させるために使っている
         queryset=Tag.objects.filter(is_deleted=False),
         # 論理削除されていないタグのみを表示
-        widget=forms.SelectMultiple(   # セレクトボックスで表示
-            attrs={"class": "form-select" }
+        widget=forms.SelectMultiple(  # セレクトボックスで表示
+            attrs={"class": "form-select"}
             # BootstrapのCSSスタイルを指定。
             # form-selectを指定することで見た目が整ったセレクトボックスになる
-        ),  
+        ),
         required=False,
         # requiredは入力必須かどうかを指定している
         # ここをFalseにすることでタグを選択しなくてもフォームは通る
@@ -215,7 +213,7 @@ class SurveyCreateForm(forms.ModelForm):
 
         # フォームで入力／編集するフィールド
         # モデルにあるフィールドのうち、これだけをフォームに表示する
-        fields = ["title", "description", "end_at", "is_public", "tag_survey" ]
+        fields = ["title", "description", "end_at", "is_public", "tag_survey"]
 
         # 各フィールドに対して使用するウィジェット（入力フォームの種類）を指定
         widgets = {
@@ -290,22 +288,52 @@ class SurveyFormDraft(forms.ModelForm):
     # タグフォームを作成
     tag_survey = TagMultipleChoiceField(
         # 上で引数にforms.ModelMultipleChoiceFieldを継承しているカスタムクラスを定義
-        queryset=Tag.objects.filter(is_deleted=False),
-        widget=forms.SelectMultiple(
-            attrs={"class": "form-select"}
-        ),  
+        queryset=Tag.objects.none(),
+        # ここをempty(Tag.objects.none())にする理由はフォームクラスが読み込まれた瞬間にDBを触らせたくないから
+        # Djangoはフォームクラスを読み込んだ瞬間(=import時)に毎回DBにアクセスしてしまう
+        # 最初は空にしておくことでエラーを防ぐのと、実際にフォームが作られた時にDBを触る
+        widget=forms.SelectMultiple(attrs={"class": "form-select"}),
         required=False,
+        # このフォームは入力必須ではない
+        # 空でもフォームは通る
     )
+
     class Meta:
         model = Survey
-        fields = ["title", "description", "end_at", "is_public", "tag_survey" ]
+        fields = [
+            "title",
+            "description",
+            "end_at",
+            "is_public",
+            "tag_survey",
+        ]
         # しほ：フィールドにtag_surveyを追加
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            if self.instance.pk:
-                self.fields["tag_survey"].initial = self.instance.tag_survey.values_list("id", flat=True)
-        
-    
+
+    def __init__(self, *args, **kwargs):
+        # def __init__は初期化メソッド
+        # *args, **kwargsはフォームを受け止めるための袋のようなもの
+        # CreateView/UpdateViewなどから渡される引数を受け取れるようにしている
+        super().__init__(*args, **kwargs)
+        # 親クラス(forms.MOdelForm)の初期化の実行
+        # ここまでがフォームの基本セットアップ。フォームを受け取るためのお作法みたいなもの
+        self.fields["tag_survey"].queryset = Tag.objects.filter(is_deleted=False)
+        # Surveyモデルのフィールドtag_surveyをセット( self.fields["tag_survey"].queryset)
+        # 論理削除されていないタグを表示(Tag.objects.filter(is_deleted=False))
+        if self.instance.pk:
+            # self.instanceとは？
+            # ここではSurveyモデル(self)のオブジェクト(tag=name)
+            # pkはDBのプライマリキー
+            # 「編集の時だけ、この中の処理を実行してください」というチェック
+            self.fields["tag_survey"].initial = self.instance.tag_survey.values_list(
+                "id", flat=True
+            )
+            # これはそのSurveyが既に持っているタグのIDを初期値としてセットしている(アンケート新規作成画面で選択したタグID)
+            # 。initial = ...は初期状態でどの値を選択済みにしておくかの設定
+            # self.instance.tag_survey → このアンケートに付いてるタグを全部取ってくる
+            # .values_list("id", flat=True)は編集しているアンケートに紐づいているタグIDだけを取り出す処理
+            # 編集画面を開いた時に、元々ついていたタグにチェックが入ってるようになる処理
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
@@ -383,7 +411,7 @@ class SurveyFormPublished(forms.ModelForm):
 
         if commit:
             survey.save()
-        return survey    
+        return survey
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
