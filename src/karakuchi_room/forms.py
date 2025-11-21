@@ -325,8 +325,8 @@ class SurveyFormDraft(forms.ModelForm):
             "tag_survey",
         ]
         widgets = {
-        "title": forms.TextInput(attrs={"class": "form-control"}),
-        "description": forms.Textarea(attrs={"class": "form-control"}),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
         }
         # しほ：フィールドにtag_surveyを追加
 
@@ -353,8 +353,6 @@ class SurveyFormDraft(forms.ModelForm):
             # self.instance.tag_survey → このアンケートに付いてるタグを全部取ってくる
             # .values_list("id", flat=True)は編集しているアンケートに紐づいているタグIDだけを取り出す処理
             # 編集画面を開いた時に、元々ついていたタグにチェックが入ってるようになる処理
-
-
 
 
 # DELETEフィールドを隠しフィールドに書き換え、JSで操作する
