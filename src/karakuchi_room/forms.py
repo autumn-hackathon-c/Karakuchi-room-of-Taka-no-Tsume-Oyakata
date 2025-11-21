@@ -6,7 +6,7 @@ settings.pyのAUTH_USER_MODELに設定された
 
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
 from .models import Survey, Option, Vote, Tag
 
 
@@ -39,8 +39,24 @@ class CustomUserCreationForm(UserCreationForm):
         # get_user_model()の返り値に設定する
         # 使用するDBの表を指定している
 
-        fields = ("user_name", "email")
+        fields = ["user_name", "email"]
         # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
+
+        widgets = {
+            "user_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    # フォーム専用フィールドは以下で設定する
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # ウィジェットを明示的に設定する
+        self.fields["password1"].widget = forms.PasswordInput(
+            attrs={"class": "form-control"}
+        )
+        self.fields["password2"].widget = forms.PasswordInput(
+            attrs={"class": "form-control"}
+        )
 
 
 # この UserForm の目的は、Django の User モデル（models.pyで定義した user_name を持つユーザー）に対応したフォームを簡単に作ること
@@ -176,7 +192,7 @@ class LoginForm(AuthenticationForm):
 
 # これは必須ではないが、入れておくとUIが綺麗になるのと実務でよく使われる
 # これがないとブラウザに表示した時にタグ名：雑談, タグ名：プログラミング....のように全てにタグ名：がついてしまう
-# タグ名だけを表示するためのカスタムフィールド
+# タグ名だけを表示するためのカスタムフィールドを作成
 class TagMultipleChoiceField(forms.ModelMultipleChoiceField):
     # forms.ModelMultipleChoiceFieldはチェックボックスや複数選択のセレクトボックスで使用される
     # ここではタグを複数選択させるために使っている
@@ -246,7 +262,8 @@ OptionFormSet = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
-    extra=4,  # 表示する空フォーム数
+    extra=2,  # 表示する空フォーム数
+    max_num=4,
     can_delete=False,
     widgets={
         "label": forms.TextInput(
@@ -334,13 +351,31 @@ class SurveyFormDraft(forms.ModelForm):
             # 編集画面を開いた時に、元々ついていたタグにチェックが入ってるようになる処理
 
 
+        # トイトイさんが追記？とりあえずエラー出たのでコメンtアウトしました（しほ）
+        # fields = ["title", "description", "end_at", "is_public"]
+        # widgets = {
+            # "title": forms.TextInput(attrs={"class": "form-control"}),
+            # "description": forms.Textarea(attrs={"class": "form-control"}),
+        # }
+
+
+# DELETEフィールドを隠しフィールドに書き換え、JSで操作する
+class MyInlineFormSet(BaseInlineFormSet):
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if "DELETE" in form.fields:
+            form.fields["DELETE"].widget = HiddenInput()
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSetForDraft = inlineformset_factory(
     parent_model=Survey,
     model=Option,
     fields=["label"],
     extra=0,  # 表示する空フォーム数(編集画面のため空はなし)
-    can_delete=False,
+    max_num=4,
+    formset=MyInlineFormSet,
+    can_delete=True,  # 論理削除のチェックに使う
     widgets={
         "label": forms.TextInput(
             attrs={"class": "form-control", "placeholder": "選択肢を入力"}
@@ -381,6 +416,10 @@ class SurveyFormPublished(forms.ModelForm):
             "description",
             "end_at",
         ]  # is_public はフォームに出さない等
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
