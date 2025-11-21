@@ -47,15 +47,21 @@
             <h4>選択肢を選んだ理由（任意）</h4>
         </label>
         {{ form.comment }}
+        <!-- エラーメッセージ表示 -->
+        {% if form.comment.errors %}
+            <div class="text-danger mt-1">
+                {{ form.comment.errors.0 }}
+            </div>
+        {% endif %}
     </div>
     {% comment %} 追加機能 文章加工機能{% endcomment %}
     <!-- AI の結果メッセージ -->
     <div id="ai_result" class="mb-4 text-center"></div>
 
     <div class="edit-button text-center mb-4">
-        <!-- AIで柔らかくするボタン -->
+        <!-- AIボタン -->
         <button id="ai_soften_btn" type="button" class="btn btn-secondary px-5">
-            AIで柔らかくする
+            AIで言い回しをやさしくする
         </button>
     </div>
 

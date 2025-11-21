@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
 from .models import Survey, Option, Vote, Tag
+from .ai_fillter import is_offensive
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -440,8 +441,18 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+    
+    def clean_comment(self):
+        comment = self.cleaned_data.get("comment", "").strip()
 
+        # AIによる誹謗中傷チェック
+        if is_offensive(comment):
+            raise forms.ValidationError(
+                "攻撃的・不適切な内容が含まれているため、投稿できません。"
+            )
 
+        return comment
+    
 # ✅ 投票詳細機能
 class VoteDetailForm(forms.ModelForm):
     class Meta:
@@ -495,3 +506,14 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+    
+    def clean_comment(self):
+        comment = self.cleaned_data.get("comment", "").strip()
+
+        # AIによる誹謗中傷チェック
+        if is_offensive(comment):
+            raise forms.ValidationError(
+                "攻撃的・不適切な内容が含まれているため、投稿できません。"
+            )
+
+        return comment
