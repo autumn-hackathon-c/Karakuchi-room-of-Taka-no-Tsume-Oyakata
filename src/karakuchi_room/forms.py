@@ -252,11 +252,33 @@ class SurveyCreateForm(forms.ModelForm):
             ),
         }
 
+#. アンケート新規作成(バリデーションチェック)  
+class ValidationFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        valid_count = 0
+
+        for form in self.forms:
+            if form.cleaned_data.get("DELETE", False):
+                continue
+            label = form.cleaned_data.get("label")
+            if label:
+                valid_count += 1
+
+        if valid_count < 2:
+            raise ValidationError("選択肢は2つ以上必要です。")
+
+        if valid_count > 4:
+            raise ValidationError("選択肢は最大4つまでです。")
+            
+
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSet = inlineformset_factory(
     parent_model=Survey,
     model=Option,
+    formset=ValidationFormSet,
     fields=["label"],
     extra=2,  # 表示する空フォーム数
     max_num=4,
