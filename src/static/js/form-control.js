@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
+    // 隠しDELETEフィールド、チェックボックスの初期化
+    document.querySelectorAll("input[name$='-DELETE']").forEach(function(input) {
+    input.checked = false;
+    input.value = "";
+    });
+
     const addBtn = document.querySelector(".add-option");
     const totalFormsInput = document.querySelector("input[name='options-TOTAL_FORMS']");
     const emptyWrapper = document.querySelector("#empty-form-template");
