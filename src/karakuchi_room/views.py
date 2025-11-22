@@ -306,8 +306,12 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
     # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        ctx = self.get_context_data()
-        formset = ctx["formset"]
+        self.object = form.save(commit=False)
+
+        # POSTフォームセットを必ず自前で生成
+        formset = OptionFormSetForDraft(
+            self.request.POST, instance=self.object, prefix="options"
+        )
 
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
@@ -315,7 +319,6 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
         with transaction.atomic():  # どちらか失敗すればロールバック
             # UpdateView: 既存 self.object を更新
-            self.object = form.save(commit=False)
             # フォームから is_public の値を反映（ラジオで公開に切り替え可能にするため）
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）

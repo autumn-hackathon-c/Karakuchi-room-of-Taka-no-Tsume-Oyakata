@@ -22,6 +22,14 @@
             <label class="form-label" for="options">選択肢（２つ以上必須、最大４つまで）</label>
             
             {{ formset.management_form }}
+
+            {# バリデーションエラーメッセージ表示 #}
+            {% if formset.non_form_errors %}
+                <div class="alert alert-danger">
+                    {{ formset.non_form_errors }}
+                </div>
+            {% endif %}
+
             <div id="option-container">
                 {% for option_name in formset.forms %}
                 <div class="option-item mb-3 d-flex justify-content-center align-items-center" >
