@@ -1,3 +1,4 @@
 django == 5.0
+openai==0.28.1
 mysqlclient==2.1
 django-storages==1.14.3
