@@ -49,6 +49,11 @@ from karakuchi_room.models import Survey, Vote, Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
+import os
+import json
+import openai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import Count, Exists, OuterRef, Q
 
@@ -58,6 +63,8 @@ Exists   : サブクエリで「該当するレコードが存在するか」を
 OuterRef : サブクエリの中で外側のクエリ（親クエリ）の値を参照する
 Q        : 複雑な条件を OR / AND / NOT で組み合わせる
 """
+
+openai.api_key = os.environ.get("API_KEY")
 
 
 # 新規登録
@@ -306,8 +313,12 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
     # 公開済みは常に公開のままに固定するなら明示しておく
     def form_valid(self, form):
-        ctx = self.get_context_data()
-        formset = ctx["formset"]
+        self.object = form.save(commit=False)
+
+        # POSTフォームセットを必ず自前で生成
+        formset = OptionFormSetForDraft(
+            self.request.POST, instance=self.object, prefix="options"
+        )
 
         # form はすでに valid。formset だけ検証すればOK
         if not formset.is_valid():
@@ -315,7 +326,6 @@ class SurveyTemporaryUpdateView(LoginRequiredMixin, UpdateView):
 
         with transaction.atomic():  # どちらか失敗すればロールバック
             # UpdateView: 既存 self.object を更新
-            self.object = form.save(commit=False)
             # フォームから is_public の値を反映（ラジオで公開に切り替え可能にするため）
             self.object.is_public = bool(form.cleaned_data.get("is_public", False))
             # user は上書きしない（作成者そのまま）
@@ -553,3 +563,48 @@ def vote_delete(request, pk):
 
     messages.success(request, "削除しました。")
     return redirect("survey-list")
+
+
+# これは後で使うかも
+# TagSurvey.objects.filter(survey=survey).delete()
+# 編集対応するなら削除機能も必要
+# models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
+
+
+# コメント生成AI機能
+@csrf_exempt
+def soften_comment(request):
+    """コメントを柔らかい表現に変換し、誹謗中傷をチェックする"""
+
+    data = json.loads(request.body)
+    text = data.get("text", "")
+
+    if not text.strip():
+        return JsonResponse({"error": "文章が入力されていません。"}, status=400)
+
+    # -----------------------------
+    # 柔らかい表現への書き換え（GPT）
+    # -----------------------------
+    prompt = f"""
+以下のルールに従って、入力された文章のみを柔らかく書き換えてください。
+	•	回答文は書かないこと（「こんな感じで書き換えました！」などのコメント不要）
+	•	書き換え後の文章だけを出力すること
+	•	文章の意味や主張は変えないこと（内容を追加したり削除したりしない）
+	•	“柔らかくする” とは表現を少し優しくする程度にとどめること
+    •	絵文字を入れること
+	•	丁寧になりすぎて元の意図が失われるような完全書き換えは禁止
+    •   攻撃的・失礼な要素があればすべて取り除くこと 
+    •   ネガティブな意見は相手が受け止めやすいように表現を書き換えてください。
+
+元の文章：
+{text}
+"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    soft_text = response.choices[0].message["content"]
+
+    return JsonResponse({"soft_text": soft_text})
