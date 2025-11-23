@@ -13,5 +13,5 @@ echo "🚀 Starting Django with Gunicorn..."
 # 起動時に Django をロード
 exec gunicorn sample.wsgi:application \
     --workers 2 \
-    --preload \ 
+    --preload \
     --bind 0.0.0.0:8000
