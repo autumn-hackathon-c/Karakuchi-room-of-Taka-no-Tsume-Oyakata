@@ -65,7 +65,6 @@ Q        : 複雑な条件を OR / AND / NOT で組み合わせる
 """
 
 
-
 # 新規登録
 class SignUpView(CreateView):
     template_name = "karakuchi_room/signup.html"

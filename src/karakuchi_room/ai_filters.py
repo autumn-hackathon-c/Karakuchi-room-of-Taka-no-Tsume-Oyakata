@@ -12,37 +12,42 @@ NG_PATTERNS = [
     r"ムカつく",
     r"ムカツク",
     r"腹立つ",
-    r"ばか", r"バカ", r"馬鹿", r"アホ", r"ボケ",
-    r"死ね", r"しね",
-    r"殺す", r"ころす",
+    r"ばか",
+    r"バカ",
+    r"馬鹿",
+    r"アホ",
+    r"ボケ",
+    r"死ね",
+    r"しね",
+    r"殺す",
+    r"ころす",
 ]
+
 
 def contains_ng_word(text: str) -> bool:
     """独自NGワードの検出"""
     return any(re.search(p, text) for p in NG_PATTERNS)
+
 
 def is_offensive(text: str) -> bool:
     """ChatGPT によるカスタム誹謗中傷チェック"""
 
     if not text or not text.strip():
         return False
-    
+
     # --------------------------
     # ① NGワード辞書チェック（最優先）
     # --------------------------
     if contains_ng_word(text):
         return True
-    
+
     # --------------------------
     # ② Moderation API
     # --------------------------
-    moderation = client.moderations.create(
-        model="omni-moderation-latest",
-        input=text
-    )
+    moderation = client.moderations.create(model="omni-moderation-latest", input=text)
     if moderation.results[0].flagged:
         return True
-    
+
     # --------------------------
     # ③ ChatGPT による弱攻撃判定
     # --------------------------
