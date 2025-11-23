@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load static %}
+<script src="{% static 'js/ai_comment.js' %}"></script>
 
 {% block content %}
 
@@ -45,13 +47,24 @@
             <h4>選択肢を選んだ理由（任意）</h4>
         </label>
         {{ form.comment }}
+        <!-- エラーメッセージ表示 -->
+        {% if form.comment.errors %}
+            <div class="text-danger text-center mt-1">
+                {{ form.comment.errors.0 }}
+            </div>
+        {% endif %}
     </div>
     {% comment %} 追加機能 文章加工機能{% endcomment %}
-    {% comment %} <div class="edit-button row mb-5">
-        <button class="btn btn-secondary col-md m-3">甘口文章に変換</button>
-        <button class="btn btn-secondary col-md m-3">文章の癖を減らす</button>
-    </div> {% endcomment %}
-    {% comment %} 追加機能 文章加工機能ここまで{% endcomment %}
+    <!-- AI の結果メッセージ -->
+    <div id="ai_result" class="mb-4 text-center"></div>
+
+    <div class="edit-button text-center mb-4">
+        <!-- AIボタン -->
+        <button id="ai_soften_btn" type="button" class="btn btn-secondary px-5">
+            AIで言い回しをやさしくする
+        </button>
+    </div>
+
     <div class="submit-btn text-center">
         <button type="submit" class="btn btn-success px-5">投票内容を修正！</button>
     </div>
@@ -60,4 +73,6 @@
     <a href="{% url 'vote-detail' vote.pk %}">投票編集をキャンセルして戻る</a>
 </div>
 
+
 {% endblock content %}
+
