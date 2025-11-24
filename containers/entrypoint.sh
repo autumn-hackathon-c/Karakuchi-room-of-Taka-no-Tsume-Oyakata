@@ -12,7 +12,6 @@ echo "🚀 Starting Django with Gunicorn..."
 # workerを1から3に変更(片方が重くなった場合、残り二つで処理)
 # 起動時に Django をロード
 exec gunicorn sample.wsgi:application \
-    --workers 3 \
-    --preload \
+    --workers 2 \
     --bind 0.0.0.0:8000 \
     --forwarded-allow-ips="*"
