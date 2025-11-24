@@ -8,11 +8,9 @@ echo "🧹 Collect static files..."
 python manage.py collectstatic --noinput
 
 echo "🚀 Starting Django with Gunicorn..."
-# Gunicorn を worker=3 & preload にして安定稼働
-# workerを1から3に変更(片方が重くなった場合、残り二つで処理)
-# 起動時に Django をロード
+# Gunicorn を worker=2にして安定稼働
+# workerを1から2に変更(片方が重くなった場合、もう片方で処理)
 exec gunicorn sample.wsgi:application \
-    --workers 3 \
-    --preload \
+    --workers 2 \
     --bind 0.0.0.0:8000 \
     --forwarded-allow-ips="*"
