@@ -28,11 +28,12 @@
         </div>
         {% comment %} しほ：surveyに紐づいてるタグを表示 {% endcomment %}
         <div>
+            <span>タグ一覧</span><br>
             {% for tag in object.tag_survey.all %}
             {% comment %} ここでは一つのアンケートに対して紐づいている全てのタグになるのでobject.tag_survey.allになる{% endcomment %}
-            <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
+                <span class="badge bg-secondary me-1">{{ tag.tag_name }}</span>
             {% empty %}
-            <span>タグがありません</span>
+                <span class="text_muted">タグがありません</span>
             {% endfor %}
         </div>
          {% comment %} 選択肢　別途JSでの実装が必要 ここまで {% endcomment %}
