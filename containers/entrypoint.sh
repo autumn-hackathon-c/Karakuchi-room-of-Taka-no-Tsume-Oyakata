@@ -14,4 +14,5 @@ echo "🚀 Starting Django with Gunicorn..."
 exec gunicorn sample.wsgi:application \
     --workers 3 \
     --preload \
-    --bind 0.0.0.0:8000
+    --bind 0.0.0.0:8000 \
+    --forwarded-allow-ips="*"
