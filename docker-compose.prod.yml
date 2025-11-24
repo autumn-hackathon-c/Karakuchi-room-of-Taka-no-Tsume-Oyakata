@@ -19,6 +19,9 @@ services:
     
     # 対話的なセッションやコマンドラインの操作を許可する
     tty: true
+
+    volumes:
+      - ${SRC_PATH:-./src}:/app     # ← src を /app にマウント
     
     working_dir: /app               # ← manage.py がここにある
 
