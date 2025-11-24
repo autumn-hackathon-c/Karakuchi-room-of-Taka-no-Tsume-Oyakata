@@ -7,7 +7,9 @@ settings.pyのAUTH_USER_MODELに設定された
 from django.contrib.auth import get_user_model, authenticate
 from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet, HiddenInput
+from django.forms import ValidationError
 from .models import Survey, Option, Vote, Tag
+from .ai_filters import is_offensive
 
 
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -52,10 +54,10 @@ class CustomUserCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         # ウィジェットを明示的に設定する
         self.fields["password1"].widget = forms.PasswordInput(
-            attrs={"class": "form-control"}
+            attrs={"class": "form-control", "id": "password1"}
         )
         self.fields["password2"].widget = forms.PasswordInput(
-            attrs={"class": "form-control"}
+            attrs={"class": "form-control", "id": "password2"}
         )
 
 
@@ -144,6 +146,7 @@ class LoginForm(AuthenticationForm):
             {
                 "class": "form-control",
                 "autocomplete": "current-password",
+                "id": "password",
             }
         )
         # ここまでがUIを変更している
@@ -257,10 +260,32 @@ class SurveyCreateForm(forms.ModelForm):
         }
 
 
+# . アンケート新規作成(バリデーションチェック)
+class ValidationFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        valid_count = 0
+
+        for form in self.forms:
+            if form.cleaned_data.get("DELETE", False):
+                continue
+            label = form.cleaned_data.get("label")
+            if label:
+                valid_count += 1
+
+        if valid_count < 2:
+            raise ValidationError("選択肢は2つ以上必要です。")
+
+        if valid_count > 4:
+            raise ValidationError("選択肢は最大4つまでです。")
+
+
 # ✅ Surveyに紐づくOptionのフォームセットを作成
 OptionFormSet = inlineformset_factory(
     parent_model=Survey,
     model=Option,
+    formset=ValidationFormSet,
     fields=["label"],
     extra=2,  # 表示する空フォーム数
     max_num=4,
@@ -361,6 +386,35 @@ class MyInlineFormSet(BaseInlineFormSet):
         super().add_fields(form, index)
         if "DELETE" in form.fields:
             form.fields["DELETE"].widget = HiddenInput()
+
+    def clean(self):
+        super().clean()
+
+        valid_count = 0  # 有効な選択肢の数
+
+        for form in self.forms:
+            # クリーニング前のフォームは無視
+            if not hasattr(form, "cleaned_data"):
+                continue
+
+            # 削除対象ならスキップ
+            if form.cleaned_data.get("DELETE", False):
+                continue
+
+            # label が空ならスキップ
+            label = form.cleaned_data.get("label")
+            if not label:
+                continue
+
+            valid_count += 1
+
+        # ▼ ここからバリデーション ▼
+
+        if valid_count < 2:
+            raise ValidationError("選択肢は2つ以上必要です。")
+
+        if valid_count > 4:
+            raise ValidationError("選択肢は最大4つまでです。")
 
 
 # ✅ Surveyに紐づくOptionのフォームセットを作成
@@ -472,6 +526,7 @@ class VoteForm(forms.ModelForm):
         widgets = {
             "comment": forms.Textarea(
                 attrs={
+                    "id": "comment_input",
                     "class": "form-control",
                     "rows": 3,
                     "placeholder": "（任意）理由やコメントがあれば入力してください",
@@ -488,6 +543,17 @@ class VoteForm(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+
+    def clean_comment(self):
+        comment = self.cleaned_data.get("comment", "").strip()
+
+        # AIによる誹謗中傷チェック
+        if is_offensive(comment):
+            raise forms.ValidationError(
+                "攻撃的・不適切な内容が含まれているため、投稿できません。"
+            )
+
+        return comment
 
 
 # ✅ 投票詳細機能
@@ -527,6 +593,7 @@ class VoteFormPublished(forms.ModelForm):
         widgets = {
             "comment": forms.Textarea(
                 attrs={
+                    "id": "comment_input",
                     "class": "form-control",
                     "rows": 3,
                     "placeholder": "（任意）理由やコメントがあれば入力してください",
@@ -542,3 +609,14 @@ class VoteFormPublished(forms.ModelForm):
                 survey=survey,
                 is_deleted=False,
             )
+
+    def clean_comment(self):
+        comment = self.cleaned_data.get("comment", "").strip()
+
+        # AIによる誹謗中傷チェック
+        if is_offensive(comment):
+            raise forms.ValidationError(
+                "攻撃的・不適切な内容が含まれているため、投稿できません。"
+            )
+
+        return comment

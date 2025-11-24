@@ -22,9 +22,14 @@
             </div>
             <div class="mb-3">
                 <label class="form-label" for="{{ form.password.id_for_label }}">パスワード</label>
-                {{ form.password }}
-                {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
+                <div class="input-group">
+                    {{ form.password }}
+                    <button type="button" class="btn btn-outline-secondary" data-toggle-password="#password">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
             </div>
+
             {% comment %} 入力内容が正しくなかった時に表示 {% endcomment %}
             <div class="text-danger">   
                 {% for error in form.non_field_errors %}
