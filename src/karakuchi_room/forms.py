@@ -172,7 +172,7 @@ class LoginForm(AuthenticationForm):
 
             if self.user_cache is None:
                 # 認証が失敗していたら
-                raise forms.ValidationError("メールアドレスが正しくありません")
+                raise forms.ValidationError("入力内容が正しくありません")
 
             """
             # raiseとはエラーを意図的に発生させるキーワード

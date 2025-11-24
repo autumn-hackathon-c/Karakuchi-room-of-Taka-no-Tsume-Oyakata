@@ -26,11 +26,11 @@
                 {% comment %} <input class="form-control" type="password" id="pwd" name="pwd"> {% endcomment %}
             </div>
             {% comment %} 入力内容が正しくなかった時に表示 {% endcomment %}
-            {% comment %} <div class="text-danger">   
+            <div class="text-danger">   
                 {% for error in form.non_field_errors %}
                 <p>{{error}}</p>
                 {% endfor %}
-            </div> {% endcomment %}
+            </div> 
             <div class="my-4 d-flex justify-content-between">
                 <a href="{% url 'signup' %}">新規登録へ</a>
                 <button type="submit" class="btn btn-success">ログイン</button>
