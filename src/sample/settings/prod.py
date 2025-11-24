@@ -13,7 +13,7 @@ ALLOWED_HOSTS = [
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#ルートURLの設定
+# ルートURLの設定
 ROOT_URLCONF = "karakuchi_room.urls"
 
 # =========================
