@@ -4,7 +4,12 @@ from pathlib import Path
 from .base import *  # noqa
 
 DEBUG = False
-ALLOWED_HOSTS = ["karakuchi-room.com", "www.karakuchi-room.com"]
+ALLOWED_HOSTS = [
+    "karakuchi-room.com",
+    "www.karakuchi-room.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

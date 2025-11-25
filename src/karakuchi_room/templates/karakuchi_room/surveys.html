@@ -56,6 +56,7 @@
             <div class="card mb-3 p-2">
                 <div class="selected-tags">
                     {% for tag in survey.tag_survey.all %}
+                    {% comment %} ここでは複数のアンケートに紐づいている全てのタグを表示させるからsurvey.tag_survey.allになる {% endcomment %}
                     <span class="badge bg-secondary">{{ tag.tag_name }}</span>
                     {% empty %}
                     <span class="text-muted">タグなし</span>
