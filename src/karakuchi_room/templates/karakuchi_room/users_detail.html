@@ -10,7 +10,7 @@
     <div class="user-detail mx-auto">
         <div class="mb-3">
             <label class="form-label">ユーザー名</label>
-            <div>{{ user.name }}</div>
+            <div>{{ user.user_name }}</div>
         </div>
         <div class="mb-3">
             <label class="form-label">Emailアドレス</label>
@@ -24,7 +24,7 @@
         <div class="my-4 d-flex justify-content-between">
             {% comment %} href属性内の遷移先の作成をお願いします" {% endcomment %}
             <a href="{% url 'survey-list' %}">戻る</a>
-            <a href="" class="btn btn-success">変更</a>
+            <a href="{% url 'user-edit' user.pk %}" class="btn btn-success">変更</a>
         </div>
     </div>
 </div>
