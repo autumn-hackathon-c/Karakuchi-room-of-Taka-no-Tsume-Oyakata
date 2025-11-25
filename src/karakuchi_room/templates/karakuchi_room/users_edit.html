@@ -45,7 +45,7 @@
 </div>
 <div class="text-center my-5 ">
     {% comment %} href属性内の遷移先の作成をお願いします" {% endcomment %}
-    <a href="">ユーザー情報変更をキャンセルして戻る</a>
+    <a href="{% url 'user-detail' user.pk %}">ユーザー情報変更をキャンセルして戻る</a>
 </div>
 
 {% endblock content %}

@@ -42,6 +42,7 @@ from .forms import (
     VoteForm,
     VoteDetailForm,
     VoteFormPublished,
+    UserFormPublished
 )
 from django.utils import timezone
 from django.db import transaction
@@ -572,6 +573,12 @@ def vote_delete(request, pk):
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "karakuchi_room/users_detail.html"
+    
+# ユーザー編集
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserFormPublished
+    template_name = "karakuchi_room/users_edit.html"
 
 
 # コメント生成AI機能（新SDK対応版）
