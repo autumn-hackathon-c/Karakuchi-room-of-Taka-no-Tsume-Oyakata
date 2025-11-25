@@ -47,7 +47,7 @@ from .forms import (
 from django.utils import timezone
 from django.db import transaction
 from karakuchi_room.models import User, Survey, Vote, Option
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model,update_session_auth_hash
 from django.contrib import messages
 import logging
 import os
@@ -579,6 +579,27 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserFormPublished
     template_name = "karakuchi_room/users_edit.html"
+
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+
+        # パスワード1に入力があれば更新する
+        password = form.cleaned_data.get("password1")
+        if password:
+            user.set_password(password)
+        
+        # user_name / email / password をまとめて保存
+        user.save()
+        
+        # ログアウト防止
+        update_session_auth_hash(self.request, user)  
+
+        return super().form_valid(form)
+    
+    
+    def get_success_url(self):
+        return reverse_lazy("survey-list")
 
 
 # コメント生成AI機能（新SDK対応版）
