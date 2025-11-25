@@ -6,7 +6,7 @@
                 {% if user.is_authenticated %}
                 <a href="{% url 'survey-create'%}">アンケート作成</a>
                 <a href="{% url 'survey-list'%}">アンケート一覧
-                <a href="">ユーザー情報</a>
+                <a href="{% url 'user-detail' user.pk %}">ユーザー情報</a>
                 <form action="{% url 'logout' %}" method="POST">
                     {% csrf_token %}
                     <button type="submit" class="nav-logout-btn nav-link">ログアウト</button>

@@ -45,7 +45,7 @@ from .forms import (
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote, Option
+from karakuchi_room.models import User, Survey, Vote, Option
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 import logging
@@ -567,6 +567,11 @@ def vote_delete(request, pk):
 # TagSurvey.objects.filter(survey=survey).delete()
 # 編集対応するなら削除機能も必要
 # models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
+
+# ユーザー詳細
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "karakuchi_room/users_detail.html"
 
 
 # コメント生成AI機能（新SDK対応版）
