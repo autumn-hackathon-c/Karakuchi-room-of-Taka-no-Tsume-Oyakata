@@ -60,7 +60,7 @@
             {% with modal_id="deleteModal-"|add:pk_str %}
             {% url "survey-delete" survey.pk as survey_delete_url %}
             {% comment %} includeタグは改行すると読み込まれないため、可読性が下がっても一行で記述する。 {% endcomment %}
-            {% include "karakuchi_room/snippets/delete-survey-confirmation-modal.html" with modal_id=modal_id survey_title=survey.title survey_description=survey.description options=option_vote_counts survey_end_at=survey.end_at delete_url=survey_delete_url %}
+            {% include "karakuchi_room/snippets/delete-survey-confirmation-modal.html" with modal_id=modal_id survey_title=survey.title survey_description=survey.description option_list=option_list survey_end_at=survey.end_at delete_url=survey_delete_url %}
             {% endwith %}
         {% endwith %}
     </div>

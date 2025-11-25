@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="{{ modal_id }}-label">以下のアンケートを削除してよろしいですか？</h5>
+                <h5 class="modal-title" id="{{ modal_id }}-label">以下の投票を削除してよろしいですか？</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -12,27 +12,14 @@
                         <p>{{ survey_title }}</p>
                     </div>
                     <div>
-                        <label>詳細（任意）</label>
-                        {% if survey_description %}
-                        <p>{{ survey_description }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
                         <label>選択肢</label>
-                        <ul>
-                            {% for option in option_list %}
-                            <li> {{ option.label }}</li>
-                            {% endfor %}
-                        </ul>
+                        <p>{{ choice.label }}</p>
                     </div>
                     <div>
-                        <label>投票期限日（任意）</label>
-                        {% if survey.end_at %}
-                        <p>{{ survey_end_at}}</p>
-                        {% else %}
-                        <p>未設定</p>
-                        {% endif %}
+                        <label>コメント（任意）</label>
+                        <p>{{ comment }}</p>
                     </div>
+
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-between">

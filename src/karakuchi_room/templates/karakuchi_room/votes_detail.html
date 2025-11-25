@@ -53,8 +53,24 @@
     <a href="{% url 'vote-edit' vote.pk %}" class="btn btn-success px-5">投票内容を変更！</a>
 </div>
 <div class="delete-btn text-center">
-    <a href="{% url 'vote-delete' pk=vote.pk %}" class="btn btn-danger px-5">投票内容を削除！</a>
+    {% comment %} <a href="{% url 'vote-delete' pk=vote.pk %}" class="btn btn-danger px-5">投票内容を削除！</a> {% endcomment %}
+    <button type="button" class="btn btn-danger px-5" 
+        data-bs-toggle="modal" 
+        data-bs-target="#deleteModal-{{ vote.pk }}">
+        投票内容を削除！
+    </button>
 </div>
+
+{% comment %} 削除確認モーダル {% endcomment %}
+{% with pk_str=vote.pk|stringformat:"s" %}
+    {% with modal_id="deleteModal-"|add:pk_str %}
+    {% url "vote-delete" vote.pk as vote_delete_url %}
+    {% comment %} includeタグは改行すると読み込まれないため、可読性が下がっても一行で記述する。 {% endcomment %}
+    {% include "karakuchi_room/snippets/delete-vote-confirmation-modal.html" with modal_id=modal_id survey_title=survey.title choice=vote.option comment=vote.comment delete_url=vote_delete_url %}
+    {% endwith %}
+{% endwith %}
+
+
 <div class="text-center my-5">
     {% comment %} idが違う場合でも前画面に遷移させる方法 {% endcomment %}
     <a href="{% url 'survey-detail' vote.survey.pk %}">アンケート詳細に戻る</a>
