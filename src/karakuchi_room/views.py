@@ -108,20 +108,30 @@ class SurveyListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        # current_user = self.request.user　←トイトイさんコード
+        user = self.request.user
         # 現在ログイン中のユーザーを取得
-        current_user = self.request.user
+        now = timezone.now()
+        # 今の日時を取得
+        # 投票受付中の絞り込みで使用
 
         # しほ修正：アンケートの変数名を統一など
         surveys = Survey.objects.filter(is_deleted=False).filter(
             # 論理削除されていない全アンケート一覧を取得(ここで公開済/一時保存も取得できる)
-            # 分ける必要はない
-            Q(is_public=True) | Q(user=current_user)
+            # 変数名分けてはダメ。
+            Q(is_public=True) | Q(user=user)
         )
         # is_public=True：公開されているアンケート
-        # user=current_user：自分が作ったアンケートを全て取得(一時保存も含む)
+        # user=user：自分が作ったアンケートを全て取得(一時保存も含む)
 
         # ↓アンケートの変数名がバラバラでで分かれていて混乱して検索できない原因になっていた
-        # トイトイさん：
+        # 変数名は検索機能がなくても絶対統一すべき！！！！
+        # これはDjangoに限らず、エンジニア共通の鉄則！！！！
+        # ①可読性が一気に下がる
+        # ②バグが起きやすくなる
+        # ③実務では段階的に絞るのが基本
+        # 実務では変数名を変えての絞り込みは行われない。
+        # トイトイさん元コード：
         # ベース条件：削除されていないもの
         # base_survey = Survey.objects.filter(is_deleted=False)
 
@@ -153,6 +163,7 @@ class SurveyListView(LoginRequiredMixin, ListView):
             # icontains(アイコンテインズ)→大文字、小文字を区別しない部分一致検索
             # description→説明文にキーワードが一致していたらヒットする
 
+        # しほ：タグ検索
         tag_ids = self.request.GET.getlist("tag")
         # URLのクエリパラメータ(tag=1&tag=3)ここではリストとして取得
         # get()は1つしか取れないけど、タグは複数選ばれる可能性があるのでgetlist()を使う
@@ -163,6 +174,27 @@ class SurveyListView(LoginRequiredMixin, ListView):
             # .distinct()をつけることで同じアンケートがヒットしないようにしている
             #  models.ManyToManyField(多対多)ではアンケートが重複して返ることがあるので
             # distinct()をつけることで重複を防ぐ
+
+        # しほ追記：自分のアンケートのみを絞り込み
+        if self.request.GET.get("own_only") == "1":
+            # self.request.GET.getはDjango が用意してくれてる「GETパラメータ辞書」
+            # .get("own_only") は URL のクエリパラメータから "own_only" の値を取得する
+            # → チェックが入っていれば "1"、入っていなければパラメータが付かないので None になる
+            surveys = surveys.filter(user=user)
+            # (user=user)は自分のアンケートのみにチェックという意味
+
+        # しほ追記：投票受付中のみを絞り込み
+        if self.request.GET.get("open_only") == "1":
+            # ユーザが投票受付中のみ表示にチェックを入れたかどうか
+            surveys = surveys.filter(start_at__lte=now, end_at__gte=now)
+            # start_atはアンケートモデル(surveys)の開始日時フィールド
+            # __lteはDjangoの演算子(<= 現在時刻以下)
+            # nowはtimezone.now()を継承している。これは現在日時を取得している
+            # つまり、start_time__lte=nowは開始日時が現在より前または同じアンケートに絞り込み
+            # end_atはアンケートモデル(surveys)の終了日時フィールド
+            # __gteはDjangoの演算子(=> 現在時刻以上)
+            # つまり、end_time__gte=nowは終了日時が現在より後または同じアンケートに絞り込み
+            # この組み合わせで投票受付中のアンケートだけが絞り込まれる
 
         # しほ修正：アンケートの変数名をsurveysに統一
         # ここでやりたいことはアンケート一覧の各アンケートについて、自分が投票済みかを判定する
@@ -176,7 +208,7 @@ class SurveyListView(LoginRequiredMixin, ListView):
                 Vote.objects.filter(
                     survey=OuterRef("pk"),
                     # OuterRef("pk") は 「外側の QuerySet（surveys）の現在のアンケートの主キー(ID)」 を指す
-                    user=current_user,
+                    user=user,
                     # 現在ログインしているユーザーの投票かどうか
                     # 自分が投票済みかを確認する
                     is_deleted=False,

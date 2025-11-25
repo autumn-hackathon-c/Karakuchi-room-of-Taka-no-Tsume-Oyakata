@@ -22,11 +22,21 @@
     {% comment %} チェックボックス {% endcomment %}
     <div>
         <div class="form-check mb-2">
-            <input type="checkbox" class="form-check-input" id="filter_active_votes">
+            <input type="checkbox"
+            class="form-check-input" 
+            id="filter_active_votes" 
+            name="open_only" value="1"
+            {% comment %} views.pyの193行目で定義している {% endcomment %}
+            {% if request.GET.get.open_only == "1"%}checked{% endif %}>
             <label class="form-check-label" for="filter_active_votes">投票受付中のみ表示</label>
         </div>
         <div class="form-check mb-2">
-            <input type="checkbox" class="form-check-input" id="filter_my_surveys">
+            <input type="checkbox" 
+            class="form-check-input" 
+            id="filter_my_surveys"
+            name="own_only" value="1"
+            {% comment %} views.pyの183行目で定義している {% endcomment %}
+            {% if request.GET.get.own_only == "1"%}checked{% endif %}>
             <label class="form-check-label" for="filter_my_surveys">自分のアンケートのみ表示</label>
         </div>
     </div>
