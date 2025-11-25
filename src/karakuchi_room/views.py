@@ -102,6 +102,9 @@ class SurveyListView(LoginRequiredMixin, ListView):
         # ここでTagのデータを自分で追加している
         # filter(is_deleted=False)は論理削除されていないタグの一覧とういう意味
         context["selected_tag_ids"] = self.request.GET.getlist("tag")
+        # タグで絞り込みを行った時ににUIで再描写した時に選んだタグをチェック状態で残す
+        # これがないと再描写した時にチェックが外れてしまう
+        # getlist("tag")：ユーザが選択したタグのIDのリストを取得
         return context
 
     def get_queryset(self):
