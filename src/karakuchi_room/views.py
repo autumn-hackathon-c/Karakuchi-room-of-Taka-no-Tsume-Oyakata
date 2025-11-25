@@ -42,12 +42,12 @@ from .forms import (
     VoteForm,
     VoteDetailForm,
     VoteFormPublished,
-    UserFormPublished
+    UserFormPublished,
 )
 from django.utils import timezone
 from django.db import transaction
 from karakuchi_room.models import User, Survey, Vote, Option
-from django.contrib.auth import get_user_model,update_session_auth_hash
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib import messages
 import logging
 import os
@@ -569,17 +569,18 @@ def vote_delete(request, pk):
 # 編集対応するなら削除機能も必要
 # models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
 
+
 # ユーザー詳細
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = "karakuchi_room/users_detail.html"
-    
+
+
 # ユーザー編集
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserFormPublished
     template_name = "karakuchi_room/users_edit.html"
-
 
     def form_valid(self, form):
         user = form.save(commit=False)
@@ -588,16 +589,15 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         password = form.cleaned_data.get("password1")
         if password:
             user.set_password(password)
-        
+
         # user_name / email / password をまとめて保存
         user.save()
-        
+
         # ログアウト防止
-        update_session_auth_hash(self.request, user)  
+        update_session_auth_hash(self.request, user)
 
         return super().form_valid(form)
-    
-    
+
     def get_success_url(self):
         return reverse_lazy("survey-list")
 

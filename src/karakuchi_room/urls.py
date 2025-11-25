@@ -15,7 +15,7 @@ from karakuchi_room.views import (
     VoteDetailView,
     VoteUpdateView,
     UserDetailView,
-    UserUpdateView
+    UserUpdateView,
 )
 
 
@@ -58,13 +58,10 @@ urlpatterns = [
         VoteUpdateView.as_view(),
         name="vote-edit",
     ),
-    
     # ユーザー詳細
     path("users/detail/<uuid:pk>", UserDetailView.as_view(), name="user-detail"),
-    
     # ユーザー編集
     path("users/edit/<uuid:pk>", UserUpdateView.as_view(), name="user-edit"),
-    
     # コメント生成AI機能
     path("api/comment/soften/", soften_comment, name="soften-comment"),
 ]
