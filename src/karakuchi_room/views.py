@@ -51,7 +51,7 @@ from django.contrib import messages
 import logging
 import os
 import json
-import openai
+from openai import OpenAI
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -63,8 +63,6 @@ Exists   : サブクエリで「該当するレコードが存在するか」を
 OuterRef : サブクエリの中で外側のクエリ（親クエリ）の値を参照する
 Q        : 複雑な条件を OR / AND / NOT で組み合わせる
 """
-
-openai.api_key = os.environ.get("API_KEY")
 
 
 # 新規登録
@@ -678,10 +676,12 @@ def vote_delete(request, pk):
 # models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
 
 
-# コメント生成AI機能
+# コメント生成AI機能（新SDK対応版）
 @csrf_exempt
 def soften_comment(request):
     """コメントを柔らかい表現に変換し、誹謗中傷をチェックする"""
+
+    client = OpenAI(api_key=os.environ["API_KEY"])
 
     data = json.loads(request.body)
     text = data.get("text", "")
@@ -694,25 +694,25 @@ def soften_comment(request):
     # -----------------------------
     prompt = f"""
 以下のルールに従って、入力された文章のみを柔らかく書き換えてください。
-	•	回答文は書かないこと（「こんな感じで書き換えました！」などのコメント不要）
-	•	書き換え後の文章だけを出力すること
-	•	文章の意味や主張は変えないこと（内容を追加したり削除したりしない）
-	•	“柔らかくする” とは表現を少し優しくする程度にとどめること
-    •	絵文字を入れること
-	•	丁寧になりすぎて元の意図が失われるような完全書き換えは禁止
-    •   攻撃的・失礼な要素があればすべて取り除くこと 
-    •   ネガティブな意見は相手が受け止めやすいように表現を書き換えてください。
+・回答文は書かないこと（「こんな感じで書き換えました！」などのコメント不要）
+・書き換え後の文章だけを出力すること
+・文章の意味や主張は変えないこと（内容を追加したり削除したりしない）
+・“柔らかくする” とは表現を少し優しくする程度にとどめること
+・絵文字を入れること
+・丁寧になりすぎて元の意図が失われるような完全書き換えは禁止
+・攻撃的・失礼な要素があればすべて取り除くこと 
+・ネガティブな意見は相手が受け止めやすいように表現を書き換えてください。
 
 元の文章：
 {text}
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
     )
 
-    soft_text = response.choices[0].message["content"]
+    soft_text = response.choices[0].message.content
 
     return JsonResponse({"soft_text": soft_text})
 
