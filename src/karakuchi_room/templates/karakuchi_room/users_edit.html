@@ -8,8 +8,21 @@
 <div class="users-form card p-3 mx-auto">
     <div class="user-edit mx-auto">
         <form action="" method="post">
-            {% comment %} {{}}内のフォーム名は仮で付けています。バックエンド側の実装に合わせて適宜修正願います {% endcomment %}
             {% csrf_token %}
+            {% comment %} 各フィールドのエラー {% endcomment %}
+            {% if form.errors %}
+                <ul class="text-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% comment %} フォーム全体のエラー {% endcomment %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <div class="mb-3">
                 <label class="form-label" for="{{ form.user_name.id_for_label }}">ユーザー名</label>
                 {{ form.user_name }}
@@ -45,7 +58,7 @@
 </div>
 <div class="text-center my-5 ">
     {% comment %} href属性内の遷移先の作成をお願いします" {% endcomment %}
-    <a href="">ユーザー情報変更をキャンセルして戻る</a>
+    <a href="{% url 'user-detail' user.pk %}">ユーザー情報変更をキャンセルして戻る</a>
 </div>
 
 {% endblock content %}
