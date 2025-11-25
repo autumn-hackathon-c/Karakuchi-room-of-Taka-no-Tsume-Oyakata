@@ -93,7 +93,7 @@ class SurveyListView(LoginRequiredMixin, ListView):
     template_name = "karakuchi_room/surveys.html"
     context_object_name = "survey_list"
 
-    # タグを一覧表示
+    # しほ：タグを一覧表示
     def get_context_data(self, **kwargs):
         # 親クラス(listView)がコンテキストに渡そうとしているデータを受け取り可能にしている
         context = super().get_context_data(**kwargs)
@@ -101,33 +101,105 @@ class SurveyListView(LoginRequiredMixin, ListView):
         context["all_tags"] = Tag.objects.filter(is_deleted=False)
         # ここでTagのデータを自分で追加している
         # filter(is_deleted=False)は論理削除されていないタグの一覧とういう意味
+        context["selected_tag_ids"] = self.request.GET.getlist("tag")
         return context
 
     def get_queryset(self):
         # 現在ログイン中のユーザーを取得
         current_user = self.request.user
 
-        # ベース条件：削除されていないもの
-        base_survey = Survey.objects.filter(is_deleted=False)
-
-        # 公開アンケート or 自分が作ったアンケート（下書き含む）
-        surveys_with_vote_status = base_survey.filter(
+        # しほ修正：アンケートの変数名を統一など
+        surveys = Survey.objects.filter(is_deleted=False).filter(
+            # 論理削除されていない全アンケート一覧を取得(ここで公開済/一時保存も取得できる)
+            # 分ける必要はない
             Q(is_public=True) | Q(user=current_user)
         )
+        # is_public=True：公開されているアンケート
+        # user=current_user：自分が作ったアンケートを全て取得(一時保存も含む)
 
-        # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
-        surveys_with_vote_status = surveys_with_vote_status.annotate(
+        # ↓アンケートの変数名がバラバラでで分かれていて混乱して検索できない原因になっていた
+        # トイトイさん：
+        # ベース条件：削除されていないもの
+        # base_survey = Survey.objects.filter(is_deleted=False)
+
+        # 公開アンケート or 自分が作ったアンケート（下書き含む）
+        # surveys_with_vote_status = base_survey.filter(
+        #     Q(is_public=True) | Q(user=current_user)
+        # )
+
+        # しほ：アンケート検索機能
+        keyword = self.request.GET.get("q")
+        # URLのクエリパラメーター(?q=検索ワード)を取得
+        # 例：/survey/?q=好きな食べ物とアクセスされた時(keyword="好きな食べ物")
+        # もし何も入力されていなければNoneが入る
+        if keyword:
+            # 検索ワードが入力されていたら検索条件で絞り込みを行う
+            # 検索フォームが空の場合はフィルターをかけずにスルー
+            surveys = surveys.filter(
+                # ↑surveysのオブジェクトの中から、この条件に合うものだけを残して！という命令文
+                # フィールド名　= フィールド名.filter(...条件)
+                Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            )
+            # そもそもQオブジェクトとは？
+            # Qオブジェクトを使うとOR条件や複雑な条件が書けるようになる
+            # 例：AかBのどちらか、Aかつ(BかC)、NOT A、みたいなSQLのWHERE条件を自由に組み立てたもの
+
+            # title__icontainsの意味
+            # title→モデルのフィールド名（Surveyモデルのtitleフィールド(アンケートタイトル))
+            # __(ダブルアンダースコア)はDjangoのフィルタのルール指定
+            # icontains(アイコンテインズ)→大文字、小文字を区別しない部分一致検索
+            # description→説明文にキーワードが一致していたらヒットする
+
+        tag_ids = self.request.GET.getlist("tag")
+        # URLのクエリパラメータ(tag=1&tag=3)ここではリストとして取得
+        # get()は1つしか取れないけど、タグは複数選ばれる可能性があるのでgetlist()を使う
+        if tag_ids:
+            # タグが選ばれていたら絞り込みを行う
+            surveys = surveys.filter(tag_survey__in=tag_ids).distinct()
+            # tag_survey(アンケートに紐付くタグ)の中に、選択されたタグID(tag_ids)が含まれているアンケートだけを残す
+            # .distinct()をつけることで同じアンケートがヒットしないようにしている
+            #  models.ManyToManyField(多対多)ではアンケートが重複して返ることがあるので
+            # distinct()をつけることで重複を防ぐ
+
+        # しほ修正：アンケートの変数名をsurveysに統一
+        # ここでやりたいことはアンケート一覧の各アンケートについて、自分が投票済みかを判定する
+        # ここで判定することで他の方のアンケートの詳細を見ることができる
+        surveys = surveys.annotate(
+            # annotate(アノテイト)とは？
+            # DjangoのQuerySetのメソッド。SQLでいうSELECT ... , (サブクエリ) AS has_voted と同じイメージ
+            # ここではレコード(surveys)にフィールド(has_vote)をつけている
             has_voted=Exists(
+                # Exists()は投票したかどうかうぃTrue/Falseで返す
                 Vote.objects.filter(
-                    survey=OuterRef("pk"),  # 対象のアンケートに対応する投票
-                    user=current_user,  # 現在のログインユーザーによる投票
-                    is_deleted=False,  # 有効な投票のみ対象
+                    survey=OuterRef("pk"),
+                    # OuterRef("pk") は 「外側の QuerySet（surveys）の現在のアンケートの主キー(ID)」 を指す
+                    user=current_user,
+                    # 現在ログインしているユーザーの投票かどうか
+                    # 自分が投票済みかを確認する
+                    is_deleted=False,
+                    # 論理削除されていない投票だけを取得
                 )
             )
         )
 
+        return surveys.order_by("-id")
+        # order_byは並び順を指定するためのDjangoのクエリセットメソッド
+        # -idと書くとidの降順(新しいアンケート順),-をつけない時は古い順になる
+
+        # トイトイrさん：元コード
+        # # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
+        # surveys_with_vote_status = surveys_with_vote_status.annotate(
+        #     has_voted=Exists(
+        #         Vote.objects.filter(
+        #             survey=OuterRef("pk"),  # 対象のアンケートに対応する投票
+        #             user=current_user,  # 現在のログインユーザーによる投票
+        #             is_deleted=False,  # 有効な投票のみ対象
+        #         )
+        #     )
+        # )
+
         # 投票状況付きのアンケート一覧を新しい順で返す
-        return surveys_with_vote_status.order_by("-id")
+        # return surveys_with_vote_status.order_by("-id")
 
 
 # アンケート詳細画面
@@ -608,3 +680,8 @@ def soften_comment(request):
     soft_text = response.choices[0].message["content"]
 
     return JsonResponse({"soft_text": soft_text})
+
+
+# アンケートの絞り込み
+class SurveyListview(ListView):
+    model = Survey
