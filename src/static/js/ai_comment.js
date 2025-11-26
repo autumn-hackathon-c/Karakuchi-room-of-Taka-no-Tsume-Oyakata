@@ -32,36 +32,42 @@ function getCookie(name) {
 // ------------------------------------------------------------
 // 「AIで柔らかくする」ボタンが押された時の処理
 // ------------------------------------------------------------
-document.getElementById("ai_soften_btn").addEventListener("click", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-    // textarea（コメント入力欄）の中身を取得
-    const text = document.getElementById("comment_input").value;
+    const softenBtn = document.getElementById("ai_soften_btn");
+    if (!softenBtn) return;  // ← ボタンが無いページでは処理をしない
 
-    // --------------------------------------------------------
-    // Django の API（/api/comment/soften/）に入力文章を送る
-    // --------------------------------------------------------
-    fetch("/api/comment/soften/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json", // JSON形式で送信
-            "X-CSRFToken": getCookie("csrftoken"), // CSRFトークンをヘッダーにセット
-        },
-        body: JSON.stringify({ text: text }), // 「text: 入力内容」を送る
-    })
-        // レスポンス（APIから返ってきたデータ）を JSON として読み込む
-        .then(res => res.json())
+    softenBtn.addEventListener("click", function () {
 
-        // 読み込んだ JSON データで次の処理を行う
-        .then(data => {
+        // textarea（コメント入力欄）の中身を取得
+        const text = document.getElementById("comment_input").value;
 
-            // ----------------------------------------------------
-            // AI が柔らかく書き換えた文章を textarea に反映
-            // ----------------------------------------------------
-            document.getElementById("comment_input").value = data.soft_text;
+        // --------------------------------------------------------
+        // Django の API（/api/comment/soften/）に入力文章を送る
+        // --------------------------------------------------------
+        fetch("/api/comment/soften/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json", // JSON形式で送信
+                "X-CSRFToken": getCookie("csrftoken"), // CSRFトークンをヘッダーにセット
+            },
+            body: JSON.stringify({ text: text }), // 「text: 入力内容」を送る
+        })
+            // レスポンス（APIから返ってきたデータ）を JSON として読み込む
+            .then(res => res.json())
 
-            // 変換完了メッセージを画面に表示
-            const result = document.getElementById("ai_result");
-            result.style.color = "#007700";   // ← 緑色にする
-            result.innerText = "文章を書き換えました！こちらの文章でいかがでしょうか？";
+            // 読み込んだ JSON データで次の処理を行う
+            .then(data => {
+
+                // ----------------------------------------------------
+                // AI が柔らかく書き換えた文章を textarea に反映
+                // ----------------------------------------------------
+                document.getElementById("comment_input").value = data.soft_text;
+
+                // 変換完了メッセージを画面に表示
+                const result = document.getElementById("ai_result");
+                result.style.color = "#007700";   // ← 緑色にする
+                result.innerText = "文章を書き換えました！こちらの文章でいかがでしょうか？";
+            });
         });
 });

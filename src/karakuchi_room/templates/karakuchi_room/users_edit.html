@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="header page-title my-4">
+    <h2>ユーザー情報変更</h2>
+</div>
+<div class="users-form card p-3 mx-auto">
+    <div class="user-edit mx-auto">
+        <form action="" method="post">
+            {% csrf_token %}
+            {% comment %} 各フィールドのエラー {% endcomment %}
+            {% if form.errors %}
+                <ul class="text-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% comment %} フォーム全体のエラー {% endcomment %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.user_name.id_for_label }}">ユーザー名</label>
+                {{ form.user_name }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Emailアドレス</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.password1.id_for_label }}">パスワード</label>
+                <div class="input-group">
+                    {{ form.password1 }}
+                    <button type="button" class="btn btn-outline-secondary" data-toggle-password="#password1">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.password2.id_for_label }}">パスワード（確認用）</label>
+                <div class="input-group">
+                    {{ form.password2 }}
+                    <button type="button" class="btn btn-outline-secondary" data-toggle-password="#password2">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="my-4 text-center">
+                {% comment %} href属性内の遷移先の作成をお願いします" {% endcomment %}
+                <button type="submit" class="btn btn-success">変更！</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="text-center my-5 ">
+    {% comment %} href属性内の遷移先の作成をお願いします" {% endcomment %}
+    <a href="{% url 'user-detail' user.pk %}">ユーザー情報変更をキャンセルして戻る</a>
+</div>
+
+{% endblock content %}

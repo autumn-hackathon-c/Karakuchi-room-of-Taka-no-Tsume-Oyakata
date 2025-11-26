@@ -620,3 +620,38 @@ class VoteFormPublished(forms.ModelForm):
             )
 
         return comment
+
+
+# ユーザー編集機能
+class UserFormPublished(forms.ModelForm):
+    # フォームだけの独自フィールドを定義
+    password1 = forms.CharField(
+        label="新しいパスワード",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control", "id": "password1"}),
+    )
+    password2 = forms.CharField(
+        label="新しいパスワード（確認）",
+        required=False,
+        widget=forms.PasswordInput(attrs={"class": "form-control", "id": "password2"}),
+    )
+
+    class Meta:
+        model = User
+        fields = ["user_name", "email"]
+        widgets = {
+            "user_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    # パスワード一致バリデーション
+    def clean(self):
+        cleaned_data = super().clean()
+        p1 = cleaned_data.get("password1")
+        p2 = cleaned_data.get("password2")
+
+        if p1 or p2:
+            if p1 != p2:
+                raise forms.ValidationError("パスワードが一致しません。")
+
+        return cleaned_data

@@ -42,11 +42,12 @@ from .forms import (
     VoteForm,
     VoteDetailForm,
     VoteFormPublished,
+    UserFormPublished,
 )
 from django.utils import timezone
 from django.db import transaction
-from karakuchi_room.models import Survey, Vote, Option
-from django.contrib.auth import get_user_model
+from karakuchi_room.models import User, Survey, Vote, Option
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib import messages
 import logging
 import os
@@ -91,7 +92,7 @@ class SurveyListView(LoginRequiredMixin, ListView):
     template_name = "karakuchi_room/surveys.html"
     context_object_name = "survey_list"
 
-    # タグを一覧表示
+    # しほ：タグを一覧表示
     def get_context_data(self, **kwargs):
         # 親クラス(listView)がコンテキストに渡そうとしているデータを受け取り可能にしている
         context = super().get_context_data(**kwargs)
@@ -99,33 +100,140 @@ class SurveyListView(LoginRequiredMixin, ListView):
         context["all_tags"] = Tag.objects.filter(is_deleted=False)
         # ここでTagのデータを自分で追加している
         # filter(is_deleted=False)は論理削除されていないタグの一覧とういう意味
+        context["selected_tag_ids"] = self.request.GET.getlist("tag")
+        # タグで絞り込みを行った時ににUIで再描写した時に選んだタグをチェック状態で残す
+        # これがないと再描写した時にチェックが外れてしまう
+        # getlist("tag")：ユーザが選択したタグのIDのリストを取得
         return context
 
     def get_queryset(self):
+        # current_user = self.request.user　←トイトイさんコード
+        user = self.request.user
         # 現在ログイン中のユーザーを取得
-        current_user = self.request.user
+        now = timezone.now()
+        # 今の日時を取得
+        # 投票受付中の絞り込みで使用
 
+        # しほ修正：アンケートの変数名を統一など
+        surveys = Survey.objects.filter(is_deleted=False).filter(
+            # 論理削除されていない全アンケート一覧を取得(ここで公開済/一時保存も取得できる)
+            # 変数名分けてはダメ。
+            Q(is_public=True) | Q(user=user)
+        )
+        # is_public=True：公開されているアンケート
+        # user=user：自分が作ったアンケートを全て取得(一時保存も含む)
+
+        # ↓アンケートの変数名がバラバラでで分かれていて混乱して検索できない原因になっていた
+        # 変数名は検索機能がなくても絶対統一すべき！！！！
+        # これはDjangoに限らず、エンジニア共通の鉄則！！！！
+        # ①可読性が一気に下がる
+        # ②バグが起きやすくなる
+        # ③実務では段階的に絞るのが基本
+        # 実務では変数名を変えての絞り込みは行われない。
+        # トイトイさん元コード：
         # ベース条件：削除されていないもの
-        base_survey = Survey.objects.filter(is_deleted=False)
+        # base_survey = Survey.objects.filter(is_deleted=False)
 
         # 公開アンケート or 自分が作ったアンケート（下書き含む）
-        surveys_with_vote_status = base_survey.filter(
-            Q(is_public=True) | Q(user=current_user)
-        )
+        # surveys_with_vote_status = base_survey.filter(
+        #     Q(is_public=True) | Q(user=current_user)
+        # )
 
-        # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
-        surveys_with_vote_status = surveys_with_vote_status.annotate(
+        # しほ：アンケート検索機能
+        keyword = self.request.GET.get("q")
+        # URLのクエリパラメーター(?q=検索ワード)を取得
+        # 例：/survey/?q=好きな食べ物とアクセスされた時(keyword="好きな食べ物")
+        # もし何も入力されていなければNoneが入る
+        if keyword:
+            # 検索ワードが入力されていたら検索条件で絞り込みを行う
+            # 検索フォームが空の場合はフィルターをかけずにスルー
+            surveys = surveys.filter(
+                # ↑surveysのオブジェクトの中から、この条件に合うものだけを残して！という命令文
+                # フィールド名　= フィールド名.filter(...条件)
+                Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            )
+            # そもそもQオブジェクトとは？
+            # Qオブジェクトを使うとOR条件や複雑な条件が書けるようになる
+            # 例：AかBのどちらか、Aかつ(BかC)、NOT A、みたいなSQLのWHERE条件を自由に組み立てたもの
+
+            # title__icontainsの意味
+            # title→モデルのフィールド名（Surveyモデルのtitleフィールド(アンケートタイトル))
+            # __(ダブルアンダースコア)はDjangoのフィルタのルール指定
+            # icontains(アイコンテインズ)→大文字、小文字を区別しない部分一致検索
+            # description→説明文にキーワードが一致していたらヒットする
+
+        # しほ：タグ検索
+        tag_ids = self.request.GET.getlist("tag")
+        # URLのクエリパラメータ(tag=1&tag=3)ここではリストとして取得
+        # get()は1つしか取れないけど、タグは複数選ばれる可能性があるのでgetlist()を使う
+        if tag_ids:
+            # タグが選ばれていたら絞り込みを行う
+            surveys = surveys.filter(tag_survey__in=tag_ids).distinct()
+            # tag_survey(アンケートに紐付くタグ)の中に、選択されたタグID(tag_ids)が含まれているアンケートだけを残す
+            # .distinct()をつけることで同じアンケートがヒットしないようにしている
+            #  models.ManyToManyField(多対多)ではアンケートが重複して返ることがあるので
+            # distinct()をつけることで重複を防ぐ
+
+        # しほ追記：自分のアンケートのみを絞り込み
+        if self.request.GET.get("own_only") == "1":
+            # self.request.GET.getはDjango が用意してくれてる「GETパラメータ辞書」
+            # .get("own_only") は URL のクエリパラメータから "own_only" の値を取得する
+            # → チェックが入っていれば "1"、入っていなければパラメータが付かないので None になる
+            surveys = surveys.filter(user=user)
+            # (user=user)は自分のアンケートのみにチェックという意味
+
+        # しほ追記：投票受付中のみを絞り込み
+        if self.request.GET.get("open_only") == "1":
+            # ユーザが投票受付中のみ表示にチェックを入れたかどうか
+            surveys = surveys.filter(start_at__lte=now, end_at__gte=now)
+            # start_atはアンケートモデル(surveys)の開始日時フィールド
+            # __lteはDjangoの演算子(<= 現在時刻以下)
+            # nowはtimezone.now()を継承している。これは現在日時を取得している
+            # つまり、start_time__lte=nowは開始日時が現在より前または同じアンケートに絞り込み
+            # end_atはアンケートモデル(surveys)の終了日時フィールド
+            # __gteはDjangoの演算子(=> 現在時刻以上)
+            # つまり、end_time__gte=nowは終了日時が現在より後または同じアンケートに絞り込み
+            # この組み合わせで投票受付中のアンケートだけが絞り込まれる
+
+        # しほ修正：アンケートの変数名をsurveysに統一
+        # ここでやりたいことはアンケート一覧の各アンケートについて、自分が投票済みかを判定する
+        # ここで判定することで他の方のアンケートの詳細を見ることができる
+        surveys = surveys.annotate(
+            # annotate(アノテイト)とは？
+            # DjangoのQuerySetのメソッド。SQLでいうSELECT ... , (サブクエリ) AS has_voted と同じイメージ
+            # ここではレコード(surveys)にフィールド(has_vote)をつけている
             has_voted=Exists(
+                # Exists()は投票したかどうかうぃTrue/Falseで返す
                 Vote.objects.filter(
-                    survey=OuterRef("pk"),  # 対象のアンケートに対応する投票
-                    user=current_user,  # 現在のログインユーザーによる投票
-                    is_deleted=False,  # 有効な投票のみ対象
+                    survey=OuterRef("pk"),
+                    # OuterRef("pk") は 「外側の QuerySet（surveys）の現在のアンケートの主キー(ID)」 を指す
+                    user=user,
+                    # 現在ログインしているユーザーの投票かどうか
+                    # 自分が投票済みかを確認する
+                    is_deleted=False,
+                    # 論理削除されていない投票だけを取得
                 )
             )
         )
 
+        return surveys.order_by("-id")
+        # order_byは並び順を指定するためのDjangoのクエリセットメソッド
+        # -idと書くとidの降順(新しいアンケート順),-をつけない時は古い順になる
+
+        # トイトイrさん：元コード
+        # # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
+        # surveys_with_vote_status = surveys_with_vote_status.annotate(
+        #     has_voted=Exists(
+        #         Vote.objects.filter(
+        #             survey=OuterRef("pk"),  # 対象のアンケートに対応する投票
+        #             user=current_user,  # 現在のログインユーザーによる投票
+        #             is_deleted=False,  # 有効な投票のみ対象
+        #         )
+        #     )
+        # )
+
         # 投票状況付きのアンケート一覧を新しい順で返す
-        return surveys_with_vote_status.order_by("-id")
+        # return surveys_with_vote_status.order_by("-id")
 
 
 # アンケート詳細画面
@@ -569,6 +677,38 @@ def vote_delete(request, pk):
 # models.pyで指定している中間テーブル名(TagSurvey)でアンケートに紐づいているタグを削除
 
 
+# ユーザー詳細
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "karakuchi_room/users_detail.html"
+
+
+# ユーザー編集
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserFormPublished
+    template_name = "karakuchi_room/users_edit.html"
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+
+        # パスワード1に入力があれば更新する
+        password = form.cleaned_data.get("password1")
+        if password:
+            user.set_password(password)
+
+        # user_name / email / password をまとめて保存
+        user.save()
+
+        # ログアウト防止
+        update_session_auth_hash(self.request, user)
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy("survey-list")
+
+
 # コメント生成AI機能（新SDK対応版）
 @csrf_exempt
 def soften_comment(request):
@@ -608,3 +748,8 @@ def soften_comment(request):
     soft_text = response.choices[0].message.content
 
     return JsonResponse({"soft_text": soft_text})
+
+
+# アンケートの絞り込み
+class SurveyListview(ListView):
+    model = Survey

@@ -86,7 +86,7 @@ a {
   width: 100%;
 }
 
-.login-form, .signup-form {
+.login-form, .signup-form, .user-detail, .user-edit {
   max-width: 500px;
   width: 100%;
 }
