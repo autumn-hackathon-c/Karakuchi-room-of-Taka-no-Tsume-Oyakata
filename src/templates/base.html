@@ -24,7 +24,7 @@
                 <a href="{% url 'survey-list' %}"><img width="100" src="{% static 'img/logo.png' %}" alt="鷹の爪親方の辛口部屋のロゴ"></a>
             </div>
             {% if user.is_authenticated %}
-            <div class="col-auto h5">
+            <div class="col-auto d-none md-block h5">
                 <p class="m-0">ようこそ、{{user.user_name}}さん！
                 </p>
             </div>
