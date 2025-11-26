@@ -9,16 +9,17 @@
 <div class="header survey-title my-4 fw-bold">
     <h3>{{ survey.title }}</h3>
 </div>
-{% comment %} <div class="selcted-tags w-100 mx-auto py-2 row">
-    {{ for tag in survey.tag_survey.all }}
-    <div class="col-auto me-2 mb-2 bg-secondary-subtle rounded-5">{{ tag.tag_name }}</div>
-    {{ endfor }}
-</div> {% endcomment %}
+{% comment %} タグの表示 {% endcomment %}
+<div class="selcted-tags w-100 mx-auto py-2 row">
+    {% for tag in survey.tag_survey.all %}
+    <div class="col-auto me-2 mb-2 badge bg-secondary rounded-5">{{ tag.tag_name }}</div>
+    {% endfor %}
+</div>
 <div class="row mb-2">
     {% if survey.start_at %}
     <span class="col-auto">投票開始:{{ survey.start_at }}</span> 
     {% else %}
-    <span class="col-auto">投票開始: 不明</span> 
+    <span class="col-auto">投票開始: 開始前</span> 
     {% endif %}
 
     {% if survey.end_at %}
@@ -32,7 +33,7 @@
 </div>
 {% comment %} アンケート作成者本人の場合 {% endcomment %}
 {% if survey.user == request.user %}
-<div class="alert alert-primary" role="alert">
+<div class="alert alert-primary mt-2" role="alert">
     <div class="d-flex justify-content-between">
         <div>
             あなたはアンケート作成者です！
@@ -48,7 +49,7 @@
             </div>
             {% endif %}
             <div>
-                <button type="button" class="nav-link py-0" 
+                <button type="button" class="survey-delete-btn nav-link py-0" 
                         data-bs-toggle="modal" 
                         data-bs-target="#deleteModal-{{ survey.pk }}">
                     削除

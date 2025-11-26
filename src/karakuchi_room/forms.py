@@ -45,7 +45,9 @@ class CustomUserCreationForm(UserCreationForm):
         # フォームに表示したい追加フィールド(user_nameはカスタムフィールド)
 
         widgets = {
-            "user_name": forms.TextInput(attrs={"class": "form-control"}),
+            "user_name": forms.TextInput(
+                attrs={"class": "form-control", "autofocus": True}
+            ),
             "email": forms.TextInput(attrs={"class": "form-control"}),
         }
 
