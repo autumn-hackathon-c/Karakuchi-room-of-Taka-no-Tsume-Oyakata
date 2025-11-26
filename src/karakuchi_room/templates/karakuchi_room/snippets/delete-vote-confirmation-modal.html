@@ -17,7 +17,11 @@
                     </div>
                     <div>
                         <label>コメント（任意）</label>
+                        {% if comment %}
                         <p>{{ comment }}</p>
+                        {% else %}
+                        <p>コメントはありません</p>
+                        {% endif %}
                     </div>
 
                 </div>
