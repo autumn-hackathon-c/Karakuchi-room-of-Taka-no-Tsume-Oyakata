@@ -12,31 +12,53 @@
     {% comment %} 検索バー {% endcomment %}
     <form action="" method="get">
         <div class="row mb-3">
-            <input class="form-control col" type="text" name="search_word" placeholder="Search">
+            {% comment %} しほ：ここからキーワド検索とタグ検索 {% endcomment %}
+            <input class="form-control col" type="text" name="q" placeholder="Search" value="{{ request.GET.p }}">
             <button class="col-auto btn btn-light" type="submit">検索</button>
         </div>
-    </form>
-    {% comment %} 検索バー　ここまで {% endcomment %}
-</div>
-{% comment %} チェックボックス {% endcomment %}
-<div>
-    <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="filter_active_votes">
-        <label class="form-check-label" for="filter_active_votes">投票受付中のみ表示</label>
+
+        {% comment %} 検索バー　ここまで {% endcomment %}
     </div>
-    <div class="form-check mb-2">
-        <input type="checkbox" class="form-check-input" id="filter_my_surveys">
-        <label class="form-check-label" for="filter_my_surveys">自分のアンケートのみ表示</label>
+    {% comment %} チェックボックス {% endcomment %}
+    <div>
+        <div class="form-check mb-2">
+            <input type="checkbox"
+            class="form-check-input" 
+            id="filter_active_votes" 
+            name="open_only" value="1"
+            {% comment %} views.pyの193行目で定義している {% endcomment %}
+            {% if request.GET.get.open_only == "1"%}checked{% endif %}>
+            <label class="form-check-label" for="filter_active_votes">投票受付中のみ表示</label>
+        </div>
+        <div class="form-check mb-2">
+            <input type="checkbox" 
+            class="form-check-input" 
+            id="filter_my_surveys"
+            name="own_only" value="1"
+            {% comment %} views.pyの183行目で定義している {% endcomment %}
+            {% if request.GET.get.own_only == "1"%}checked{% endif %}>
+            <label class="form-check-label" for="filter_my_surveys">自分のアンケートのみ表示</label>
+        </div>
     </div>
-</div>
-{% comment %} チェックボックス ここまで {% endcomment %}
-<div class="tags w-100 mx-auto p-3">
+    {% comment %} チェックボックス ここまで {% endcomment %}
+    {% comment %} しほ：タグでの絞り込み機能追加 {% endcomment %}
+    <span>タグで絞り込み</span><br>
     {% for tag in all_tags %}
-    <button class="btn btn-light rounded-5">{{ tag.tag_name }}</button>
-    {% empty %}
-    <span>タグがありません</span>
+        <label class="me-2">
+            <input type="checkbox" name="tag" value="{{ tag.id }}"
+                {% if tag.id|stringformat:"s" in selected_tag_ids %}checked{% endif %}>
+                {% comment %}
+                意味：既に選択されているタグなら、チェックを入れる
+                selected_tag_ids はビューで渡した 選択中のタグIDリスト
+                tag.id|stringformat:"s" → IDを文字列に変換して比較（GETパラメータは文字列として来るので）
+                in selected_tag_ids → このIDがリストに含まれているか確認
+                checked → HTML属性でチェックボックスにチェックを入れる
+                context["selected_tag_ids"] = self.request.GET.getlist("tag")←これ
+                {% endcomment %}
+            {{ tag.tag_name }}
+        </label>
     {% endfor %}
-</div>
+    </form>
 <div class="surveys-list">
     <ul class="list-unstyled">
         {% for survey in survey_list %}
