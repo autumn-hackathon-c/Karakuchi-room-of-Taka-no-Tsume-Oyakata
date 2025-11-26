@@ -9,7 +9,11 @@
     <h2>{{survey.title}} </h2>
 </div>
 <div class="deadline my-2">
+    {% if survey.end_at %}
     <span>投票期限：{{survey.end_at}}</span>
+    {% else %}
+    <span>投票期限：未設定</span>
+    {% endif %}
 </div>
 <div class="discription border border-secondary p-2 my-3">
     {% if survey.description %}
