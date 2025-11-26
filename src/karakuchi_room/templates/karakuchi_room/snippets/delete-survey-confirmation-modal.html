@@ -1,0 +1,47 @@
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id }}-label">以下のアンケートを削除してよろしいですか？</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card mx-auto p-3">
+                    <div>
+                        <label class="form-label">タイトル</label>
+                        <p>{{ survey_title }}</p>
+                    </div>
+                    <div>
+                        <label>詳細（任意）</label>
+                        {% if survey_description %}
+                        <p>{{ survey_description }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label>選択肢</label>
+                        <ul>
+                            {% for option in option_list %}
+                            <li> {{ option.label }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div>
+                        <label>投票期限日（任意）</label>
+                        {% if survey.end_at %}
+                        <p>{{ survey_end_at}}</p>
+                        {% else %}
+                        <p>未設定</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="nav-link" data-bs-dismiss="modal">戻る</button>
+                <form action="{{ delete_url }}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">はい</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
