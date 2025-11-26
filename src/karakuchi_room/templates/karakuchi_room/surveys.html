@@ -8,19 +8,19 @@
 <div class="header page-title my-4">
     <h2>アンケート一覧</h2>
 </div>
-<div class="search-bar w-100 mx-auto p-2">
+<div class="search-bar w-100 mx-auto">
     {% comment %} 検索バー {% endcomment %}
     <form action="" method="get">
-        <div class="row mb-3">
+        <div class="input-group mb-3">
             {% comment %} しほ：ここからキーワド検索とタグ検索 {% endcomment %}
-            <input class="form-control col" type="text" name="q" placeholder="Search" value="{{ request.GET.p }}">
-            <button class="col-auto btn btn-light" type="submit">検索</button>
+            <input class="form-control" type="text" name="q" placeholder="Search" value="{{ request.GET.p }}">
+            <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
         </div>
 
         {% comment %} 検索バー　ここまで {% endcomment %}
     </div>
     {% comment %} チェックボックス {% endcomment %}
-    <div>
+    <div class="mb-3">
         <div class="form-check mb-2">
             <input type="checkbox"
             class="form-check-input" 
@@ -42,10 +42,10 @@
     </div>
     {% comment %} チェックボックス ここまで {% endcomment %}
     {% comment %} しほ：タグでの絞り込み機能追加 {% endcomment %}
-    <span>タグで絞り込み</span><br>
+    <h6>タグで絞り込み</h6>
     {% for tag in all_tags %}
-        <label class="me-2">
-            <input type="checkbox" name="tag" value="{{ tag.id }}"
+        <label class="form-label me-2">
+            <input type="checkbox" class="form-check-input" name="tag" value="{{ tag.id }}"
                 {% if tag.id|stringformat:"s" in selected_tag_ids %}checked{% endif %}>
                 {% comment %}
                 意味：既に選択されているタグなら、チェックを入れる
@@ -59,6 +59,16 @@
         </label>
     {% endfor %}
     </form>
+</div>
+
+{% comment %} 凡例 {% endcomment %}
+<div class="legend-list d-flex justify-content-start gap-3 mt-4">
+    <p><span class="badge bg-warning">作</span>：作成者</p>
+    <p><span class="badge bg-success">受</span>：投票受付中</p>
+    <p><span class="badge bg-info">済</span>：投票済</p>
+    <p><span class="badge bg-secondary">終</span>：受付終了</p>
+</div>
+
 <div class="surveys-list">
     <ul class="list-unstyled">
         {% for survey in survey_list %}
@@ -69,7 +79,7 @@
                     {% comment %} ここでは複数のアンケートに紐づいている全てのタグを表示させるからsurvey.tag_survey.allになる {% endcomment %}
                     <span class="badge bg-secondary">{{ tag.tag_name }}</span>
                     {% empty %}
-                    <span class="text-muted">タグなし</span>
+                    <span class="text-muted"></span><br>
                     {% endfor %}
                 </div>
                 {# 終了：期限切れ or is_open=1（受付終了） #}
@@ -113,9 +123,15 @@
                 {% endif %}
                 {% endif %}
                 {% endif %}
-                <div>
+                <div class="mx-2">
                     {% comment %} <span>23 votes</span> {% endcomment %}
-                    <span>{{survey.end_at}}</span>
+                    <p>投票受付期限：
+                        {% if survey.end_at %}
+                        <span>{{survey.end_at}}</span>
+                        {% else %}
+                        <span>未設定</span>
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </li>
