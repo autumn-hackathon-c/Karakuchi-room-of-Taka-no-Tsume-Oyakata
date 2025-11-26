@@ -13,6 +13,9 @@ ALLOWED_HOSTS = [
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# 静的/メディアを S3 配信すると挙動が重くなる不具合が発生したのでローカルに切り替え
+STATIC_URL = "/static/"
+
 # =========================
 #  DB (RDS)
 # =========================
@@ -61,7 +64,7 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 
 # 署名付きクエリ
-AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_AUTH = False
 
 # 同名アップ時の上書き防止（任意）
 AWS_S3_FILE_OVERWRITE = False
