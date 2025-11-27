@@ -107,7 +107,6 @@ class SurveyListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-    
         user = self.request.user
         # 現在ログイン中のユーザーを取得
         now = timezone.now()
@@ -130,7 +129,6 @@ class SurveyListView(LoginRequiredMixin, ListView):
         # ②バグが起きやすくなる
         # ③実務では段階的に絞るのが基本
         # 実務では変数名を変えての絞り込みは行われない。
-
 
         # しほ：アンケート検索機能
         keyword = self.request.GET.get("q")
