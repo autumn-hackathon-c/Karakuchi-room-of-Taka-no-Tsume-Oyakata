@@ -107,7 +107,6 @@ class SurveyListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        # current_user = self.request.user　←トイトイさんコード
         user = self.request.user
         # 現在ログイン中のユーザーを取得
         now = timezone.now()
@@ -130,14 +129,6 @@ class SurveyListView(LoginRequiredMixin, ListView):
         # ②バグが起きやすくなる
         # ③実務では段階的に絞るのが基本
         # 実務では変数名を変えての絞り込みは行われない。
-        # トイトイさん元コード：
-        # ベース条件：削除されていないもの
-        # base_survey = Survey.objects.filter(is_deleted=False)
-
-        # 公開アンケート or 自分が作ったアンケート（下書き含む）
-        # surveys_with_vote_status = base_survey.filter(
-        #     Q(is_public=True) | Q(user=current_user)
-        # )
 
         # しほ：アンケート検索機能
         keyword = self.request.GET.get("q")
@@ -185,7 +176,11 @@ class SurveyListView(LoginRequiredMixin, ListView):
         # しほ追記：投票受付中のみを絞り込み
         if self.request.GET.get("open_only") == "1":
             # ユーザが投票受付中のみ表示にチェックを入れたかどうか
-            surveys = surveys.filter(start_at__lte=now, end_at__gte=now)
+            # start_at と end_at の両方がnullの場合でも検索できるように設定
+            surveys = surveys.filter(
+                (Q(start_at__lte=now) | Q(start_at__isnull=True)),
+                (Q(end_at__gte=now) | Q(end_at__isnull=True)),
+            )
             # start_atはアンケートモデル(surveys)の開始日時フィールド
             # __lteはDjangoの演算子(<= 現在時刻以下)
             # nowはtimezone.now()を継承している。これは現在日時を取得している
@@ -219,21 +214,6 @@ class SurveyListView(LoginRequiredMixin, ListView):
         return surveys.order_by("-id")
         # order_byは並び順を指定するためのDjangoのクエリセットメソッド
         # -idと書くとidの降順(新しいアンケート順),-をつけない時は古い順になる
-
-        # トイトイrさん：元コード
-        # # 各アンケートに「このユーザーが既に投票しているか」をフラグとして付与する
-        # surveys_with_vote_status = surveys_with_vote_status.annotate(
-        #     has_voted=Exists(
-        #         Vote.objects.filter(
-        #             survey=OuterRef("pk"),  # 対象のアンケートに対応する投票
-        #             user=current_user,  # 現在のログインユーザーによる投票
-        #             is_deleted=False,  # 有効な投票のみ対象
-        #         )
-        #     )
-        # )
-
-        # 投票状況付きのアンケート一覧を新しい順で返す
-        # return surveys_with_vote_status.order_by("-id")
 
 
 # アンケート詳細画面
@@ -748,8 +728,3 @@ def soften_comment(request):
     soft_text = response.choices[0].message.content
 
     return JsonResponse({"soft_text": soft_text})
-
-
-# アンケートの絞り込み
-class SurveyListview(ListView):
-    model = Survey
